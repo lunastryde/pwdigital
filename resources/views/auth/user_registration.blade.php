@@ -24,7 +24,7 @@
     
     <main class="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 py-12">
         <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Create your account</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Creates your account   </h2>
 
             <form action="/register" method="POST" class="space-y-5">
                 @csrf
