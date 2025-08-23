@@ -37,10 +37,10 @@
 
                 <!-- Right: Settings Dropdown -->
                 <div class="relative">
-                    <details class="relative">
 
+                    <details class="relative">
                         <summary class="list-none p-2 rounded-full hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Settings">
-                            <!-- Settings (gear) icon: placeholder SVG. Replace if desired. -->
+                            <!-- Settings (gear) icon: placeholder SVG. -->
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6 text-gray-600">
                                 <circle cx="12" cy="12" r="3.5"></circle>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2M12 19v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M3 12h2M19 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
@@ -69,7 +69,7 @@
                             <div class="border-t border-gray-200 my-1"></div>
 
                             <!-- Log Out -->
-                                <form action="/logout" method="POST">
+                            <form action="/logout" method="POST">
                                 @csrf
                                 <button type="submit" 
                                     class="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 text-left">
@@ -85,21 +85,91 @@
                                     <span class="ml-3">Log Out</span>
                                 </button>
                             </form>
-                            <!-- TODO: Wire up actions with Livewire routes/components when ready. -->
                         </div>
                     </details>
+
+                    <!-- Script for closing dropdown when clicking outside -->
+                    <script>
+                        document.addEventListener('click', function(event) {
+                            document.querySelectorAll('details[open]').forEach(dropdown => {
+                            if (!dropdown.contains(event.target)) {
+                                dropdown.removeAttribute('open');
+                            }
+                            });
+                        });
+                    </script>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Tab Content -->
+    <!-- Tab Contents -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         @if ($tab === 'profile')
             <div class="bg-white shadow rounded-lg p-6">
                 <h2 class="text-lg font-semibold mb-2">Profile</h2>
                 @auth
-                    <p class="text-gray-700">Welcome, <span class="font-semibold">{{ auth()->user()->username }}</span>!</p>
+                    @php
+                        $user = auth()->user();
+                        $fullName = trim(($user->first_name ?? '') . ' ' . ($user->middle_name ?? '') . ' ' . ($user->last_name ?? ''));
+                        if ($fullName === '') {
+                            $fullName = $user->name ?? $user->username ?? '—';
+                        }
+                    @endphp
+
+                    <div class="flex flex-col sm:flex-row gap-6">
+                        <!-- Avatar -->
+                        <div class="flex-shrink-0">
+                            <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-gray-300">
+                                
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900">Welcome back, {{ $fullName }}</h3>
+                            <p class="text-gray-600">Nyahahaha.</p>
+
+                            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="rounded-lg border border-gray-200 p-4">
+                                    <dl class="space-y-2 text-sm">
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">PWD ID</dt>
+                                            <dd class="font-medium text-gray-900">{{ $user->pwd_id ?? '—' }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">Full Name</dt>
+                                            <dd class="font-medium text-gray-900">{{ $fullName }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">Gender</dt>
+                                            <dd class="font-medium text-gray-900">{{ $user->gender ?? '—' }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">Date of Birth</dt>
+                                            <dd class="font-medium text-gray-900">{{ $user->date_of_birth ?? '—' }}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                                <div class="rounded-lg border border-gray-200 p-4">
+                                    <dl class="space-y-2 text-sm">
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">Civil Status</dt>
+                                            <dd class="font-medium text-gray-900">{{ $user->civil_status ?? '—' }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">Type of Disability</dt>
+                                            <dd class="font-medium text-gray-900">{{ $user->disability_type ?? '—' }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">Email</dt>
+                                            <dd class="font-medium text-gray-900">{{ $user->email ?? '—' }}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 @else
                     <p class="text-gray-700">Welcome, Guest</p>
                 @endauth
@@ -107,6 +177,7 @@
 
         @elseif ($tab === 'applications')
             <div class="bg-white shadow rounded-lg p-6">
+
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-lg font-semibold">My Applications</h2>
 
@@ -119,26 +190,26 @@
                                 </svg>
                             </summary>
                             <div class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-                                <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">ID Application</a>
+                                <a href="{{ route('form.id') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">ID Application</a>
                                 <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Financial Assistance</a>
                                 <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Request Assistive Device</a>
                             </div>
                         </details>
                     </div>
                 </div>
-                <p class="text-gray-600 text-sm">Placeholder for applications list (no queries yet).</p>
+                <p class="text-gray-600 text-sm">Placeholder for applications list.</p>
             </div>
 
         @elseif ($tab === 'drafts')
             <div class="bg-white shadow rounded-lg p-6">
                 <h2 class="text-lg font-semibold mb-2">Drafts</h2>
-                <p class="text-gray-600 text-sm">Placeholder for drafts (no queries yet).</p>
+                <p class="text-gray-600 text-sm">Placeholder for drafts.</p>
             </div>
             
         @elseif ($tab === 'notifications')
             <div class="bg-white shadow rounded-lg p-6">
                 <h2 class="text-lg font-semibold mb-2">Notification</h2>
-                <p class="text-gray-600 text-sm">Placeholder for notifications (no queries yet).</p>
+                <p class="text-gray-600 text-sm">Placeholder for notifications.</p>
             </div>
         @endif
     </div>

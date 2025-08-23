@@ -12,6 +12,8 @@ class UserView extends Component
      */
     public string $tab = 'profile';
 
+    protected $queryString = ['tab' => ['except' => 'profile']];
+
     /**
      * Switch active tab.
      */

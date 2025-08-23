@@ -27,9 +27,12 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 
 //User Home
-Route::get('/home/profile', function () {
+Route::get('/home', function () {
     return view('User.user_base');
-})->name('home.profile');
+})->name('home');
 
 //Plus Icon Routes
+Route::get('/form/id', function () {
+    return view('User.user_form');
+})->name('form.id');
 
