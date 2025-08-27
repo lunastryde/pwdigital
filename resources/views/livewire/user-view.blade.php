@@ -111,7 +111,8 @@
                 @auth
                     @php
                         $user = auth()->user();
-                        $fullName = trim(($user->first_name ?? '') . ' ' . ($user->middle_name ?? '') . ' ' . ($user->last_name ?? ''));
+                        $profile = $user->profile ?? null;
+                        $fullName = trim(($profile->fname ?? '') . ' ' . ($profile->mname ?? '') . ' ' . ($profile->lname ?? ''));
                         if ($fullName === '') {
                             $fullName = $user->name ?? $user->username ?? '—';
                         }
@@ -143,7 +144,7 @@
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">Gender</dt>
-                                            <dd class="font-medium text-gray-900">{{ $user->gender ?? '—' }}</dd>
+                                            <dd class="font-medium text-gray-900">{{ $profile->sex ?? '—' }}</dd>
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">Date of Birth</dt>
@@ -190,9 +191,10 @@
                                 </svg>
                             </summary>
                             <div class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-                                <a href="{{ route('form.id') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">ID Application</a>
+                                <a href="{{ route('form.id') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">New ID Application</a>
                                 <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Financial Assistance</a>
                                 <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Request Assistive Device</a>
+                                <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Booklet</a>
                             </div>
                         </details>
                     </div>
