@@ -414,7 +414,13 @@
                         </div>
                     </div>
 
-                    <!-- Submit inside the form (final step) -->
+                    <!-- Physician Name -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700">Physician Name</label>
+                        <input type="text" wire:model.defer="physician_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    </div>
+
+                    <!-- Submit Button-->
                     <div class="flex justify-end">
                         <button type="submit" class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2.5 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             Submit Application
@@ -424,7 +430,7 @@
             </div>
         @endif
 
-        <!-- Bottom Navigation (outside of any form) -->
+        <!-- Bottom Navigation -->
         <div class="mt-4 flex items-center justify-between">
             @if ($step > 1)
                 <button type="button" wire:click="prevStep" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50">

@@ -10,11 +10,13 @@ class FormPersonal extends Model
     use HasFactory;
     
     protected $table = 'form_personal';
+    protected $primaryKey = 'applicant_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
     public $timestamps = false;
 
     protected $fillable = [
-        'applicant_id',
-        'username',
+        'account_id',
         'email',
         'applicant_type',
         'pwd_number',

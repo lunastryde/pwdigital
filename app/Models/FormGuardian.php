@@ -22,6 +22,7 @@ class FormGuardian extends Model
         'spouse_guardian_fname',
         'spouse_guardian_mname',
         'spouse_guardian_lname',
+        'spouse_guardian_contact',
         'physician_name',
     ];
 
