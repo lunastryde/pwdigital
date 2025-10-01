@@ -106,7 +106,7 @@
     <!-- Tab Contents -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         @if ($tab === 'profile')
-            <div class="bg-white shadow rounded-lg p-6">
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
                 <h2 class="text-lg font-semibold mb-2">Profile</h2>
                 @auth
                     @php
@@ -129,7 +129,7 @@
                         <!-- Details -->
                         <div class="flex-1">
                             <h3 class="text-xl font-semibold text-gray-900">Welcome back, {{ $fullName }}</h3>
-                            <p class="text-gray-600">Nyahahaha.</p>
+                            <p class="text-gray-600">PWD.</p>
 
                             <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="rounded-lg border border-gray-200 p-4">
@@ -176,12 +176,14 @@
                 @endauth
             </div>
 
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-lg font-semibold mb-2">Announcements</h2>
+            </div>
+
         @elseif ($tab === 'applications')
             <div class="bg-white shadow rounded-lg p-6">
-
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-lg font-semibold">My Applications</h2>
-
                     <div class="relative">
                         <details class="relative">
                             <summary class="list-none p-2 rounded-full hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Create new application">
@@ -192,14 +194,14 @@
                             </summary>
                             <div class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
                                 <a href="{{ route('form.id') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">New ID Application</a>
-                                <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Financial Assistance</a>
-                                <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Request Assistive Device</a>
-                                <a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Booklet</a>
+                                <a href="{{ route('form.financial') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Financial Assistance</a>
+                                <a href="{{ route('form.device') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Request Assistive Device</a>
+                                <a href="{{ route('form.booklet') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Booklet</a>
                             </div>
                         </details>
                     </div>
                 </div>
-                <p class="text-gray-600 text-sm">Placeholder for applications list.</p>
+                @livewire('user-applications-tab')
             </div>
 
         @elseif ($tab === 'drafts')

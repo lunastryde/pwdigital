@@ -40,6 +40,9 @@
                         required
                         autocomplete="username"
                     />
+                    @error('username')
+                        <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div>

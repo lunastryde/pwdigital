@@ -49,7 +49,7 @@
                             <div class="border-t border-gray-200 my-1"></div>
 
                             <!-- Log Out -->
-                            <form action="/logout" method="POST">
+                            <form action="/staff/logout" method="POST">
                                 @csrf
                                 <button type="submit" class="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 text-left">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
@@ -100,9 +100,27 @@
                 <a wire:click="$set('section','encode')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='encode' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Encode Form</span>
                 </a>
-                <a wire:click="$set('section','admin')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='admin' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
+
+                {{-- @if (auth()->user()->identifier == 1)
+                    <a wire:click="$set('section','admin')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='admin' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
+                        <span>Admin Panel</span>
+                    </a>
+                @endif --}}
+
+                @php
+                    $isAdmin = auth()->user()->identifier == 1;
+                @endphp
+                <a 
+                    @if($isAdmin) 
+                        wire:click="$set('section','admin')" 
+                        href="#" onclick="return false;" 
+                    @endif
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition
+                        {{ $section==='admin' ? 'bg-white/10' : 'hover:bg-white/10' }}
+                        {{ !$isAdmin ? 'opacity-50 cursor-not-allowed' : '' }}">
                     <span>Admin Panel</span>
                 </a>
+
                 <a wire:click="$set('section','survey')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='survey' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Survey</span>
                 </a>
@@ -118,7 +136,15 @@
         <!-- Content (adds padding-top for fixed header) -->
         <div class="pt-14 transition-all duration-200 {{ $sidebarOpen ? 'lg:ml-64' : '' }}">
             <div class="px-3 py-6">
-                @if ($section === 'applications')
+                @if ($section === 'dashboard')
+                    {{-- Dashboard Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Dashboard</h3>
+                        <p class="mt-2 text-gray-700">Welcome to the dashboard.</p>
+                    </div>
+
+                @elseif ($section === 'applications')
+                    {{-- Application Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <h3 class="text-xl font-semibold text-gray-800">Application List</h3>
 
@@ -138,6 +164,10 @@
                                     class="{{ $tabClasses }} {{ $appTab==='loss' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
                                     Loss ID
                                 </button>
+                                <button type="button" wire:click="$set('appTab','booklet')"
+                                    class="{{ $tabClasses }} {{ $appTab==='booklet' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
+                                    Booklet Request
+                                </button>
                                 <button type="button" wire:click="$set('appTab','device')"
                                     class="{{ $tabClasses }} {{ $appTab==='device' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
                                     Request Device
@@ -146,6 +176,7 @@
                                     class="{{ $tabClasses }} {{ $appTab==='financial' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
                                     Financial Request
                                 </button>
+                                
                             </div>
                         </div>
 
@@ -189,7 +220,17 @@
                                                     <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Pending</span>
                                                 </td>
                                                 <td class="px-4 py-3 align-middle">
-                                                    <button type="button" class="text-indigo-600 hover:underline" wire:click="openRequirements({{ $app->applicant_id }})">View Requirements</button>
+                                                    @if($isRequestType)
+                                                        <button type="button" class="text-indigo-600 hover:underline" 
+                                                                wire:click="openRequestDetails({{ $app->request_id }})">
+                                                            View Request Details
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="text-indigo-600 hover:underline" 
+                                                                wire:click="openRequirements({{ $app->applicant_id }})">
+                                                            View Requirements
+                                                        </button>
+                                                    @endif
                                                 </td>
                                                 <td class="px-4 py-3 align-middle">
                                                     <div class="flex items-center gap-2">
@@ -200,7 +241,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">No applications found.</td>
+                                                <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">Work in Progress.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -208,7 +249,51 @@
                             </div>
                         </div>
                     </div>
+
+                @elseif ($section === 'chat')
+                    {{-- Chat Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Chat</h3>
+                        <p class="mt-2 text-gray-700">Messaging system placeholder.</p>
+                    </div>
+
+                @elseif ($section === 'announcements')
+                    {{-- Announcements Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Announcements</h3>
+                        <p class="mt-2 text-gray-700">Announcements placeholder.</p>
+                    </div>
+
+                @elseif ($section === 'encode-form')
+                    {{-- Encode Form Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Encode Form</h3>
+                        <p class="mt-2 text-gray-700">Encode form content placeholder.</p>
+                    </div>
+
+                @elseif ($section === 'admin')
+                    {{-- Admin Panel Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Manage Accounts</h3>
+                        <p class="mt-2 text-gray-700">Manage accounts placeholder.</p>
+                    </div>
+
+                @elseif ($section === 'survey')
+                    {{-- Survey Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Survey</h3>
+                        <p class="mt-2 text-gray-700">Survey placeholder.</p>
+                    </div>
+
+                @elseif ($section === 'report-analytics')
+                    {{-- Report Analytics Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Report Analytics</h3>
+                        <p class="mt-2 text-gray-700">Analytics and reports placeholder.</p>
+                    </div>
+
                 @else
+                    {{-- Default Dashboard--}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <h3 class="text-xl font-semibold text-gray-800">{{ $labels[$section] ?? 'Dashboard' }}</h3>
                         <p class="mt-2 text-gray-700">This is {{ $labels[$section] ?? 'Dashboard' }}</p>

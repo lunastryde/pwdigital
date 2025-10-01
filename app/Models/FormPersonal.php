@@ -64,4 +64,9 @@ class FormPersonal extends Model
     {
         return $this->hasOne(FormGuardian::class, 'applicant_id', 'applicant_id');
     }
+
+    public function files()
+    {
+        return $this->hasOne(FormFile::class, 'applicant_id', 'applicant_id');
+    }
 }

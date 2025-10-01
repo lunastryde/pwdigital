@@ -3,15 +3,18 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use App\Models\FormPersonal;
 use App\Models\FormOccupation;
 use App\Models\FormOi;
 use App\Models\FormRefnos;
 use App\Models\FormGuardian;
+use App\Models\FormFile;
 
 class UserForm extends Component
 {
+    use WithFileUploads;
     /**
      * Current step of the form (1-based).
      */
@@ -86,8 +89,20 @@ class UserForm extends Component
     public string $spouse_first = '';
     public string $spouse_middle = '';
     public string $spouse_contact = '';
+
     // Physician
     public string $physician_name = '';
+
+    // File upload properties
+    public $uploadedFiles = [];
+    public $fileRecord = null;
+    public $files = [
+        'id_picture' => null,
+        'psa' => null,
+        'cert_of_disability' => null,
+        'med_cert' => null,
+        'endorsement_letter' => null
+    ];
 
     /**
      * Go to next step (no validation yet; purely UI).
@@ -107,6 +122,62 @@ class UserForm extends Component
         if ($this->step > 1) {
             $this->step--;
         }
+    }
+
+    public function validateFile($file)
+    {
+        $maxSize = 10 * 1024 * 1024; // 10MB
+        $allowedTypes = [
+            'application/pdf', 
+            'application/msword', 
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+            'image/jpeg', 
+            'image/jpg', 
+            'image/png'
+        ];
+        
+        return $file->getSize() <= $maxSize && in_array($file->getMimeType(), $allowedTypes);
+    }
+
+    public function formatFileSize($bytes)
+    {
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        }
+        return $bytes . ' bytes';
+    }
+
+    public function getUploadedCount()
+    {
+        return count(array_filter($this->files));
+    }
+
+    public function allFilesUploaded()
+    {
+        return $this->getUploadedCount() === 5;
+    }
+
+    public function getMissingFilesCount()
+    {
+        return 5 - $this->getUploadedCount();
+    }
+
+    public function removeFile($fileType)
+    {
+        $this->files[$fileType] = null;
+    }
+
+    protected function rules()
+    {
+        return [
+            'files.id_picture' => 'nullable|file|max:10240|mimes:jpg,jpeg,png',
+            'files.psa' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'files.cert_of_disability' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'files.med_cert' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'files.endorsement_letter' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
+        ];
     }
 
     /**
@@ -134,7 +205,6 @@ class UserForm extends Component
 
         $account = Auth::user();
         if (!$account) {
-            // If unauthenticated, just stop silently (or throw). For now, we throw a simple error.
             $this->addError('auth', 'You must be logged in to submit an application.');
             return;
         }
@@ -235,6 +305,43 @@ class UserForm extends Component
             'spouse_guardian_contact' => $this->spouse_contact ?: null,
             'physician_name'        => $this->physician_name ?: null,
         ]);
+
+        // 6) Save uploaded files
+        if (!empty(array_filter($this->files))) {
+            $fileRecord = FormFile::create([
+                'applicant_id' => $personal->applicant_id,
+                'status' => 'incomplete'
+            ]);
+
+            $fileMetadata = [];
+            $storagePath = 'form-documents/' . $personal->applicant_id;
+
+            foreach ($this->files as $fileType => $file) {
+                if ($file) {
+                    $fileName = $fileType . '_' . time() . '_' . $file->getClientOriginalName();
+                    $filePath = $file->storeAs($storagePath, $fileName, 'public');
+                    
+                    $fileRecord->$fileType = $filePath;
+                    
+                    $fileMetadata[$fileType] = [
+                        'original_name' => $file->getClientOriginalName(),
+                        'size' => $file->getSize(),
+                        'mime_type' => $file->getMimeType(),
+                        'extension' => $file->getClientOriginalExtension(),
+                        'uploaded_at' => now()->toISOString(),
+                    ];
+                }
+            }
+
+            $fileRecord->file_metadata = $fileMetadata;
+            
+            if ($fileRecord->isComplete()) {
+                $fileRecord->status = 'pending';
+                $fileRecord->submitted_at = now();
+            }
+
+            $fileRecord->save();
+        }
 
         // Optional: flash a success message and reset to step 1
         session()->flash('status', 'Application submitted successfully.');

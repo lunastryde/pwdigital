@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\FormPersonal;
+use App\Models\FormRequest;
 
 class StaffView extends Component
 {
@@ -14,6 +15,11 @@ class StaffView extends Component
     public function openRequirements(int $applicantId): void
     {
         $this->dispatch('open-requirements', id: $applicantId);
+    }
+
+    public function openRequestDetails(int $requestId): void
+    {
+        $this->dispatch('open-request-details', id: $requestId);
     }
 
     public function render()
@@ -34,8 +40,25 @@ class StaffView extends Component
                 ->get();
         }
 
+        else {
+            $requestMap = [
+                'device' => 'Request Device',
+                'financial' => 'Financial Request',
+                'booklet' => 'Booklet',
+            ];
+            $requestType = $requestMap[$this->appTab] ?? null;
+            
+            if ($requestType) {
+                $applications = FormRequest::with(['applicant'])
+                    ->where('request_type', $requestType)
+                    ->orderByDesc('date_requested')
+                    ->get();
+            }
+        }
+
         return view('livewire.staff-view', [
             'applications' => $applications,
+            'isRequestType' => in_array($this->appTab, ['device', 'financial', 'booklet']),
         ]);
     }
 }

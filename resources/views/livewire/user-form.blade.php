@@ -77,16 +77,16 @@
                                 <span class="block text-sm font-medium text-gray-700 mb-2">Civil Status</span>
                                 <div class="flex flex-wrap gap-6 text-sm text-gray-700">
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="Single" wire:model.defer="civil_status"> Single
+                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Single" wire:model.defer="civil_status"> Single
                                     </label>
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="Married" wire:model.defer="civil_status"> Married
+                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Married" wire:model.defer="civil_status"> Married
                                     </label>
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="Separated" wire:model.defer="civil_status"> Separated
+                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Separated" wire:model.defer="civil_status"> Separated
                                     </label>
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="Divorced" wire:model.defer="civil_status"> Divorced
+                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Divorced" wire:model.defer="civil_status"> Divorced
                                     </label>
                                 </div>
                             </div>
@@ -96,10 +96,10 @@
                                 <span class="block text-sm font-medium text-gray-700 mb-2">Gender</span>
                                 <div class="flex flex-wrap gap-6 text-sm text-gray-700">
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="Male" wire:model.defer="gender"> Male
+                                        <input type="radio" name="gender" class="accent-blue-600" value="Male" wire:model.defer="gender"> Male
                                     </label>
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="Female" wire:model.defer="gender"> Female
+                                        <input type="radio" name="gender" class="accent-blue-600" value="Female" wire:model.defer="gender"> Female
                                     </label>
                                     <label class="inline-flex items-center gap-2">
                                         <input type="radio" class="accent-blue-600" value="Others" wire:model.defer="gender"> Others
@@ -419,6 +419,290 @@
                         <label class="block text-sm font-medium text-gray-700">Physician Name</label>
                         <input type="text" wire:model.defer="physician_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                     </div>
+
+                    <!-- File Upload Section -->
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Supporting Documents</h3>
+                        <p class="text-sm text-gray-600 mb-6">Please upload all required documents. Maximum file size: 10MB each.</p>
+                        
+                        <!-- Progress Bar -->
+                        <div class="mb-6">
+                            <div class="flex justify-between text-sm font-medium text-gray-700 mb-2">
+                                <span>Upload Progress</span>
+                                <span>{{ $this->getUploadedCount() }} of 5 files uploaded</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ ($this->getUploadedCount() / 5) * 100 }}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- 1x1 ID Picture -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-medium text-gray-900">1x1 ID Picture</h4>
+                                    <span class="text-xs text-gray-500">JPG, JPEG, PNG only</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer {{ $files['id_picture'] ? 'border-blue-400 bg-blue-50' : '' }}"
+                                        onclick="document.getElementById('id_picture_input').click()">
+                                        @if(!$files['id_picture'])
+                                            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                            <p class="text-sm text-gray-600">Click to upload</p>
+                                        @else
+                                            <div class="text-green-600">
+                                                <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="text-sm">Uploaded successfully</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if($files['id_picture'])
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">{{ $files['id_picture']->getClientOriginalName() }}</p>
+                                                </div>
+                                            </div>
+                                            <button type="button" wire:click="removeFile('id_picture')" class="text-red-400 hover:text-red-600">
+                                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                <input type="file" id="id_picture_input" wire:model="files.id_picture" accept="image/*" class="hidden">
+                            </div>
+
+                            <!-- PSA Birth Certificate -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-medium text-gray-900">PSA Birth Certificate</h4>
+                                    <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors cursor-pointer {{ $files['psa'] ? 'border-green-400 bg-green-50' : '' }}"
+                                        onclick="document.getElementById('psa_input').click()">
+                                        @if(!$files['psa'])
+                                            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <p class="text-sm text-gray-600">Click to upload</p>
+                                        @else
+                                            <div class="text-green-600">
+                                                <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="text-sm">Uploaded successfully</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if($files['psa'])
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">{{ $files['psa']->getClientOriginalName() }}</p>
+                                                </div>
+                                            </div>
+                                            <button type="button" wire:click="removeFile('psa')" class="text-red-400 hover:text-red-600">
+                                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                <input type="file" id="psa_input" wire:model="files.psa" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden">
+                            </div>
+
+                            <!-- Certificate of Disability -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-medium text-gray-900">Certificate of Disability</h4>
+                                    <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors cursor-pointer {{ $files['cert_of_disability'] ? 'border-purple-400 bg-purple-50' : '' }}"
+                                        onclick="document.getElementById('cert_of_disability_input').click()">
+                                        @if(!$files['cert_of_disability'])
+                                            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                            </svg>
+                                            <p class="text-sm text-gray-600">Click to upload</p>
+                                        @else
+                                            <div class="text-green-600">
+                                                <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="text-sm">Uploaded successfully</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if($files['cert_of_disability'])
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="h-5 w-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">{{ $files['cert_of_disability']->getClientOriginalName() }}</p>
+                                                </div>
+                                            </div>
+                                            <button type="button" wire:click="removeFile('cert_of_disability')" class="text-red-400 hover:text-red-600">
+                                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                <input type="file" id="cert_of_disability_input" wire:model="files.cert_of_disability" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden">
+                            </div>
+
+                            <!-- Medical Certificate -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-medium text-gray-900">Medical Certificate</h4>
+                                    <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-red-400 transition-colors cursor-pointer {{ $files['med_cert'] ? 'border-red-400 bg-red-50' : '' }}"
+                                        onclick="document.getElementById('med_cert_input').click()">
+                                        @if(!$files['med_cert'])
+                                            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                            </svg>
+                                            <p class="text-sm text-gray-600">Click to upload</p>
+                                        @else
+                                            <div class="text-green-600">
+                                                <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="text-sm">Uploaded successfully</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if($files['med_cert'])
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">{{ $files['med_cert']->getClientOriginalName() }}</p>
+                                                </div>
+                                            </div>
+                                            <button type="button" wire:click="removeFile('med_cert')" class="text-red-400 hover:text-red-600">
+                                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                <input type="file" id="med_cert_input" wire:model="files.med_cert" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden">
+                            </div>
+
+                            <!-- Endorsement Letter -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-medium text-gray-900">Endorsement Letter</h4>
+                                    <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-yellow-400 transition-colors cursor-pointer {{ $files['endorsement_letter'] ? 'border-yellow-400 bg-yellow-50' : '' }}"
+                                        onclick="document.getElementById('endorsement_letter_input').click()">
+                                        @if(!$files['endorsement_letter'])
+                                            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                            <p class="text-sm text-gray-600">Click to upload</p>
+                                        @else
+                                            <div class="text-green-600">
+                                                <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="text-sm">Uploaded successfully</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if($files['endorsement_letter'])
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="h-5 w-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">{{ $files['endorsement_letter']->getClientOriginalName() }}</p>
+                                                </div>
+                                            </div>
+                                            <button type="button" wire:click="removeFile('endorsement_letter')" class="text-red-400 hover:text-red-600">
+                                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                <input type="file" id="endorsement_letter_input" wire:model="files.endorsement_letter" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="hidden">
+                            </div>
+                        </div>
+
+                        <!-- Upload Summary -->
+                        <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $this->allFilesUploaded() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                        @if($this->allFilesUploaded())
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                All documents uploaded
+                                            </div>
+                                        @else
+                                            <div class="flex items-center">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span>{{ $this->getMissingFilesCount() }} documents remaining</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    Please ensure all documents are clear and readable
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                                        
+
 
                     <!-- Submit Button-->
                     <div class="flex justify-end">

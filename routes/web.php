@@ -8,6 +8,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// ============================================================
+//    =================  Authentication   =================
+// ============================================================
 
 //Register
 Route::get('/register', function () {
@@ -37,17 +40,44 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/staff/logout', [AdminAuthController::class, 'logout']);
 
 
-//User Home
+// ============================================================
+//     ================  User Routes   =================
+// ============================================================
+
+// User Home
 Route::get('/home', function () {
     return view('User.user_base');
 })->name('home');
 
-//User Plus Icon Routes
+// ============================================================
+//  ================  User Plus Icon Routes   ===============
+// ============================================================
+
+// ID Application
 Route::get('/form/id', function () {
     return view('User.user_form');
 })->name('form.id');
 
-//Admin Home    
+// Financial Assistance
+Route::get('/form/financial', function () {
+    return view('User.user_request_form');
+})->name('form.financial');
+
+// Assistive Device
+Route::get('/form/device', function () {
+    return view('User.user_request_form');
+})->name('form.device');
+
+// Booklet
+Route::get('/form/booklet', function () {
+    return view('User.user_request_form');
+})->name('form.booklet');
+
+// ============================================================
+//    =================  Admin Routes    =================
+// ============================================================
+
+// Admin Home   
 Route::get('/staff/home', function () {
     return view('Staff.staff_base');
 })->name('staff.home');

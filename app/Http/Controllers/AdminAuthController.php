@@ -15,10 +15,21 @@ class AdminAuthController extends Controller
             'username' => 'required',
             'password' => 'required'
         ]);
-
+    
         if (auth()->attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('staff.home');
+            $user = auth()->user();
+    
+            // Only allow identifier 1 or 2
+            if (in_array($user->identifier, [1, 2])) {
+                $request->session()->regenerate();
+                return redirect()->route('staff.home');
+            }
+    
+            // If identifier is not allowed, logout and throw error
+            auth()->logout();
+            return back()->withErrors([
+                'username' => 'You are not authorized to access this system.',
+            ]);
         }
     
         return back()->withErrors([

@@ -30,7 +30,6 @@ class AuthController extends Controller
             'role' => 'user'
         ]);
 
-        // Create profile via relation to guarantee account_id is set correctly
         $user->profile()->create([
             'fname' => $incomingData['first_name'],
             'mname' => $incomingData['middle_name'] ?? null,
@@ -39,24 +38,28 @@ class AuthController extends Controller
             'sex' => $incomingData['sex'],
         ]);
 
-        //$incomingData['password'] = bcrypt($incomingData['password']);
-        //$incomingData['identifier'] = 3;
-        //$incomingData['role'] = 'user';
-        //User::create($incomingData);
-
         return redirect()->route('login')->with('status', 'Account created. Please sign in.');
     }
 
-    public function login(Request $request)
+    public function login(Request $request) 
     {
         $credentials = $request->validate([
             'username' => 'required',
             'password' => 'required'
         ]);
-
+    
         if (auth()->attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('home');
+            $user = auth()->user();
+
+            if ($user->identifier == 3) {
+                $request->session()->regenerate();
+                return redirect()->route('home');
+            }
+            
+            auth()->logout();
+            return back()->withErrors([
+                'username' => 'You are not authorized to access this system.',
+            ]);
         }
     
         return back()->withErrors([
