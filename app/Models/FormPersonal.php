@@ -40,8 +40,10 @@ class FormPersonal extends Model
         'landline_no',
         'contact_no',
         'educ_attainment',
+        'status',
         'reviewed_by',
         'reviewed_on',
+        'remarks',
     ];
 
     // Relationships

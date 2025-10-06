@@ -225,7 +225,8 @@ class UserForm extends Component
             'email'          => $this->email ?: ($account->email ?? ''),
 
             // Meta
-            'applicant_type' => 'ID Application',         // default muna babaguhin pa sa sunod
+            'status'         => 'Pending',
+            'applicant_type' => 'ID Application',
             'pwd_number'     => $pwdNumber,
             'date_applied'   => now(),
 
