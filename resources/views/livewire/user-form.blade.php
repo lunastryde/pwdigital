@@ -715,6 +715,14 @@
         @endif
 
         <!-- Bottom Navigation -->
+         <script>
+            document.addEventListener('livewire:initialized', () => {
+                Livewire.on('scroll-to-top', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        </script>
+
         <div class="mt-4 flex items-center justify-between">
             @if ($step > 1)
                 <button type="button" wire:click="prevStep" class="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50">

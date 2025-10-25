@@ -112,6 +112,7 @@ class UserForm extends Component
         if ($this->step < 3) {
             $this->step++;
         }
+        $this->dispatch('scroll-to-top');
     }
 
     /**
@@ -122,6 +123,7 @@ class UserForm extends Component
         if ($this->step > 1) {
             $this->step--;
         }
+        $this->dispatch('scroll-to-top');
     }
 
     public function validateFile($file)
@@ -228,7 +230,7 @@ class UserForm extends Component
             'status'         => 'Pending',
             'applicant_type' => 'ID Application',
             'pwd_number'     => $pwdNumber,
-            'date_applied'   => now(),
+            'submitted_at'   => now(),
 
             // Personal details
             'fname'          => $this->first_name,

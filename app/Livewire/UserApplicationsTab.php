@@ -9,6 +9,18 @@ use App\Models\FormRequest;
 
 class UserApplicationsTab extends Component
 {
+    // In UserApplicationTab.php
+    public function openDetails($applicantId, $type)
+    {
+        if ($type === 'request') {
+            // Dispatch to RequestModal
+            $this->dispatch('open-request-details', id: $applicantId);
+        } else {
+            // Dispatch to RequirementModal
+            $this->dispatch('open-requirements', id: $applicantId);
+        }
+    }
+
     public function render()
     {
         $userId = Auth::id();
@@ -18,8 +30,9 @@ class UserApplicationsTab extends Component
             ->get()
             ->map(function ($app) {
                 return (object) [
+                    'id' => $app->applicant_id,  // ✅ ADD THIS
                     'type' => $app->applicant_type ?? 'ID Application',
-                    'date' => $app->date_applied,
+                    'date' => $app->submitted_at,
                     'status' => $app->status ?? 'pending',
                     'source' => 'personal',
                 ];
@@ -33,6 +46,7 @@ class UserApplicationsTab extends Component
             ->get()
             ->map(function ($req) {
                 return (object) [
+                    'id' => $req->request_id,  // ✅ ADD THIS
                     'type' => ucfirst($req->request_type) . ' Request',
                     'date' => $req->submitted_at ?? $req->created_at,
                     'status' => $req->status ?? 'pending',

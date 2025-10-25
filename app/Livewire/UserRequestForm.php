@@ -104,7 +104,7 @@ class UserRequestForm extends Component
             $formRequest = \App\Models\FormRequest::create([
                 'applicant_id' => $personal->applicant_id,
                 'request_type' => $this->requestType,
-                'status' => 'pending',
+                'status' => 'Pending',
                 'submitted_at' => now(),
             ]);
 

@@ -20,7 +20,6 @@ class FormPersonal extends Model
         'email',
         'applicant_type',
         'pwd_number',
-        'date_applied',
         'fname',
         'mname',
         'lname',
@@ -41,8 +40,10 @@ class FormPersonal extends Model
         'contact_no',
         'educ_attainment',
         'status',
+        'submitted_at',
         'reviewed_by',
-        'reviewed_on',
+        'reviewed_at',
+        'date_issued',
         'remarks',
     ];
 

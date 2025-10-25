@@ -1,5 +1,4 @@
 <div class="bg-white rounded-2xl shadow p-6">
-
     <div class="mt-6 overflow-x-auto">
         <div class="min-w-[600px] rounded-lg ring-1 ring-gray-200">
             <table class="w-full text-sm">
@@ -8,7 +7,7 @@
                         <th class="px-8 py-2 text-left rounded-tl-lg">Application Type</th>
                         <th class="px-8 py-2 text-left">Date Applied</th>
                         <th class="px-8 py-2 text-left">Status</th>
-                        <th class="px-8 py-2 text-left rounded-tr-lg">Actions</th>
+                        <th class="px-13 py-2 text-left rounded-tr-lg">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -36,9 +35,25 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
-                                <button type="button" class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">
-                                    View Details
-                                </button>
+                                @if($app->source === 'request')
+                                    <button type="button" 
+                                            wire:click="$dispatch('open-request-details', { id: {{ $app->id }} })"
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-semibold rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                        <svg class="w-4 h-4 mr-1 -ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        View Document
+                                    </button>
+                                @else
+                                    <button type="button"
+                                            wire:click="$dispatch('open-requirements', { id: {{ $app->id }} })"
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-semibold rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                        <svg class="w-4 h-4 mr-1 -ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        View Document
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -52,4 +67,6 @@
             </table>
         </div>
     </div>
+    @livewire('requirement-modal')
+    @livewire('request-modal')
 </div>

@@ -10,7 +10,7 @@
 
     <header class="relative w-full h-25 bg-blue-600 flex items-center justify-center">
         <div class="absolute top-2 left-4 z-10">
-            <img src="{{ asset('images/pdao_logo.jpg') }}" 
+            <img src="{{ asset('images/pdao_logo.png') }}" 
                 alt="PWD Office Logo" 
                 class="w-25 h-25 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg">
         </div>
@@ -25,7 +25,7 @@
     <main class="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 py-12">
         <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
             <div class="flex justify-center mb-6">
-                <img src="{{ asset('images/pdao_logo.jpg') }}" 
+                <img src="{{ asset('images/pdao_logo.png') }}" 
                      alt="PWD Office Logo" 
                      class="w-40 h-40 rounded-full border-4 border-white shadow-lg">
             </div>

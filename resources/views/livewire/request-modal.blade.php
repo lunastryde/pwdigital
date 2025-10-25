@@ -10,7 +10,7 @@
             <div class="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
                 <div>
                     <h3 class="text-xl font-semibold text-gray-900">Request Details</h3>
-                    <p class="text-sm text-gray-600 mt-1">Request ID: {{ $request->id }}</p>
+                    <p class="text-sm text-gray-600 mt-1">Request ID: {{ $selectedId }}</p>
                 </div>
                 <button type="button" class="text-gray-400 hover:text-gray-600 p-2" wire:click="close">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

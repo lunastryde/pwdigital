@@ -11,6 +11,7 @@
                 'announcements' => 'Announcements',
                 'encode' => 'Encode Form',
                 'admin' => 'Admin Panel',
+                'released' => 'Released ID',
                 'survey' => 'Survey',
                 'reports' => 'Report & Analytics',
             ];
@@ -80,7 +81,7 @@
         <aside class="fixed top-0 bottom-0 left-0 z-40 w-64 bg-gray-900 text-gray-100 border-r border-white/10 overflow-y-auto {{ $sidebarOpen ? 'block' : 'hidden' }}">
             <div class="h-16 hidden lg:flex items-center px-4 border-b border-white/10">
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/pdao_logo.jpg') }}" alt="Logo" class="w-10 h-10 rounded-full border-2 border-white/30">
+                    <img src="{{ asset('images/pdao_logo.png') }}" alt="Logo" class="w-10 h-10 rounded-full border-2 border-white/30">
                     <span class="font-semibold tracking-wide">PDAO</span>
                 </div>
             </div>
@@ -121,6 +122,9 @@
                     <span>Admin Panel</span>
                 </a>
 
+                <a wire:click="$set('section','released')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='released' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
+                    <span>Released ID</span>
+                </a>
                 <a wire:click="$set('section','survey')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='survey' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Survey</span>
                 </a>
@@ -216,20 +220,34 @@
                                                 <td class="px-4 py-3 align-middle text-gray-600">—</td>
                                                 <td class="px-4 py-3 align-middle text-gray-600">
                                                     @php
-                                                        // CORRECTED: Use 'submitted_at' for request types, and 'date_applied' for others.
-                                                        $dateString = $isRequestType ? $app->submitted_at : $app->date_applied;
+                                                        // This now correctly uses 'submitted_at' for all types.
+                                                        $dateString = $app->submitted_at;
                                                         try { $dt = \Illuminate\Support\Carbon::parse($dateString); } catch (\Throwable $e) { $dt = null; }
                                                     @endphp
                                                     {{ $dt ? $dt->format('m-d-y') : '—' }}
                                                 </td>
                                                 <td class="px-4 py-3 align-middle">
-                                                    <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Pending</span>
+                                                    {{-- DYNAMIC STATUS BADGE --}}
+                                                    @php
+                                                        $status = $app->status ?? 'Pending';
+                                                        $statusClass = 'inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full';
+                                                        if ($status === 'Pending') {
+                                                            $statusClass .= ' bg-yellow-100 text-yellow-800';
+                                                        } elseif ($status === 'Awaiting Admin Approval') {
+                                                            $statusClass .= ' bg-blue-100 text-blue-800';
+                                                        } elseif ($status === 'Finalized') {
+                                                            $statusClass .= ' bg-green-100 text-green-800';
+                                                        } elseif ($status === 'Rejected' || $status === 'Needs Revision') {
+                                                            $statusClass .= ' bg-red-100 text-red-800';
+                                                        }
+                                                    @endphp
+                                                    <span class="{{ $statusClass }}">{{ $status }}</span>
                                                 </td>
                                                 <td class="px-4 py-3 align-middle">
                                                     @if ($isRequestType)
                                                         <button type="button" class="text-indigo-600 hover:underline"
                                                             wire:click="openRequestDetails({{ $app->request_id }})">
-                                                            View Request Details
+                                                            View Details
                                                         </button>
                                                     @else
                                                         <button type="button" class="text-indigo-600 hover:underline"
@@ -239,36 +257,33 @@
                                                     @endif
                                                 </td>
                                                 <td class="px-4 py-3 align-middle">
+                                                    {{-- DYNAMIC ACTION BUTTONS --}}
                                                     <div class="flex items-center gap-2">
-                                                        @if (auth()->user()->identifier == 2)
-                                                            {{-- Staff --}}
-                                                            <button type="button" 
-                                                                wire:click="acceptApplication({{ $app->applicant_id }})"
-                                                                wire:loading.attr="disabled"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">
-                                                                Accept
-                                                            </button>
-                                                        @elseif (auth()->user()->identifier == 1)
-                                                            {{-- Admin --}}
-                                                            <button type="button" 
-                                                                wire:click="finalizeApplication({{ $app->applicant_id }})"
-                                                                wire:loading.attr="disabled"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">
-                                                                Finalize
-                                                            </button>
+                                                        @if ($isRequestType)
+                                                            {{-- Buttons for Requests --}}
+                                                            @if (auth()->user()->identifier == 1) {{-- Admin --}}
+                                                                @if ($app->status === 'Finalized')
+                                                                    <button type="button" wire:click="$dispatch('open-id-preview', {{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-purple-500 text-white hover:bg-purple-600">Preview/Release ID</button>
+                                                                @else
+                                                                    <button type="button" wire:click="finalizeRequest({{ $app->request_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">Finalize</button>
+                                                                @endif
+                                                            @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
+                                                                <button type="button" wire:click="acceptRequest({{ $app->request_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">Accept</button>
+                                                            @endif
+                                                            <button type="button" onclick="const remark = prompt('Reason for rejection:'); if (remark) { @this.call('rejectRequest', {{ $app->request_id }}, remark) }" class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">Reject</button>
+                                                        @else
+                                                            {{-- Buttons for Personal Applications --}}
+                                                            @if (auth()->user()->identifier == 1) {{-- Admin --}}
+                                                                @if ($app->status === 'Finalized')
+                                                                    <button type="button" wire:click="$dispatch('open-id-preview', {{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-purple-500 text-white hover:bg-purple-600">Preview/Release ID</button>
+                                                                @else
+                                                                    <button type="button" wire:click="finalizeApplication({{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">Finalize</button>
+                                                                @endif
+                                                            @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
+                                                                <button type="button" wire:click="acceptApplication({{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">Accept</button>
+                                                            @endif
+                                                            <button type="button" onclick="const remark = prompt('Reason for rejection:'); if (remark) { @this.call('rejectApplication', {{ $app->applicant_id }}, remark) }" class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">Reject</button>
                                                         @endif
-
-                                                        <button type="button"
-                                                                onclick="
-                                                                    const remark = prompt('Please enter the reason for rejection:');
-                                                                    if (remark) {
-                                                                        @this.call('rejectApplication', {{ $app->applicant_id }}, remark)
-                                                                    }
-                                                                "
-                                                                wire:loading.attr="disabled"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
-                                                            Reject
-                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -282,7 +297,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
+                        </div>  
                     </div>
 
                 @elseif ($section === 'chat')
@@ -296,7 +311,7 @@
                     {{-- Announcements Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <h3 class="text-xl font-semibold text-gray-800">Announcements</h3>
-                        <p class="mt-2 text-gray-700">Announcements placeholder.</p>
+                        <livewire:announcement-manager />
                     </div>
 
                 @elseif ($section === 'encode-form')
@@ -310,6 +325,12 @@
                     {{-- Admin Panel Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <livewire:admin-accounts />
+                    </div>
+                
+                @elseif ($section === 'released')
+                    {{-- Released Tab --}}
+                    <div class="bg-white rounded-2xl shadow p-6">
+                        <livewire:id-released />
                     </div>
 
                 @elseif ($section === 'survey')
@@ -337,5 +358,7 @@
         </div>
         @livewire('request-modal')
         @livewire('requirement-modal')
+        @livewire('rejection-modal')
+        @livewire('id-preview')
     </div>
 </div>

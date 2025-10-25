@@ -21,20 +21,15 @@ class FormRequest extends Model
         'request_type',      // device, booklet, financial, etc.
         'status',            // pending, approved, rejected, released
         'reviewed_by',       // staff/admin user id
-        'reviewed_on',
+        'reviewed_at',
         'submitted_at',
+        'remarks',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
-        'reviewed_on'  => 'datetime',
+        'reviewed_at'  => 'datetime',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships
-    |--------------------------------------------------------------------------
-    */
 
     public function applicant()
     {
@@ -56,11 +51,4 @@ class FormRequest extends Model
     {
         return $this->hasOne(FormRequestFinancial::class, 'request_id', 'request_id');
     }
-
-
-    // Reviewed by (staff/admin user)
-    // public function reviewer()
-    // {
-    //     return $this->belongsTo(User::class, 'reviewed_by');
-    // }
 }

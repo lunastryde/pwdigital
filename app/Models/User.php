@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Profile::class, 'account_id', 'id');
     }
+
+    public function announcements()
+    {
+        return $this->hasMany(Announcement::class, 'account_id', 'id');
+    }
 }

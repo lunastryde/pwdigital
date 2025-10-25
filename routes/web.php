@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\PrintIDController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -81,3 +82,7 @@ Route::get('/form/booklet', function () {
 Route::get('/staff/home', function () {
     return view('Staff.staff_base');
 })->name('staff.home');
+
+// ID Preview
+Route::get('/admin/form-personal/{id}/print', [PrintIdController::class, 'print'])
+    ->name('admin.form_personal.print');

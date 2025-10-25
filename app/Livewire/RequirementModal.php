@@ -12,6 +12,8 @@ class RequirementModal extends Component
     public bool $open = false;
     public ?int $selectedId = null;
 
+    protected $listeners = ['open-requirement-modal' => 'openModal'];
+
     #[On('open-requirements')]
     public function open(int $id): void
     {
