@@ -393,7 +393,7 @@
                                 <input type="text" wire:model.defer="father_last" class="rounded-md border border-gray-300 px-3 py-2" />
                                 <input type="text" wire:model.defer="father_first" class="rounded-md border border-gray-300 px-3 py-2" />
                                 <input type="text" wire:model.defer="father_middle" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <div class="text-center text-gray-400">—</div>
+                                <input type="text" wire:model.defer="father_contact" class="rounded-md border border-gray-300 px-3 py-2" />
                             </div>
                             <!-- Mother row -->
                             <div class="grid grid-cols-5 gap-3 items-center mb-3">
@@ -401,7 +401,7 @@
                                 <input type="text" wire:model.defer="mother_last" class="rounded-md border border-gray-300 px-3 py-2" />
                                 <input type="text" wire:model.defer="mother_first" class="rounded-md border border-gray-300 px-3 py-2" />
                                 <input type="text" wire:model.defer="mother_middle" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <div class="text-center text-gray-400">—</div>
+                                <input type="text" wire:model.defer="mother_contact" class="rounded-md border border-gray-300 px-3 py-2" />
                             </div>
                             <!-- Spouse / Guardian row (with contact field) -->
                             <div class="grid grid-cols-5 gap-3 items-center">

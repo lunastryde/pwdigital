@@ -80,10 +80,12 @@ class UserForm extends Component
     public string $father_last = '';
     public string $father_first = '';
     public string $father_middle = '';
+    public string $father_contact = '';
 
     public string $mother_last = '';
     public string $mother_first = '';
     public string $mother_middle = '';
+    public string $mother_contact = '';
 
     public string $spouse_last = '';
     public string $spouse_first = '';
@@ -299,9 +301,11 @@ class UserForm extends Component
             'mother_lname'          => $this->mother_last ?: null,
             'mother_fname'          => $this->mother_first ?: null,
             'mother_mname'          => $this->mother_middle ?: null,
+            'mother_contact'        => $this->mother_contact ?: null,
             'father_lname'          => $this->father_last ?: null,
             'father_fname'          => $this->father_first ?: null,
             'father_mname'          => $this->father_middle ?: null,
+            'father_contact'        => $this->father_contact ?: null,
             'spouse_guardian_lname' => $this->spouse_last ?: null,
             'spouse_guardian_fname' => $this->spouse_first ?: null,
             'spouse_guardian_mname' => $this->spouse_middle ?: null,

@@ -157,8 +157,16 @@
                                         <div class="text-base text-gray-900">{{ optional($application->guardian)->mother_lname ? (optional($application->guardian)->mother_lname . ', ') : '' }}{{ optional($application->guardian)->mother_fname }} {{ optional($application->guardian)->mother_mname }}</div>
                                     </div>
                                     <div class="space-y-1">
+                                        <div class="text-sm text-gray-500 font-medium">Mother Contact</div>
+                                        <div class="text-base text-gray-900">{{ optional($application->guardian)->mother_contact ?? '—' }}</div>
+                                    </div>
+                                    <div class="space-y-1">
                                         <div class="text-sm text-gray-500 font-medium">Father</div>
                                         <div class="text-base text-gray-900">{{ optional($application->guardian)->father_lname ? (optional($application->guardian)->father_lname . ', ') : '' }}{{ optional($application->guardian)->father_fname }} {{ optional($application->guardian)->father_mname }}</div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="text-sm text-gray-500 font-medium">Father Contact</div>
+                                        <div class="text-base text-gray-900">{{ optional($application->guardian)->father_contact ?? '—' }}</div>
                                     </div>
                                     <div class="space-y-1">
                                         <div class="text-sm text-gray-500 font-medium">Spouse / Guardian</div>
