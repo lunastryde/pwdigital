@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\PrintIDController;
+use App\Http\Controllers\ReportsExportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -86,3 +87,5 @@ Route::get('/staff/home', function () {
 // ID Preview
 Route::get('/admin/form-personal/{id}/print', [PrintIdController::class, 'print'])
     ->name('admin.form_personal.print');
+
+// Export Reports

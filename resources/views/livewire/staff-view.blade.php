@@ -144,7 +144,7 @@
                     {{-- Dashboard Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <h3 class="text-xl font-semibold text-gray-800">Dashboard</h3>
-                        <p class="mt-2 text-gray-700">Welcome to the dashboard.</p>
+                        @livewire('reports-summary')
                     </div>
 
                 @elseif ($section === 'applications')
@@ -340,11 +340,12 @@
                         <p class="mt-2 text-gray-700">Survey placeholder.</p>
                     </div>
 
-                @elseif ($section === 'report-analytics')
+                @elseif ($section === 'reports')
                     {{-- Report Analytics Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <h3 class="text-xl font-semibold text-gray-800">Report Analytics</h3>
-                        <p class="mt-2 text-gray-700">Analytics and reports placeholder.</p>
+                        @livewire('reports-summary')
+                        @livewire('reports-charts')
                     </div>
 
                 @else
