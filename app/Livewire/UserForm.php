@@ -106,6 +106,20 @@ class UserForm extends Component
         'endorsement_letter' => null
     ];
 
+    public function mount()
+    {
+        // Get user's existing record
+        $existing = \App\Models\FormPersonal::where('account_id', auth()->id())
+            ->where('status', 'Finalized')
+            ->first();
+
+        // If ID already issued, prevent access.
+        if ($existing) {
+            session()->flash('error', 'You already have an active PWD ID. Please request renewal or lost ID instead.');
+            return redirect()->route('home', ['tab' => 'applications']);
+        }
+    }
+
     /**
      * Go to next step (no validation yet; purely UI).
      */
@@ -350,9 +364,8 @@ class UserForm extends Component
             $fileRecord->save();
         }
 
-        // Optional: flash a success message and reset to step 1
-        session()->flash('status', 'Application submitted successfully.');
-        $this->step = 1;
+        session()->flash('success', 'Your ID Application was submitted successfully!');
+        $this->redirect(route('home', ['tab' => 'applications']));
     }
 
     public function render()

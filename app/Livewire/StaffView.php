@@ -16,6 +16,72 @@ class StaffView extends Component
     public bool $sidebarOpen = true;
     public string $appTab = 'id'; // Default sub-tab for Applications
 
+    // CONFIRM MODAL FOR PERSONAL APPLICATION ACCEPT
+    public bool $showConfirmAcceptPersonal = false;
+    public ?int $confirmApplicantId = null;
+
+    // CONFIRM MODAL FOR REQUEST ACCEPT
+    public bool $showConfirmAcceptRequest = false;
+    public ?int $confirmRequestId = null;
+
+    // CONFIRM MODAL FOR REQUEST FINALIZE
+    public bool $showConfirmFinalizeRequest = false;
+    public ?int $confirmRequestFinalizeId = null;
+
+
+    // ---- PERSONAL APPLICATION CONFIRM HANDLERS ----
+    public function openConfirmAcceptPersonal(int $applicantId): void
+    {
+        $this->confirmApplicantId = $applicantId;
+        $this->showConfirmAcceptPersonal = true;
+    }
+
+    public function confirmAcceptPersonal(): void
+    {
+        if (!$this->confirmApplicantId) return;
+
+        $this->acceptApplication($this->confirmApplicantId);
+        $this->showConfirmAcceptPersonal = false;
+        $this->confirmApplicantId = null;
+
+        $this->dispatch('toast', message: 'Application accepted successfully.');
+    }
+
+    // ---- REQUEST CONFIRM HANDLERS (NEW) ----
+    public function openConfirmAcceptRequest(int $requestId): void
+    {
+        $this->confirmRequestId = $requestId;
+        $this->showConfirmAcceptRequest = true;
+    }
+
+    public function confirmAcceptRequest(): void
+    {
+        if (!$this->confirmRequestId) return;
+
+        $this->acceptRequest($this->confirmRequestId);
+        $this->showConfirmAcceptRequest = false;
+        $this->confirmRequestId = null;
+
+        $this->dispatch('toast', message: 'Request accepted successfully.');
+    }
+
+    public function openConfirmFinalizeRequest(int $requestId): void
+    {
+        $this->confirmRequestFinalizeId = $requestId;
+        $this->showConfirmFinalizeRequest = true;
+    }
+
+    public function confirmFinalizeRequest(): void
+    {
+        if (!$this->confirmRequestFinalizeId) return;
+
+        $this->finalizeRequest($this->confirmRequestFinalizeId);
+        $this->showConfirmFinalizeRequest = false;
+        $this->confirmRequestFinalizeId = null;
+
+        $this->dispatch('toast', message: 'Request finalized successfully.');
+    }
+
     public function openRequirements(int $applicantId): void
     {
         $this->dispatch('open-requirements', id: $applicantId);
@@ -39,20 +105,23 @@ class StaffView extends Component
             ]);
         }
     }
+    
+    public function rejectApplication(int $applicantId, string $remarks): void
+    {
+        $application = FormPersonal::find($applicantId);
+
+        if ($application) {
+            $application->update([
+                'status' => 'Rejected',
+                'reviewed_by' => auth()->user()->identifier,
+                'reviewed_at' => now(),
+                'remarks' => $remarks
+            ]);
+        }
+    }
 
     public function finalizeApplication(int $applicantId): void
     {
-        // $application = FormPersonal::find($applicantId);
-
-        // if ($application) {
-        //     $application->update([
-        //         'status' => 'Finalized',
-        //         'reviewed_by' => auth()->user()->identifier,
-        //         'reviewed_at' => now(),
-        //         'remarks' => null
-        //     ]);
-        // }
-
         $this->dispatch('openIdPreview', $applicantId);
     }
 
@@ -66,34 +135,6 @@ class StaffView extends Component
                 'reviewed_by' => auth()->user()->identifier,
                 'reviewed_at' => now(),
                 'remarks' => null
-            ]);
-        }
-    }
-
-    public function finalizeRequest(int $requestId): void
-    {
-        $request = FormRequest::find($requestId);
-
-        if ($request) {
-            $request->update([
-                'status' => 'Finalized',
-                'reviewed_by' => auth()->user()->identifier,
-                'reviewed_at' => now(),
-                'remarks' => null
-            ]);
-        }
-    }
-
-    public function rejectApplication(int $applicantId, string $remarks): void
-    {
-        $application = FormPersonal::find($applicantId);
-
-        if ($application) {
-            $application->update([
-                'status' => 'Rejected',
-                'reviewed_by' => auth()->user()->identifier,
-                'reviewed_at' => now(),
-                'remarks' => $remarks
             ]);
         }
     }
@@ -112,6 +153,55 @@ class StaffView extends Component
         }
     }
 
+    public function finalizeRequest(int $requestId): void
+    {
+        $request = FormRequest::find($requestId);
+
+        if (! $request) return;
+
+        // ✅ Mark request itself as finalized
+        $request->update([
+            'status' => 'Finalized',
+            'reviewed_by' => auth()->user()->identifier,
+            'reviewed_at' => now(),
+            'remarks' => null
+        ]);
+
+        // Fetch applicant's personal profile
+        $personal = FormPersonal::where('applicant_id', $request->applicant_id)->first();
+
+        // ✅ Handle Renewal → Extend expiration & mark ID as finalized again
+        if ($request->request_type === 'renewal' && $personal) {
+            $personal->update([
+                'status' => 'Finalized',
+                'date_issued' => now(),
+                'expiration_date' => now()->addYears(3),
+                'reviewed_by' => auth()->user()->identifier,
+                'reviewed_at' => now(),
+            ]);
+
+            $this->dispatch('application-updated');
+            return;
+        }
+
+        // ✅ Handle Loss → Just mark ID finalized again (no expiration change)
+        if ($request->request_type === 'loss' && $personal) {
+            $personal->update([
+                'status' => 'Finalized',
+                'reviewed_by' => auth()->user()->identifier,
+                'reviewed_at' => now(),
+            ]);
+
+            $this->dispatch('application-updated');
+            return;
+        }
+
+        // ✅ Other request types → Just refresh UI list
+        $this->dispatch('application-updated');
+    }
+
+
+
     #[On('releaseApplication')]
     public function releaseApplication(int $applicantId): void
     {
@@ -123,6 +213,7 @@ class StaffView extends Component
                 'date_issued' => now(),
                 'reviewed_by' => auth()->user()->identifier,
                 'reviewed_at' => now(),
+                'expiration_date' => now()->addYears(3),
             ]);
         }
 
@@ -147,15 +238,17 @@ class StaffView extends Component
         $applications = new Collection();
         $userRole = Auth::user()->identifier;
 
-        $requestTabs = ['device', 'financial', 'booklet'];
+        $requestTabs = ['renewal', 'loss', 'device', 'financial', 'booklet'];
         $isRequestType = in_array($this->appTab, $requestTabs);
 
         if ($this->section === 'applications') {
             if ($isRequestType) {
                 $requestMap = [
-                    'device'    => 'Device',
-                    'financial' => 'Financial',
-                    'booklet'   => 'Booklet',
+                    'renewal'   => 'renewal',
+                    'loss'      => 'loss',
+                    'device'    => 'device',
+                    'financial' => 'financial',
+                    'booklet'   => 'booklet',
                 ];
                 $requestType = $requestMap[$this->appTab] ?? null;
 
@@ -178,8 +271,6 @@ class StaffView extends Component
             } else {
                 $personalMap = [
                     'id'      => 'ID Application',
-                    'renewal' => 'ID Renewal',
-                    'loss'    => 'Loss ID',
                 ];
                 $type = $personalMap[$this->appTab] ?? 'ID Application';
 

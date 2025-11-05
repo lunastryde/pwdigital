@@ -44,6 +44,7 @@ class FormPersonal extends Model
         'reviewed_by',
         'reviewed_at',
         'date_issued',
+        'expiration_date',
         'remarks',
     ];
 

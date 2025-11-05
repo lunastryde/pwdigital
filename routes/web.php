@@ -60,20 +60,17 @@ Route::get('/form/id', function () {
     return view('User.user_form');
 })->name('form.id');
 
-// Financial Assistance
-Route::get('/form/financial', function () {
+// Request Form
+Route::get('/form/request', function () {
     return view('User.user_request_form');
-})->name('form.financial');
+})->name('form.request');
 
-// Assistive Device
-Route::get('/form/device', function () {
-    return view('User.user_request_form');
-})->name('form.device');
+//Support Form
+Route::get('/form/support', function() {
+    return view('User.user_support_form');
+})->name('form.support');
 
-// Booklet
-Route::get('/form/booklet', function () {
-    return view('User.user_request_form');
-})->name('form.booklet');
+
 
 // ============================================================
 //    =================  Admin Routes    =================

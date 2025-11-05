@@ -51,4 +51,14 @@ class FormRequest extends Model
     {
         return $this->hasOne(FormRequestFinancial::class, 'request_id', 'request_id');
     }
+
+    public function renewal()
+    {
+        return $this->hasOne(FormSupportRenewal::class, 'request_id', 'request_id');
+    }
+
+    public function loss()
+    {
+        return $this->hasOne(FormSupportLoss::class, 'request_id', 'request_id');
+    }
 }

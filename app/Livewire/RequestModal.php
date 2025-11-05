@@ -34,6 +34,8 @@ class RequestModal extends Component
                 'deviceRequest',
                 'bookletRequest',
                 'financialRequest',
+                'renewal',
+                'loss',
             ])->find($this->selectedId);
         }
 

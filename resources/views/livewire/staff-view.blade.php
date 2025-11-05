@@ -265,10 +265,16 @@
                                                                 @if ($app->status === 'Finalized')
                                                                     <button type="button" wire:click="$dispatch('open-id-preview', {{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-purple-500 text-white hover:bg-purple-600">Preview/Release ID</button>
                                                                 @else
-                                                                    <button type="button" wire:click="finalizeRequest({{ $app->request_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">Finalize</button>
+                                                                    <button type="button" wire:click="openConfirmFinalizeRequest({{ $app->request_id }})"
+                                                                        class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">
+                                                                        Finalize
+                                                                    </button>
                                                                 @endif
                                                             @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
-                                                                <button type="button" wire:click="acceptRequest({{ $app->request_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">Accept</button>
+                                                                <button type="button" wire:click="openConfirmAcceptRequest({{ $app->request_id }})"
+                                                                    class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">
+                                                                    Accept
+                                                                </button>
                                                             @endif
                                                             <button type="button" onclick="const remark = prompt('Reason for rejection:'); if (remark) { @this.call('rejectRequest', {{ $app->request_id }}, remark) }" class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">Reject</button>
                                                         @else
@@ -280,7 +286,10 @@
                                                                     <button type="button" wire:click="finalizeApplication({{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">Finalize</button>
                                                                 @endif
                                                             @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
-                                                                <button type="button" wire:click="acceptApplication({{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">Accept</button>
+                                                                <button type="button" wire:click="openConfirmAcceptPersonal({{ $app->applicant_id }})"
+                                                                    class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">
+                                                                    Accept
+                                                                </button>
                                                             @endif
                                                             <button type="button" onclick="const remark = prompt('Reason for rejection:'); if (remark) { @this.call('rejectApplication', {{ $app->applicant_id }}, remark) }" class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">Reject</button>
                                                         @endif
@@ -297,7 +306,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>  
+                        </div>
                     </div>
 
                 @elseif ($section === 'chat')
@@ -362,4 +371,75 @@
         @livewire('rejection-modal')
         @livewire('id-preview')
     </div>
+
+    {{-- Confirmation Modal for Accepting Personal Application --}}
+    @if($showConfirmAcceptPersonal)
+        <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h2 class="text-lg font-semibold mb-3">Confirm Accept Application</h2>
+                <p class="text-sm text-gray-700 mb-4">Are you sure you want to accept this ID application?</p>
+
+                <div class="flex justify-end gap-3">
+                    <button wire:click="$set('showConfirmAcceptPersonal', false)"
+                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+                        Cancel
+                    </button>
+
+                    <button wire:click="confirmAcceptPersonal"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Yes, Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Confirmation Modal for Accepting a Request --}}
+    @if($showConfirmAcceptRequest)
+        <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h2 class="text-lg font-semibold mb-3">Confirm Accept Request</h2>
+                <p class="text-sm text-gray-700 mb-4">Are you sure you want to accept this request?</p>
+
+                <div class="flex justify-end gap-3">
+                    <button wire:click="$set('showConfirmAcceptRequest', false)"
+                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+                        Cancel
+                    </button>
+
+                    <button wire:click="confirmAcceptRequest"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Yes, Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Confirmation Modal for Finalizing a Request --}}
+    @if($showConfirmFinalizeRequest)
+        <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h2 class="text-lg font-semibold mb-3">Finalize Request</h2>
+                <p class="text-sm text-gray-700 mb-4">
+                    Finalizing this request will update the applicant’s ID status.  
+                    Are you sure you want to proceed?
+                </p>
+
+                <div class="flex justify-end gap-3">
+                    <button wire:click="$set('showConfirmFinalizeRequest', false)"
+                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+                        Cancel
+                    </button>
+
+                    <button wire:click="confirmFinalizeRequest"
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        Yes, Finalize
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
 </div>

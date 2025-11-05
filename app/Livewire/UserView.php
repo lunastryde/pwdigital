@@ -19,6 +19,11 @@ class UserView extends Component
 
     protected $queryString = ['tab' => ['except' => 'profile']];
 
+    public function mount()
+    {
+        $this->tab = request('tab', 'profile'); // Allows redirect to open specific tab
+    }
+
     /**
      * Switch active tab.
      */

@@ -349,9 +349,8 @@
                             </summary>
                             <div class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
                                 <a href="{{ route('form.id') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">New ID Application</a>
-                                <a href="{{ route('form.financial') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Financial Assistance</a>
-                                <a href="{{ route('form.device') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Request Assistive Device</a>
-                                <a href="{{ route('form.booklet') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Booklet</a>
+                                <a href="{{ route('form.request') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">New Request Application</a>
+                                <a href="{{ route('form.support') }}" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">ID Support/Services</a>
                             </div>
                         </details>
                     </div>

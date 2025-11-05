@@ -41,7 +41,8 @@ class UserRequestForm extends Component
         $personal = FormPersonal::where('account_id', Auth::id())->first();
         
         if (!$personal) {
-            return redirect()->route('application.form')->with('error', 'Please complete your PWD ID application first.');
+            return redirect()->route('home', ['tab' => 'applications'])
+                ->with('error', 'Please complete your PWD ID application first.');
         }
 
         $this->pwd_number = $personal->pwd_number;

@@ -702,8 +702,6 @@
                         </div>
                     </div>
                                         
-
-
                     <!-- Submit Button-->
                     <div class="flex justify-end">
                         <button type="submit" class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2.5 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
