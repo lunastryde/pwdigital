@@ -3,10 +3,12 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\User;
 use App\Models\Announcement;
 use App\Models\FormPersonal;
 use App\Models\FormGuardian;
+use App\Models\UserNotification;
 use Illuminate\Contracts\View\View;
 
 class UserView extends Component
@@ -24,15 +26,18 @@ class UserView extends Component
         $this->tab = request('tab', 'profile'); // Allows redirect to open specific tab
     }
 
-    /**
-     * Switch active tab.
-     */
     public function setTab(string $tab): void
     {
         $allowed = ['profile', 'applications', 'drafts', 'notifications'];
         if (in_array($tab, $allowed, true)) {
             $this->tab = $tab;
         }
+    }
+
+    #[On('notifications-read-status-changed')]
+    public function refreshUnreadStatus()
+    {
+        // Force Refresh
     }
 
     public function render(): View

@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use App\Models\FormRequest;
 use App\Models\FormPersonal;
+use App\Models\Notification;
 
 class RejectionModal extends Component
 {
@@ -45,6 +46,21 @@ class RejectionModal extends Component
                         'reviewed_at' => now(),
                         'remarks' => $this->remarks
                     ]);
+
+                    $personal = FormPersonal::where('applicant_id', $request->applicant_id)->first();
+                    $accountId = $personal->account_id ?? null;
+                    if ($accountId) {
+                        Notification::create([
+                            'account_id'     => $accountId,
+                            'title'          => 'Request Rejected',
+                            'message'        => 'Your request was rejected. Tap to see the reason.',
+                            'type'           => 'request_rejected',
+                            'reference_id'   => $request->request_id,
+                            'reference_type' => 'form_requests',
+                            'is_read'        => false,
+                            'expires_at'    => now()->addDays(7),
+                        ]);
+                    }
                 }
             } else {
                 $application = FormPersonal::find($this->selectedId);
@@ -54,6 +70,17 @@ class RejectionModal extends Component
                         'reviewed_by' => auth()->user()->identifier,
                         'reviewed_at' => now(),
                         'remarks' => $this->remarks
+                    ]);
+
+                    Notification::create([
+                        'account_id'     => $application->account_id,
+                        'title'          => 'ID Application Rejected',
+                        'message'        => 'Your ID application was rejected. Tap to view the reviewer remarks.',
+                        'type'           => 'id_rejected',
+                        'reference_id'   => $application->applicant_id,
+                        'reference_type' => 'form_personal',
+                        'is_read'        => false,
+                        'expires_at'    => now()->addDays(7),
                     ]);
                 }
             }

@@ -15,9 +15,7 @@ use App\Models\FormFile;
 class UserForm extends Component
 {
     use WithFileUploads;
-    /**
-     * Current step of the form (1-based).
-     */
+
     public int $step = 1;
 
     // Step 1: Personal Information + Disability
@@ -92,7 +90,6 @@ class UserForm extends Component
     public string $spouse_middle = '';
     public string $spouse_contact = '';
 
-    // Physician
     public string $physician_name = '';
 
     // File upload properties
@@ -120,9 +117,6 @@ class UserForm extends Component
         }
     }
 
-    /**
-     * Go to next step (no validation yet; purely UI).
-     */
     public function nextStep(): void
     {
         if ($this->step < 3) {
@@ -131,9 +125,6 @@ class UserForm extends Component
         $this->dispatch('scroll-to-top');
     }
 
-    /**
-     * Go back to previous step.
-     */
     public function prevStep(): void
     {
         if ($this->step > 1) {

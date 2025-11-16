@@ -1,4 +1,10 @@
 <div class="w-full">
+    {{-- CHECK FOR UNREAD NOTIFICATIONS --}}
+    @php
+        $hasUnread = \App\Models\Notification::where('account_id', auth()->id())
+                                                ->where('is_read', false)
+                                                ->exists();
+    @endphp
     <!-- Tabs Navigation -->
     <nav class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,9 +35,15 @@
                     <button
                         type="button"
                         wire:click="setTab('notifications')"
-                        class="py-4 px-1 border-b-2 text-sm font-medium transition-colors
-                            {{ $tab === 'notifications' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                        Notification
+                        class="py-4 px-1 border-b-2 text-sm font-medium transition-colors {{ $tab === 'notifications' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                        <span class="relative inline-flex items-center">
+                            Notification
+                            
+                            @if ($hasUnread)
+                                <span class="absolute top-0 right-0 transform -translate-y-1/2 translate-x-1/2 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white">
+                                </span>
+                            @endif
+                        </span>
                     </button>
                 </div>
 
@@ -366,77 +378,78 @@
             
         @elseif ($tab === 'notifications')
             <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-lg font-semibold mb-2">Notification</h2>
-                <p class="text-gray-600 text-sm">Placeholder for notifications.</p>
+                <livewire:user-notifications/>
+                <div class="relative">
+                </div>
             </div>
         @endif
     </div>
 </div>
 
 @push('scripts')
-<script>
-    function initIdCardEvents() {
-        // Desktop modal
-        const openDesktopBtn = document.getElementById('open-id-desktop');
-        const idModal = document.getElementById('id-modal');
-        const closeModalBtn = document.getElementById('close-id-modal');
+    <script>
+        function initIdCardEvents() {
+            // Desktop modal
+            const openDesktopBtn = document.getElementById('open-id-desktop');
+            const idModal = document.getElementById('id-modal');
+            const closeModalBtn = document.getElementById('close-id-modal');
 
-        if (openDesktopBtn && idModal) {
-            openDesktopBtn.addEventListener('click', () => {
-                idModal.classList.remove('hidden');
-            });
-        }
-        if (closeModalBtn && idModal) {
-            closeModalBtn.addEventListener('click', () => {
-                idModal.classList.add('hidden');
-            });
-        }
-
-        // Mobile fullscreen overlay + flip
-        const openMobileBtn = document.getElementById('open-id-mobile');
-        const idFullscreen = document.getElementById('id-fullscreen');
-        const closeFullscreenBtn = document.getElementById('close-id-fullscreen');
-        const id3dInner = document.querySelector('.id-3d-inner');
-
-        if (openMobileBtn && idFullscreen) {
-            openMobileBtn.addEventListener('click', () => {
-                idFullscreen.classList.remove('hidden');
-                if (id3dInner) id3dInner.style.transform = 'rotateY(0deg)';
-            });
-        }
-        if (closeFullscreenBtn && idFullscreen) {
-            closeFullscreenBtn.addEventListener('click', () => {
-                idFullscreen.classList.add('hidden');
-            });
-        }
-
-        // Flip on tap/click for the mobile card
-        const mobileCardWrapper = document.getElementById('mobile-id-card-wrapper');
-        if (mobileCardWrapper && id3dInner) {
-            mobileCardWrapper.addEventListener('click', function (e) {
-                if (e.target.closest('#close-id-fullscreen')) return;
-                const current = id3dInner.style.transform || 'rotateY(0deg)';
-                id3dInner.style.transform = current === 'rotateY(0deg)' ? 'rotateY(180deg)' : 'rotateY(0deg)';
-            });
-        }
-
-        // Close overlays on ESC
-        document.addEventListener('keydown', function(e){
-            if (e.key === 'Escape') {
-                if (idModal && !idModal.classList.contains('hidden')) idModal.classList.add('hidden');
-                if (idFullscreen && !idFullscreen.classList.contains('hidden')) idFullscreen.classList.add('hidden');
+            if (openDesktopBtn && idModal) {
+                openDesktopBtn.addEventListener('click', () => {
+                    idModal.classList.remove('hidden');
+                });
             }
-        });
-    }
+            if (closeModalBtn && idModal) {
+                closeModalBtn.addEventListener('click', () => {
+                    idModal.classList.add('hidden');
+                });
+            }
 
-    // Run after DOM is ready
-    document.addEventListener('DOMContentLoaded', initIdCardEvents);
+            // Mobile fullscreen overlay + flip
+            const openMobileBtn = document.getElementById('open-id-mobile');
+            const idFullscreen = document.getElementById('id-fullscreen');
+            const closeFullscreenBtn = document.getElementById('close-id-fullscreen');
+            const id3dInner = document.querySelector('.id-3d-inner');
 
-    // Re-run every time Livewire updates this component
-    document.addEventListener('livewire:init', () => {
-        Livewire.hook('morph.updated', () => {
-            initIdCardEvents();
+            if (openMobileBtn && idFullscreen) {
+                openMobileBtn.addEventListener('click', () => {
+                    idFullscreen.classList.remove('hidden');
+                    if (id3dInner) id3dInner.style.transform = 'rotateY(0deg)';
+                });
+            }
+            if (closeFullscreenBtn && idFullscreen) {
+                closeFullscreenBtn.addEventListener('click', () => {
+                    idFullscreen.classList.add('hidden');
+                });
+            }
+
+            // Flip on tap/click for the mobile card
+            const mobileCardWrapper = document.getElementById('mobile-id-card-wrapper');
+            if (mobileCardWrapper && id3dInner) {
+                mobileCardWrapper.addEventListener('click', function (e) {
+                    if (e.target.closest('#close-id-fullscreen')) return;
+                    const current = id3dInner.style.transform || 'rotateY(0deg)';
+                    id3dInner.style.transform = current === 'rotateY(0deg)' ? 'rotateY(180deg)' : 'rotateY(0deg)';
+                });
+            }
+
+            // Close overlays on ESC
+            document.addEventListener('keydown', function(e){
+                if (e.key === 'Escape') {
+                    if (idModal && !idModal.classList.contains('hidden')) idModal.classList.add('hidden');
+                    if (idFullscreen && !idFullscreen.classList.contains('hidden')) idFullscreen.classList.add('hidden');
+                }
+            });
+        }
+
+        // Run after DOM is ready
+        document.addEventListener('DOMContentLoaded', initIdCardEvents);
+
+        // Re-run every time Livewire updates this component
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('morph.updated', () => {
+                initIdCardEvents();
+            });
         });
-    });
-</script>
+    </script>
 @endpush

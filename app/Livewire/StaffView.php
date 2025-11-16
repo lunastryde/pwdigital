@@ -6,9 +6,11 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use App\Models\FormPersonal;
 use App\Models\FormRequest;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+
 
 class StaffView extends Component
 {
@@ -106,19 +108,19 @@ class StaffView extends Component
         }
     }
     
-    public function rejectApplication(int $applicantId, string $remarks): void
-    {
-        $application = FormPersonal::find($applicantId);
+    // public function rejectApplication(int $applicantId, string $remarks): void
+    // {
+    //     $application = FormPersonal::find($applicantId);
 
-        if ($application) {
-            $application->update([
-                'status' => 'Rejected',
-                'reviewed_by' => auth()->user()->identifier,
-                'reviewed_at' => now(),
-                'remarks' => $remarks
-            ]);
-        }
-    }
+    //     if ($application) {
+    //         $application->update([
+    //             'status' => 'Rejected',
+    //             'reviewed_by' => auth()->user()->identifier,
+    //             'reviewed_at' => now(),
+    //             'remarks' => $remarks
+    //         ]);
+    //     }
+    // }
 
     public function finalizeApplication(int $applicantId): void
     {
@@ -159,7 +161,6 @@ class StaffView extends Component
 
         if (! $request) return;
 
-        // ✅ Mark request itself as finalized
         $request->update([
             'status' => 'Finalized',
             'reviewed_by' => auth()->user()->identifier,
@@ -170,7 +171,6 @@ class StaffView extends Component
         // Fetch applicant's personal profile
         $personal = FormPersonal::where('applicant_id', $request->applicant_id)->first();
 
-        // ✅ Handle Renewal → Extend expiration & mark ID as finalized again
         if ($request->request_type === 'renewal' && $personal) {
             $personal->update([
                 'status' => 'Finalized',
@@ -180,11 +180,28 @@ class StaffView extends Component
                 'reviewed_at' => now(),
             ]);
 
+            // Notification for renewal
+            try {
+                $accountId = $personal->account_id ?? null;
+                if ($accountId) {
+                    Notification::create([
+                        'account_id'     => $accountId,
+                        'title'          => 'Request Finalized',
+                        'message'        => 'Your request has been finalized.',
+                        'type'           => 'request_finalized',
+                        'reference_id'   => $request->request_id,
+                        'reference_type' => 'form_requests',
+                        'is_read'        => false,
+                        'expires_at'     => now()->addDays(7),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Log::error('Notification error (finalizeRequest - renewal): ' . $e->getMessage());
+            }
             $this->dispatch('application-updated');
             return;
         }
 
-        // ✅ Handle Loss → Just mark ID finalized again (no expiration change)
         if ($request->request_type === 'loss' && $personal) {
             $personal->update([
                 'status' => 'Finalized',
@@ -192,15 +209,49 @@ class StaffView extends Component
                 'reviewed_at' => now(),
             ]);
 
+            // Notification for loss
+            try {
+                $accountId = $personal->account_id ?? null;
+                if ($accountId) {
+                    Notification::create([
+                        'account_id'     => $accountId,
+                        'title'          => 'Request Finalized',
+                        'message'        => 'Your request has been finalized.',
+                        'type'           => 'request_finalized',
+                        'reference_id'   => $request->request_id,
+                        'reference_type' => 'form_requests',
+                        'is_read'        => false,
+                        'expires_at'     => now()->addDays(7),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Log::error('Notification error (finalizeRequest - loss): ' . $e->getMessage());
+            }
             $this->dispatch('application-updated');
             return;
         }
 
-        // ✅ Other request types → Just refresh UI list
+        // General notification for other request types
+        try {
+            $accountId = $personal->account_id ?? null;
+            if ($accountId) {
+                Notification::create([
+                    'account_id'     => $accountId,
+                    'title'          => 'Request Finalized',
+                    'message'        => 'Your request has been finalized.',
+                    'type'           => 'request_finalized',
+                    'reference_id'   => $request->request_id,
+                    'reference_type' => 'form_requests',
+                    'is_read'        => false,
+                    'expires_at'     => now()->addDays(7),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Notification error (finalizeRequest): ' . $e->getMessage());
+        }
+
         $this->dispatch('application-updated');
     }
-
-
 
     #[On('releaseApplication')]
     public function releaseApplication(int $applicantId): void
@@ -215,6 +266,24 @@ class StaffView extends Component
                 'reviewed_at' => now(),
                 'expiration_date' => now()->addYears(3),
             ]);
+        }
+
+        // Notification for release
+        if ($application && isset($application->account_id)) {
+            try {
+                Notification::create([
+                    'account_id'    => $application->account_id,
+                    'title'         => 'Your PWD ID has been released',
+                    'message'       => 'Your PWD ID has been finalized and is ready. You may now print or claim it at the PDAO office.',
+                    'type'          => 'id_finalized',
+                    'reference_id'  => $application->applicant_id,
+                    'reference_type'=> 'form_personal',
+                    'is_read'       => false,
+                    'expires_at'    => now()->addDays(7),
+                ]);
+            } catch (\Throwable $e) {
+                \Log::error('Notification error (releaseApplication): ' . $e->getMessage());
+            }
         }
 
         $this->dispatch('application-updated');

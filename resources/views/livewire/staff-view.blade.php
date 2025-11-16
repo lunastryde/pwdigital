@@ -276,7 +276,11 @@
                                                                     Accept
                                                                 </button>
                                                             @endif
-                                                            <button type="button" onclick="const remark = prompt('Reason for rejection:'); if (remark) { @this.call('rejectRequest', {{ $app->request_id }}, remark) }" class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">Reject</button>
+                                                            <button type="button"
+                                                                wire:click="$dispatch('open-rejection-modal', { id: {{ $app->request_id }}, type: 'request' })"
+                                                                class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
+                                                                Reject
+                                                            </button>
                                                         @else
                                                             {{-- Buttons for Personal Applications --}}
                                                             @if (auth()->user()->identifier == 1) {{-- Admin --}}
@@ -291,7 +295,11 @@
                                                                     Accept
                                                                 </button>
                                                             @endif
-                                                            <button type="button" onclick="const remark = prompt('Reason for rejection:'); if (remark) { @this.call('rejectApplication', {{ $app->applicant_id }}, remark) }" class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">Reject</button>
+                                                            <button type="button"
+                                                                wire:click="$dispatch('open-rejection-modal', { id: {{ $app->applicant_id }}, type: 'application' })"
+                                                                class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
+                                                                Reject
+                                                            </button>
                                                         @endif
                                                     </div>
                                                 </td>
