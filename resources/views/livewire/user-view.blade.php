@@ -254,16 +254,14 @@
                             </div>
                             <div class="p-6">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {{-- FIX: Removed the div style="width:360px" wrapper --}}
                                     <div class="border rounded p-4 flex justify-center">
-                                        <div style="width:360px;">
-                                            @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'front', 'preview' => true])
-                                        </div>
+                                        @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'front', 'preview' => true])
                                     </div>
 
+                                    {{-- FIX: Removed the div style="width:360px" wrapper --}}
                                     <div class="border rounded p-4 flex justify-center">
-                                        <div style="width:360px;">
-                                            @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'back', 'preview' => true])
-                                        </div>
+                                        @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'back', 'preview' => true])
                                     </div>
                                 </div>
                             </div>
@@ -273,30 +271,56 @@
 
                 {{-- Mobile fullscreen landscape overlay (hidden by default) --}}
                 <div id="id-fullscreen" class="fixed inset-0 z-50 hidden">
-                    <div class="fixed inset-0 bg-black/75"></div>
+                    {{-- 
+                    FIX: 
+                    1. Changed to flex-col and added padding/gap.
+                    2. This stacks the button above the card, not on it.
+                    --}}
+                    <div class="fixed inset-0 flex flex-col bg-black/75 p-4 gap-3">
 
-                    <div class="fixed inset-0 flex items-center justify-center p-3">
-                        <div class="relative w-full max-w-[1000px]">
-                            {{-- Back button --}}
-                            <button id="close-id-fullscreen" class="absolute left-2 top-2 z-50 px-3 py-1 rounded bg-white/90">Back</button>
+                        {{-- 
+                        FIX: 
+                        1. Moved button to be a direct child of the overlay.
+                        2. Removed 'absolute' and made it a simple button at the top.
+                        --}}
+                        <button id="close-id-fullscreen" class="flex-shrink-0 self-start px-3 py-1 rounded bg-white/90 text-black text-sm">
+                            Back
+                        </button>
 
-                            {{-- The landscape container: we will render the front side and allow flip --}}
-                            <div id="mobile-id-card-wrapper" class="mx-auto" style="width:calc(85.6mm * 1.15); max-width:96vw;">
+                        {{-- This container centers the card in the remaining space --}}
+                        <div class="relative w-full flex-1 flex items-center justify-center min-h-0">
+                            
+                            {{-- 
+                            FIX: 
+                            1. Removed all 'style' attributes from this wrapper.
+                            2. It now just holds the 3D card at its native size.
+                            --}}
+                            <div id="mobile-id-card-wrapper" class="mx-auto">
                                 <div id="mobile-id-card" class="id-3d-card" style="width:100%; perspective:2000px;">
                                     <div class="id-3d-inner" style="position:relative; width:100%; transform-style:preserve-3d; transition:transform 0.7s ease;">
                                         <div class="id-3d-front" style="backface-visibility:hidden; -webkit-backface-visibility:hidden;">
-                                            @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'front', 'preview' => true])
+                                            {{-- 
+                                            FIX: Set 'preview' => false. 
+                                            This renders the card at its base size (85.6mm ≈ 324px),
+                                            which fits perfectly on a phone.
+                                            --}}
+                                            @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'front', 'preview' => false])
                                         </div>
 
                                         <div class="id-3d-back" style="position:absolute; top:0; left:0; width:100%; transform:rotateY(180deg); backface-visibility:hidden; -webkit-backface-visibility:hidden;">
-                                            @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'back', 'preview' => true])
+                                            {{-- 
+                                            FIX: Set 'preview' => false. 
+                                            --}}
+                                            @include('components.id-card-side', ['form' => $releasedForm, 'side' => 'back', 'preview' => false])
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {{-- small hint --}}
-                            <div class="text-center mt-3 text-sm text-white">Tap the card to flip</div>
+                        {{-- small hint --}}
+                        <div class="text-center text-sm text-white flex-shrink-0">
+                            Tap the card to flip
                         </div>
                     </div>
                 </div>

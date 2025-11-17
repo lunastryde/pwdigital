@@ -1,149 +1,209 @@
 @php
-    // Photo
+    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Facades\DB;
+
     $file = $form->files ?? null;
     $photoUrl = $file && $file->id_picture
-        ? \Illuminate\Support\Facades\Storage::url($file->id_picture)
+        ? Storage::url($file->id_picture)
         : asset('images/default-photo.png');
 
-    // Logos (public/images)
-    $flag = asset('images/philippine-flag-small.png');
+    $flag       = asset('images/philippine-flag-small.png');
     $greenLogo = asset('images/calapan_flag.png');
-    $blueLogo = asset('images/pdao_logo.png');
+    $blueLogo   = asset('images/pdao_logo.png');
 
-    // Mayor info (temporary placeholders; can be dynamic)
-    $mayorName = $mayorName ?? 'ATTY. DOY C. LEACHON';
+    $mayorName       = $mayorName ?? 'ATTY. DOY C. LEACHON';
     $mayorSignature = isset($mayorSignature) ? asset('storage/'.$mayorSignature) : null;
 
-    // Scaling factor for preview vs print
     $scale = isset($preview) && $preview ? 1.35 : 1;
+    $mm = fn($n) => (string)($n * $scale) . 'mm';
+    $pt = fn($n) => (string)($n * $scale) . 'pt';
+    $guardian = DB::table('form_guardian')
+        ->where('applicant_id', $form->applicant_id ?? $form->id ?? null)
+        ->first();
+
+    $org = DB::table('form_oi')
+        ->where('applicant_id', $form->applicant_id ?? $form->id ?? null)
+        ->first();
+
+    $iceName = null;
+    $icePhone = null;
+
+    if ($guardian && ($guardian->spouse_guardian_fname || $guardian->spouse_guardian_lname)) {
+        $iceName = trim(($guardian->spouse_guardian_fname ?? '').' '.($guardian->spouse_guardian_mname ?? '').' '.($guardian->spouse_guardian_lname ?? ''));
+        $icePhone = $guardian->spouse_guardian_contact ?: null;
+    }
+    if (!$iceName && ($guardian && ($guardian->mother_fname || $guardian->mother_lname))) {
+        $iceName = trim(($guardian->mother_fname ?? '').' '.($guardian->mother_mname ?? '').' '.($guardian->mother_lname ?? ''));
+    }
+    if (!$iceName && ($guardian && ($guardian->father_fname || $guardian->father_lname))) {
+        $iceName = trim(($guardian->father_fname ?? '').' '.($guardian->father_mname ?? '').' '.($guardian->father_lname ?? ''));
+    }
+    if (!$iceName && $org && $org->oi_contactperson) {
+        $iceName = $org->oi_contactperson;
+        $icePhone = $icePhone ?: ($org->oi_telno ?? null);
+    }
+    if (!$icePhone) {
+        $icePhone = $form->contact_no ?? null;
+    }
+
+    $iceNameDisplay   = $iceName  ?: '____________________________';
+    $icePhoneDisplay = $icePhone ?: '____________________________';
 @endphp
 
-<div
-    style="
-        width:calc({{ 85.6 * $scale }}mm);
-        height:calc({{ 54 * $scale }}mm);
-        background:#fff;
-        border-radius:6px;
-        box-shadow:0 2px 6px rgba(0,0,0,0.15);
-        padding:{{ 4 * $scale }}mm;
-        box-sizing:border-box;
-        font-family: Arial, Helvetica, sans-serif;
-        display:flex;
-        flex-direction:column;
-        justify-content:space-between;
-    "
->
+{{-- ===== Card surface (fixed ISO-ID size) ===== --}}
+<div style="
+    width:{{ $mm(85.6) }};
+    height:{{ $mm(54) }};
+    background:#fff;
+    border-radius:6px;
+    box-shadow:0 2px 6px rgba(0,0,0,.15);
+    padding:{{ $mm(4) }};
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+    overflow:hidden;
+">
+
     @if($side === 'front')
-        {{-- FRONT SIDE --}}
-        <div style="display:flex; justify-content:space-between; height:100%;">
-            {{-- LEFT INFO --}}
-            <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
-                {{-- HEADER --}}
-                <div>
-                    <div style="display:flex; align-items:center; gap:{{ 2.5 * $scale }}mm; margin-bottom:{{ 2 * $scale }}mm;">
-                        <img src="{{ $flag }}" alt="flag" style="height:{{ 8 * $scale }}mm;">
-                        <div style="display:flex; gap:{{ 1 * $scale }}mm;">
-                            <img src="{{ $greenLogo }}" alt="green" style="height:{{ 8 * $scale }}mm;">
-                            <img src="{{ $blueLogo }}" alt="blue" style="height:{{ 8 * $scale }}mm;">
+        {{-- ================= FRONT ================= --}}
+        <div style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+
+            {{-- Header: flag | centered text | logos --}}
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:{{ $mm(1.6) }};">
+                <img src="{{ $flag }}" alt="flag" style="height:{{ $mm(9) }};">
+                <div style="text-align:center; flex:1; line-height:1.15;">
+                    <div style="font-weight:700; font-size:{{ $pt(6) }};">REPUBLIC OF THE PHILIPPINES</div>
+                    <div style="font-size:{{ $pt(6) }};">Province of Oriental Mindoro</div>
+                    <div style="font-weight:900; font-size:{{ $pt(8) }};">CITY OF CALAPAN</div>
+                </div>
+                <div style="display:flex; gap:{{ $mm(1.4) }};">
+                    <img src="{{ $greenLogo }}" alt="city" style="height:{{ $mm(9) }};">
+                    <img src="{{ $blueLogo  }}" alt="pdao" style="height:{{ $mm(9) }};">
+                </div>
+            </div>
+
+            {{-- Content row (left details + right photo) --}}
+            <div style="display:flex; gap:{{ $mm(3) }}; align-items:flex-start; flex:1;">
+                {{-- Left details --}}
+                <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
+
+                    {{-- ID NO --}}
+                    <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }};">
+                        <div style="white-space:nowrap; font-weight:600; font-size:{{ $pt(6) }};">ID NO.</div>
+                        <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.5) }}; font-size:{{ $pt(9) }};">
+                            {{ $form->pwd_number ?? '—' }}
                         </div>
                     </div>
 
-                    <div style="text-align:center; line-height:1;">
-                        <div style="font-weight:700; font-size:{{ 6 * $scale }}pt;">REPUBLIC OF THE PHILIPPINES</div>
-                        <div style="font-size:{{ 6 * $scale }}pt;">Province of Oriental Mindoro</div>
-                        <div style="font-weight:900; font-size:{{ 8 * $scale }}pt;">CITY OF CALAPAN</div>
+                    {{-- NAME (underline above label) --}}
+                    <div style="text-align:center; margin-top:{{ $mm(1) }};">
+                        <div style="font-weight:700; font-size:{{ $pt(8) }};">
+                            {{ trim(($form->fname ?? '').' '.($form->mname ?? '').' '.($form->lname ?? '').' '.($form->suffix ?? '')) }}
+                        </div>
+                        <div style="border-bottom:1px solid #111; margin:{{ $mm(.6) }} 0;"></div>
+                        <div style="font-size:{{ $pt(6) }};">NAME</div>
                     </div>
+
+                    {{-- TYPE OF DISABILITY (underline under the value; label below) --}}
+                    <div style="text-align:center; margin-top:{{ $mm(1) }};">
+                        <div style="font-weight:700; font-size:{{ $pt(7) }};">
+                            {{ $form->disability_type ?? '—' }}
+                        </div>
+                        <div style="border-bottom:1px solid #111; margin:{{ $mm(.6) }} 0 0;"></div>
+                        <div style="font-size:{{ $pt(6) }}; margin-top:{{ $mm(.6) }};">TYPE OF DISABILITY</div>
+                        <div style="margin-bottom:{{ $mm(1.2) }};"></div>
+                    </div> <div style="margin-bottom: 4px;"> </div>
+                    {{-- underline directly under the value --}}
+                    <div style="border-bottom:1px solid #111; margin:{{ $mm(.6) }} 0 0;"></div> 
+                    {{-- Signature label --}}
+                    <div style="text-align:center; font-size:{{ $pt(6) }};">SIGNATURE / or THUMBMARK</div>
                 </div>
 
-                {{-- ID NUMBER --}}
-                <div style="margin-top:{{ 2 * $scale }}mm;">
-                    <span style="font-weight:600; font-size:{{ 6 * $scale }}pt;">ID NO.</span>
-                    <span style="border-bottom:1px solid #000; padding-left:{{ 1 * $scale }}mm;">{{ $form->pwd_number ?? '—' }}</span>
-                </div>
-
-                {{-- NAME + DISABILITY --}}
-                <div style="margin-top:{{ 3 * $scale }}mm; text-align:center;">
-                    <div style="font-weight:700; font-size:{{ 7.5 * $scale }}pt;">
-                        {{ trim(($form->fname ?? '').' '.($form->mname ?? '').' '.($form->lname ?? '').' '.($form->suffix ?? '')) }}
-                    </div>
-                    <div style="font-size:{{ 6.5 * $scale }}pt; margin-top:{{ 1 * $scale }}mm;">
-                        {{ $form->disability_type ?? '—' }}
-                    </div>
-                </div>
-
-                {{-- SIGNATURE LINE --}}
-                <div style="margin-top:auto; text-align:center; font-size:{{ 6 * $scale }}pt;">
-                    SIGNATURE / or THUMBMARK
-                    <div style="margin-top:{{ 1 * $scale }}mm; font-size:{{ 5.5 * $scale }}pt; color:#444;">
-                        The holder of this card is a person with disability. Non-transferable.<br>
-                        Valid for 5 years. Any violations is punishable by law.<br>
-                        <b>VALID ANYWHERE IN THE COUNTRY</b>
+                {{-- Photo --}}
+                <div style="flex:0 0 {{ $mm(24) }}; width:{{ $mm(24) }};">
+                    <div style="width:100%; aspect-ratio:4/4; border-radius:4px; overflow:hidden; background:#eee; box-shadow:0 1px 2px rgba(0,0,0,.12) inset;">
+                        <img src="{{ $photoUrl }}" alt="photo" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                 </div>
             </div>
 
-            {{-- PHOTO --}}
-            <div style="width:{{ 22 * $scale }}mm; display:flex; align-items:flex-start; justify-content:center;">
-                <div style="width:100%; aspect-ratio:3/4; border-radius:4px; overflow:hidden; background:#eee;">
-                    <img src="{{ $photoUrl }}" alt="photo" style="width:100%; height:100%; object-fit:cover;">
-                </div>
+            {{-- FULL-WIDTH policy text (CENTERED across the card) --}}
+            <div style="text-align:center; font-size:{{ $pt(5.5) }}; color:#444; line-height:1.25; margin-top:{{ $mm(1) }};">
+                The holder of this card is a person with disability. Non-transferable.<br>
+                Valid for 5 years. Any violations is punishable by law.<br>
+                <b>VALID ANYWHERE IN THE COUNTRY</b>
             </div>
         </div>
 
     @else
-        {{-- BACK SIDE --}}
-        <div style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+        {{-- ================= BACK ================= --}}
+        <div style="display:flex; flex-direction:column; gap:{{ $mm(2) }}; height:100%;">
+
             <div>
-                <div style="font-weight:700; font-size:{{ 6.5 * $scale }}pt;">ADDRESS</div>
-                <div style="border-bottom:1px solid #000; padding-bottom:{{ 0.5 * $scale }}mm; font-size:{{ 6.5 * $scale }}pt;">
-                    {{ trim(($form->street ?? '').' '.$form->barangay.' '.$form->municipality.' '.$form->province) }}
+                <div style="font-weight:700; font-size:{{ $pt(6.5) }};">ADDRESS</div>
+                <div style="border-bottom:1px solid #111; padding-bottom:{{ $mm(.6) }}; font-size:{{ $pt(6.5) }};">
+                    {{ trim(($form->street ?? '').' '.($form->barangay ?? '').' '.($form->municipality ?? '').' '.($form->province ?? '')) }}
                 </div>
+            </div>
 
-                <div style="display:flex; justify-content:space-between; margin-top:{{ 2.5 * $scale }}mm;">
-                    <div>
-                        <div style="font-weight:700;">DATE OF BIRTH</div>
-                        <div style="border-bottom:1px solid #000; font-size:{{ 6.5 * $scale }}pt;">
-                            {{ $form->birthdate ?? '—' }}
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-weight:700;">DATE ISSUED</div>
-                        <div style="border-bottom:1px solid #000; font-size:{{ 6.5 * $scale }}pt;">
-                            {{ $form->date_issued ?? '—' }}
-                        </div>
+            <div style="display:flex; gap:{{ $mm(3.2) }};">
+                <div style="flex:1;">
+                    <div style="font-weight:700; font-size:{{ $pt(6) }};">DATE OF BIRTH</div>
+                    <div style="border-bottom:1px solid #111; font-size:{{ $pt(6.5) }};">
+                        {{ $form->birthdate ?? '—' }}
                     </div>
                 </div>
-
-                <div style="display:flex; justify-content:space-between; margin-top:{{ 2.5 * $scale }}mm;">
-                    <div>
-                        <div style="font-weight:700;">BLOOD TYPE</div>
-                        <div style="border-bottom:1px solid #000; font-size:{{ 6.5 * $scale }}pt;">
-                            {{ $form->bloodtype ?? '—' }}
-                        </div>
+                <div style="flex:1;">
+                    <div style="font-weight:700; font-size:{{ $pt(6) }};">DATE ISSUED</div>
+                    <div style="border-bottom:1px solid #111; font-size:{{ $pt(6.5) }};">
+                        {{ $form->date_issued ?? '—' }}
                     </div>
-                    <div>
-                        <div style="font-weight:700;">SEX</div>
-                        <div style="border-bottom:1px solid #000; font-size:{{ 6.5 * $scale }}pt;">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:{{ $mm(3.2) }};">
+                <div style="flex:1;">
+                    <div style="font-weight:700; font-size:{{ $pt(6) }};">BLOOD TYPE</div>
+                    <div style="border-bottom:1px solid #111; font-size:{{ $pt(6.5) }};">
+                        {{ $form->bloodtype ?? '—' }}
+                    </div>
+                </div>
+                <div style="flex:1;">
+                    <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }};">
+                        <div style="font-weight:700; font-size:{{ $pt(6) }};">SEX</div>
+                        <div style="flex:1; border-bottom:1px solid #111; font-size:{{ $pt(6.5) }};">
                             {{ strtoupper($form->sex ?? '—') }}
                         </div>
                     </div>
                 </div>
-
-                <div style="margin-top:{{ 3 * $scale }}mm;">
-                    <div style="font-weight:700;">IN CASE OF EMERGENCY PLEASE NOTIFY :</div>
-                    <div style="border-bottom:1px solid #000; height:{{ 4 * $scale }}mm;"></div>
-                    <div style="border-bottom:1px solid #000; height:{{ 4 * $scale }}mm; margin-top:{{ 1 * $scale }}mm;"></div>
-                </div>
             </div>
 
-            {{-- MAYOR SIGNATURE --}}
-            <div style="text-align:right; font-size:{{ 6.5 * $scale }}pt;">
+            {{-- Emergency Contact --}}
+            <div>
+                <div style="font-weight:700; font-size:{{ $pt(6) }};">IN CASE OF EMERGENCY PLEASE NOTIFY :</div>
+
+                <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }}; margin-top:{{ $mm(.6) }};">
+                    <div style="white-space:nowrap; font-size:{{ $pt(6.5) }};">Parent/Guardian</div>
+                    <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.8) }}; font-size:{{ $pt(6.5) }};">
+                        {{ $iceNameDisplay }}
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }}; margin-top:{{ $mm(.8) }};">
+                    <div style="white-space:nowrap; font-size:{{ $pt(6.5) }};">Contact No.</div>
+                    <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.8) }}; font-size:{{ $pt(6.5) }};">
+                        {{ $icePhoneDisplay }}
+                    </div>
+                </div>
+            </div><div style="margin-bottom: 1px;"> </div>
+
+            {{-- Mayor signature --}}
+            <div style="text-align:right; font-size:{{ $pt(5.0) }}; margin-top:auto;">
                 @if($mayorSignature)
                     <img src="{{ $mayorSignature }}" alt="Mayor Signature"
-                        style="width:{{ 18 * $scale }}mm; height:auto; margin-bottom:-{{ 2 * $scale }}mm;">
+                        style="width:{{ $mm(18) }}; height:auto; margin-left:auto; margin-bottom:-{{ $mm(2) }};">
                 @endif
-                <div style="font-weight:700;">{{ $mayorName }}</div>
-                <div>City Mayor</div>
+                <div style="text-align:center; font-weight:700;">{{ $mayorName }}</div>
+                <div style="text-align:center;">City Mayor</div>
             </div>
         </div>
     @endif
