@@ -1,10 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SuperAdminAuthController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PrintIDController;
 use App\Http\Controllers\ReportsExportController;
+use App\Http\Controllers\ProfileController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,11 +38,20 @@ Route::get('/staff/login', function () {
 
 Route::post('/staff/login', [AdminAuthController::class, 'login']);
 
+//Login for Super Admin
+Route::get('/super-admin/login', function () {
+    return view('Auth.super_login');
+})->name('super-admin.login');
+
+Route::post('/super-admin/login', [SuperAdminAuthController::class, 'login']);
+
 //Logout for User
 Route::post('/logout', [AuthController::class, 'logout']);
 
 //Logout for Admin
 Route::post('/staff/logout', [AdminAuthController::class, 'logout']);
+
+Route::post('/super-admin/logout', [SuperAdminAuthController::class, 'logout']);
 
 
 // ============================================================
@@ -50,6 +62,11 @@ Route::post('/staff/logout', [AdminAuthController::class, 'logout']);
 Route::get('/home', function () {
     return view('User.user_base');
 })->name('home');
+
+Route::get('/profile/edit', function () {
+    return view('User.user_profile');
+})->name('profile.edit');
+
 
 // ============================================================
 //  ================  User Plus Icon Routes   ===============
@@ -70,19 +87,20 @@ Route::get('/form/support', function() {
     return view('User.user_support_form');
 })->name('form.support');
 
-
-
 // ============================================================
 //    =================  Admin Routes    =================
-// ============================================================
+// ============================================================)
 
 // Admin Home   
 Route::get('/staff/home', function () {
     return view('Staff.staff_base');
 })->name('staff.home');
 
+// Super Admin Home
+Route::get('/super-admin/home', function () {
+    return view('SuperAdmin.super_base');
+})->name('super-admin.home');
+
 // ID Preview
 Route::get('/admin/form-personal/{id}/print', [PrintIdController::class, 'print'])
     ->name('admin.form_personal.print');
-
-// Export Reports

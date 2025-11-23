@@ -14,11 +14,22 @@ class Profile extends Model
 
     protected $fillable = [
         'account_id',
+        'pwd_number',
         'fname',
         'mname',
         'lname',
+        'profile_picture',
         'contact_no',
         'sex',
+        'age',
+        'birthdate',
+        'civil_status',
+        'disability_type',
+        'house_no',
+        'street',
+        'barangay',
+        'municipality',
+        'province',
     ];
 
     /**

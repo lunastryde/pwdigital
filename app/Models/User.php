@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'identifier',
         'role',
+        'is_active',
     ];
 
     /**
@@ -46,9 +47,6 @@ class User extends Authenticatable
         return [];
     }
 
-    /**
-     * One-to-one profile record in `accounts_profile`.
-     */
     public function profile()
     {
         return $this->hasOne(Profile::class, 'account_id', 'id');

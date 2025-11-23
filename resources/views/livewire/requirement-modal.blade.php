@@ -52,7 +52,7 @@
                                     </div>
                                     <div class="space-y-1">
                                         <div class="text-sm text-gray-500 font-medium">Blood Type</div>
-                                        <div class="text-base text-gray-900">{{ $application->bloodtype ?? '—' }}</div>
+                                        <div class="text-base text-gray-900">{{ $application->blood_type ?? '—' }}</div>
                                     </div>
                                     <div class="space-y-1">
                                         <div class="text-sm text-gray-500 font-medium">PWD Number</div>

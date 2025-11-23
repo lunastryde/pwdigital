@@ -24,7 +24,17 @@
     
     <main class="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 py-12">
         <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Sign in to your account</h2>
+            <div class="mb-4">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900">
+                    Sign In
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Not registered? 
+                    <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-500 hover:underline">
+                        Create an account
+                    </a>
+                </p>
+            </div>
 
             <form action="/login" method="POST" class="space-y-5">
                 @csrf
@@ -60,9 +70,8 @@
                     />
                 </div>
 
-                <div class="flex items-center justify-between text-sm">
-                    <a href="#" class="text-blue-600 hover:text-blue-700">Forgot password?</a>
-                    <a href="{{ route('register') }}" class="text-gray-600 hover:text-gray-800">Create account</a>
+                <div class="flex items-center justify-end text-sm"> {{-- Changed from justify-between --}}
+                    <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">Forgot password?</a>
                 </div>
 
                 <button

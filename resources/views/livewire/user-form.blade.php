@@ -33,7 +33,7 @@
                         <div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">First Name</label>
+                                    <label class="block text-sm font-medium text-gray-700">First Name<span class="text-red-500"> *</span></label>
                                     <input type="text" wire:model.defer="first_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                                 <div>
@@ -41,7 +41,7 @@
                                     <input type="text" wire:model.defer="middle_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                                    <label class="block text-sm font-medium text-gray-700">Last Name<span class="text-red-500"> *</span></label>
                                     <input type="text" wire:model.defer="last_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                                 <div>
@@ -49,15 +49,24 @@
                                     <input type="text" wire:model.defer="suffix" placeholder="Leave blank if none" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                                    <input type="date" wire:model.defer="date_of_birth" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Date of Birth <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="date"
+                                        wire:model.live="date_of_birth"
+                                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
+
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Age</label>
-                                    <input type="number" min="0" wire:model.defer="age" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="number"
+                                        min="0"
+                                        wire:model="age"
+                                        disabled
+                                        class="mt-1 block w-full bg-gray-100 rounded-md border border-gray-300 px-3 py-2" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Type of Blood</label>
+                                    <label class="block text-sm font-medium text-gray-700">Type of Blood<span class="text-red-500"> *</span></label>
                                     <select wire:model.defer="blood_type" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">Select</option>
                                         <option>O+</option>
@@ -70,39 +79,38 @@
                                         <option>AB-</option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Sex <span class="text-red-500"> *</span>
+                                    </label>
+                                    <select wire:model.defer="gender"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Select Sex</option>
+                                        <option value="MALE">MALE</option>
+                                        <option value="FEMALE">FEMALE</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <!-- Civil Status -->
                             <div class="mt-6">
-                                <span class="block text-sm font-medium text-gray-700 mb-2">Civil Status</span>
-                                <div class="flex flex-wrap gap-6 text-sm text-gray-700">
+                                <span class="block text-sm font-medium text-gray-700 mb-2">Civil Status <span class="text-red-500"> *</span></span>
+                                <div class="flex flex-col gap-3 text-sm text-gray-700">
                                     <label class="inline-flex items-center gap-2">
                                         <input type="radio" name="civil_status" class="accent-blue-600" value="Single" wire:model.defer="civil_status"> Single
-                                    </label>
-                                    <label class="inline-flex items-center gap-2">
-                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Married" wire:model.defer="civil_status"> Married
                                     </label>
                                     <label class="inline-flex items-center gap-2">
                                         <input type="radio" name="civil_status" class="accent-blue-600" value="Separated" wire:model.defer="civil_status"> Separated
                                     </label>
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Divorced" wire:model.defer="civil_status"> Divorced
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Gender -->
-                            <div class="mt-6">
-                                <span class="block text-sm font-medium text-gray-700 mb-2">Gender</span>
-                                <div class="flex flex-wrap gap-6 text-sm text-gray-700">
-                                    <label class="inline-flex items-center gap-2">
-                                        <input type="radio" name="gender" class="accent-blue-600" value="Male" wire:model.defer="gender"> Male
+                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Cohabitation" wire:model.defer="civil_status"> Cohabitation (Live-in)
                                     </label>
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" name="gender" class="accent-blue-600" value="Female" wire:model.defer="gender"> Female
+                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Married" wire:model.defer="civil_status"> Married
                                     </label>
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="Others" wire:model.defer="gender"> Others
+                                        <input type="radio" name="civil_status" class="accent-blue-600" value="Widowed" wire:model.defer="civil_status"> Widow/er
                                     </label>
                                 </div>
                             </div>
@@ -113,26 +121,113 @@
                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">House No.</label>
+                                        <label class="block text-sm font-medium text-gray-700">House No.<span class="text-red-500"> *</span></label>
                                         <input type="text" wire:model.defer="house_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Street</label>
+                                        <label class="block text-sm font-medium text-gray-700">Street<span class="text-red-500"> *</span></label>
                                         <input type="text" wire:model.defer="street" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Barangay</label>
-                                    <input type="text" wire:model.defer="barangay" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Barangay <span class="text-red-500"> *</span>
+                                    </label>
+                                    <select wire:model.defer="barangay"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Select Barangay</option>
+                                        <option value="ADRIALUNA">Adrialuna</option>
+                                        <option value="BALITE">Balite</option>
+                                        <option value="BARUYAN">Baruyan</option>
+                                        <option value="BATINO">Batino</option>
+                                        <option value="BAYANAN I">Bayanan I</option>
+                                        <option value="BAYANAN II">Bayanan II</option>
+                                        <option value="BIGA">Biga</option>
+                                        <option value="BONDOC">Bondoc</option>
+                                        <option value="BUCAYAO">Bucayao</option>
+                                        <option value="BUHUAN">Buhuan</option>
+                                        <option value="BULUSAN">Bulusan</option>
+                                        <option value="CALERO">Calero</option>
+                                        <option value="CAMANSIHAN">Camansihan</option>
+                                        <option value="CAMILMIL">Camilmil</option>
+                                        <option value="CANUBING I">Canubing I</option>
+                                        <option value="CANUBING II">Canubing II</option>
+                                        <option value="COMUNAL">Comunal</option>
+                                        <option value="GUINOBATAN">Guinobatan</option>
+                                        <option value="GULOD">Gulod</option>
+                                        <option value="GUTAD">Gutad</option>
+                                        <option value="IBABA EAST">Ibaba East</option>
+                                        <option value="IBABA WEST">Ibaba West</option>
+                                        <option value="ILAYA">Ilaya</option>
+                                        <option value="LALUD">Lalud</option>
+                                        <option value="LAZARETO">Lazareto</option>
+                                        <option value="LIBIS">Libis</option>
+                                        <option value="LUMANG BAYAN">Lumang Bayan</option>
+                                        <option value="MAHAL NA PANGALAN">Mahal na Pangalan</option>
+                                        <option value="MAIDLANG">Maidlang</option>
+                                        <option value="MALAD">Malad</option>
+                                        <option value="MALAMIG">Malamig</option>
+                                        <option value="MANAGPI">Managpi</option>
+                                        <option value="MASIPIT">Masipit</option>
+                                        <option value="NAG-IBA I">Nag-iba I</option>
+                                        <option value="NAG-IBA II">Nag-iba II</option>
+                                        <option value="NAVOTAS">Navotas</option>
+                                        <option value="PACHOCA">Pachoca</option>
+                                        <option value="PALHI">Palhi</option>
+                                        <option value="PANGGALAAN">Panggalaan</option>
+                                        <option value="PARANG">Parang</option>
+                                        <option value="PATAS">Patas</option>
+                                        <option value="PERSONAS">Personas</option>
+                                        <option value="POBLACION I">Poblacion I</option>
+                                        <option value="POBLACION II">Poblacion II</option>
+                                        <option value="POBLACION III">Poblacion III</option>
+                                        <option value="POBLACION IV">Poblacion IV</option>
+                                        <option value="PUTINGTUBIG">Putingtubig</option>
+                                        <option value="SALONG (SAN RAPHAEL)">Salong (San Raphael)</option>
+                                        <option value="SAN ANTONIO">San Antonio</option>
+                                        <option value="SAN VICENTE CENTRAL">San Vicente Central</option>
+                                        <option value="SAN VICENTE EAST">San Vicente East</option>
+                                        <option value="SAN VICENTE NORTH">San Vicente North</option>
+                                        <option value="SAN VICENTE SOUTH">San Vicente South</option>
+                                        <option value="SAN VICENTE WEST">San Vicente West</option>
+                                        <option value="SANTA CRUZ">Santa Cruz</option>
+                                        <option value="SANTA ISABEL">Santa Isabel</option>
+                                        <option value="SANTA MARIA VILLAGE">Santa Maria Village</option>
+                                        <option value="SANTA RITA">Santa Rita</option>
+                                        <option value="SANTO NIÑO">Santo Niño</option>
+                                        <option value="SAPUL">Sapul</option>
+                                        <option value="SILONAY">Silonay</option>
+                                        <option value="SUQUI">Suqui</option>
+                                        <option value="TAWAGAN">Tawagan</option>
+                                        <option value="TAWIRAN">Tawiran</option>
+                                        <option value="TIBAG">Tibag</option>
+                                        <option value="WAWA">Wawa</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Municipality</label>
-                                    <input type="text" wire:model.defer="municipality" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Municipality
+                                    </label>
+                                    <input type="text"
+                                        wire:model.defer="municipality"
+                                        readonly
+                                        class="mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2
+                                                focus:ring-0 focus:border-gray-300 cursor-not-allowed"
+                                        value="Calapan City" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Province</label>
-                                    <input type="text" wire:model.defer="province" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Province
+                                    </label>
+                                    <input type="text"
+                                        wire:model.defer="province"
+                                        readonly
+                                        class="mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2
+                                                focus:ring-0 focus:border-gray-300 cursor-not-allowed"
+                                        value="Oriental Mindoro" />
                                 </div>
+
 
                                 <!-- Contact Details -->
                                 <div class="mt-6">
@@ -147,7 +242,10 @@
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700">Email Address</label>
-                                            <input type="email" wire:model.defer="email" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                            <input type="email"
+                                                wire:model="email"
+                                                class="mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed px-3 py-2"
+                                                readonly />
                                         </div>
                                         <div class="sm:col-span-2">
                                             <label class="block text-sm font-medium text-gray-700">Landline No. <span class="text-gray-400">(optional)</span></label>
@@ -164,17 +262,32 @@
                     <div class="mt-8 grid grid-cols-1 gap-8">
                         <!-- Type of Disability -->
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Type of Disability</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">
+                                Type of Disability <span class="text-red-500">*</span>
+                            </h3>
                             <div class="rounded-md border border-gray-200 p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm text-gray-800">
                                 @php
                                     $types = [
-                                        'Deaf / Hard hearing', 'Intellectual Disability', 'Learning Disability', 'Mental Disability', 'Physical Disability',
-                                        'Psychosocial Disability', 'Speech & Language Impairment', 'Visual Disability', 'Cancer', 'Rare Disease'
+                                        'Deaf / Hard hearing',
+                                        'Intellectual Disability',
+                                        'Learning Disability',
+                                        'Mental Disability',
+                                        'Physical Disability',
+                                        'Psychosocial Disability',
+                                        'Speech & Language Impairment',
+                                        'Visual Disability',
+                                        'Cancer',
+                                        'Rare Disease'
                                     ];
                                 @endphp
                                 @foreach ($types as $opt)
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="checkbox" class="accent-blue-600" value="{{ $opt }}" wire:model.defer="disability_types"> {{ $opt }}
+                                        <input type="radio"
+                                            class="accent-blue-600"
+                                            name="disability_type"
+                                            value="{{ strtoupper($opt) }}"
+                                            wire:model.defer="disability_type">
+                                        <span>{{ $opt }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -182,20 +295,45 @@
 
                         <!-- Cause of Disability -->
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Cause of Disability</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">
+                                Cause of Disability <span class="text-red-500">*</span>
+                            </h3>
                             <div class="rounded-md border border-gray-200 p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm text-gray-800">
                                 @php
                                     $causes = [
-                                        'Congenital or Inborn', 'Autism', 'ADHD', 'Cerebral Palsy', 'Acquired',
-                                        'Chronic Illness', 'Injury', 'Others, Specify'
+                                        'Congenital or Inborn',
+                                        'Autism',
+                                        'ADHD',
+                                        'Cerebral Palsy',
+                                        'Acquired',
+                                        'Chronic Illness',
+                                        'Injury',
+                                        'Others, Specify'
                                     ];
                                 @endphp
+
                                 @foreach ($causes as $opt)
                                     <label class="inline-flex items-center gap-2">
-                                        <input type="checkbox" class="accent-blue-600" value="{{ $opt }}" wire:model.defer="disability_causes"> {{ $opt }}
+                                        <input type="radio"
+                                            class="accent-blue-600"
+                                            value="{{ $opt === 'Others, Specify' ? 'Others, Specify' : strtoupper($opt) }}"
+                                            wire:model.live="disability_cause">
+                                        <span>{{ $opt }}</span>
                                     </label>
                                 @endforeach
                             </div>
+
+                            @if ($disability_cause === 'Others, Specify')
+                                <div class="mt-3">
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Please specify cause of disability <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text"
+                                        wire:model.defer="disability_cause_other"
+                                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -210,7 +348,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Educational Attainment -->
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Educational Attainment</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Educational Attainment <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 grid grid-cols-1 sm:grid-cols-2 gap-y-3 text-sm text-gray-800">
                                 @php
                                     $educs = ['None','Kindergarten','Elementary','Junior Highschool','Senior Highschool','College','Vocational / ALS','Post Graduate Program'];
@@ -225,7 +363,7 @@
 
                         <!-- Type of Employment -->
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Type of Employment</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Type of Employment <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                                 @foreach (['Permanent / Regular','Seasonal','Casual','Emergency'] as $opt)
                                     <label class="flex items-center gap-2">
@@ -237,7 +375,7 @@
 
                         <!-- Status Employment -->
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Status Employment</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Status Employment <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                                 @foreach (['Employed','Unemployed','Self-employed'] as $opt)
                                     <label class="flex items-center gap-2">
@@ -249,7 +387,7 @@
 
                         <!-- Category of Employment -->
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Category of Employment</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Category of Employment <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                                 @foreach (['Government','Private'] as $opt)
                                     <label class="flex items-center gap-2">
@@ -261,7 +399,7 @@
 
                         <!-- Occupation -->
                         <div class="md:col-span-2">
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Occupation</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Occupation <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 grid grid-cols-1 md:grid-cols-2 gap-y-3 text-sm text-gray-800">
                                 @php
                                     $occups = [
@@ -269,20 +407,31 @@
                                         'Skilled Agricultural, Forestry and Fishery Workers','Armed Forces Occupation','Elementary Occupation','Crafts & Related Trade Workers','Others, Specify'
                                     ];
                                 @endphp
+
                                 @foreach ($occups as $opt)
                                     <label class="flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="{{ $opt }}" wire:model.defer="occupation"> {{ $opt }}
+                                        <input type="radio"
+                                            class="accent-blue-600"
+                                            value="{{ $opt }}"
+                                            wire:model.live="occupation">
+                                        {{ $opt }}
                                     </label>
                                 @endforeach
-                                <div class="md:col-span-2">
-                                    <input type="text" placeholder="If Others, specify" wire:model.defer="occupation_other" class="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
+
+                                <input type="text"
+                                    placeholder="If Others, specify"
+                                    wire:model.defer="occupation_other"
+                                    @if($occupation !== 'Others, Specify') disabled @endif
+                                    class="block w-full rounded-md border border-gray-300 px-3 py-2
+                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                        @if($occupation !== 'Others, Specify') bg-gray-100 cursor-not-allowed @endif"
+                                />
                             </div>
                         </div>
 
                         <!-- 4P's Member -->
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">4P's Member</h3>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">4P's Member <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                                 @foreach (['YES','NO'] as $opt)
                                     <label class="flex items-center gap-2">
@@ -294,7 +443,7 @@
                     </div>
 
                     <!-- Second card: Organization Information & ID Reference -->
-                    <div class="bg-white border border-gray-200 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <h3 class="text-sm font-medium text-gray-900 mb-3">Organization Information</h3>
                             <div class="rounded-md border border-gray-200 p-4 space-y-4">
@@ -329,40 +478,104 @@
                                             <label class="block text-sm text-gray-700">Municipality</label>
                                             <input type="text" wire:model.defer="org_municipality" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
                                         </div>
-                                        <div class="sm:col-span-2">
+                                        <div class="sm:col-span-1">
                                             <label class="block text-sm text-gray-700">Province</label>
                                             <input type="text" wire:model.defer="org_province" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
                                         </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-700">Contact No.</label>
+                                            <input type="text" wire:model.defer="org_contact_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-700">Contact No.</label>
-                                    <input type="text" wire:model.defer="org_contact_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">ID Reference</h3>
-                            <div class="rounded-md border border-gray-200 p-4 space-y-4">
-                                <div>
-                                    <label class="block text-sm text-gray-700">SSS No.</label>
-                                    <input type="text" wire:model.defer="id_sss" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-700">GSIS No.</label>
-                                    <input type="text" wire:model.defer="id_gsis" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-700">PhilHealth No.</label>
-                                    <input type="text" wire:model.defer="id_philhealth" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-700">PAGIBIG No.</label>
-                                    <input type="text" wire:model.defer="id_pagibig" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-700">Others</label>
-                                    <input type="text" wire:model.defer="id_others" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900 mb-3">ID Reference</h3>
+                                <p class="text-xs text-gray-500 mb-2 pt-1">
+                                    Provide at least one valid ID number.<span class="text-red-500"> *</span>
+                                </p>
+                                <div class="rounded-md border border-gray-200 p-4 space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-700">
+                                            SSS No.
+                                        </label>
+                                        <input type="text" inputmode="numeric" 
+                                            pattern="[0-9]*"
+                                            wire:model.defer="id_sss"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder = "00-0000000-0"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">
+                                            GSIS No.
+                                        </label>
+                                        <input type="text" inputmode="numeric" 
+                                            pattern="[0-9]*"
+                                            wire:model.defer="id_gsis" 
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder = "0000-0000000-0"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">
+                                            PhilHealth No.
+                                        </label>
+                                        <input type="text" inputmode="numeric" 
+                                            pattern="[0-9]*"
+                                            wire:model.defer="id_philhealth" 
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder = "00-000000000-0"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">
+                                            PAGIBIG No.
+                                        </label>
+                                        <input type="text" inputmode="numeric" 
+                                            pattern="[0-9]*"
+                                            wire:model.defer="id_pagibig" 
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder= "0000-0000-0000"
+                                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    </div>
+
+                                    {{-- Other IDs --}}
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-700">
+                                                Other Valid ID
+                                            </label>
+                                            <select wire:model.live="id_others_type"
+                                                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select ID Type</option>
+                                                <option value="PhilSys ID (National ID)">PhilSys ID (National ID)</option>
+                                                <option value="Unified Multi-Purpose ID (UMID)">Unified Multi-Purpose ID (UMID)</option>
+                                                <option value="Driver's License">Driver's License</option>
+                                                <option value="PRC ID">PRC ID</option>
+                                                <option value="Philippine Passport">Philippine Passport</option>
+                                                <option value="TIN ID">TIN ID</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-700">
+                                                Other ID Number
+                                            </label>
+                                            <input type="text"
+                                                wire:model.defer="id_others_number"
+                                                @if(empty($id_others_type)) disabled @endif
+                                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        @if(empty($id_others_type)) bg-gray-100 cursor-not-allowed @endif" />
+                                        </div>
+                                    </div>
+
+                                    @error('id_reference')
+                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -380,43 +593,51 @@
                     <div>
                         <h3 class="text-sm font-medium text-gray-900 mb-3">Family Background</h3>
                         <div class="rounded-md border border-gray-200 p-4 bg-gray-50">
-                            <div class="grid grid-cols-5 gap-3 text-sm text-gray-700 font-medium mb-3">
+
+                            <div class="hidden sm:grid grid-cols-5 gap-3 text-sm text-gray-700 font-medium mb-3">
                                 <div></div>
                                 <div>Last Name</div>
                                 <div>First Name</div>
                                 <div>Middle Name</div>
                                 <div>Contact No.</div>
                             </div>
-                            <!-- Father row -->
-                            <div class="grid grid-cols-5 gap-3 items-center mb-3">
-                                <div class="text-sm text-gray-800">Father's</div>
-                                <input type="text" wire:model.defer="father_last" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="father_first" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="father_middle" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="father_contact" class="rounded-md border border-gray-300 px-3 py-2" />
+
+                            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-center mb-3">
+                                <div class="text-sm text-gray-800">
+                                    <span class="sm:inline block font-medium">Father's Name</span>
+                                </div>
+                                <input type="text" wire:model.defer="father_last" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Last Name" />
+                                <input type="text" wire:model.defer="father_first" class="rounded-md border border-gray-300 px-3 py-2" placeholder="First Name" />
+                                <input type="text" wire:model.defer="father_middle" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Middle Name" />
+                                <input type="text" wire:model.defer="father_contact" class="rounded-md border border-gray-300 px-3 py-2" placeholder="09XXXXXXXXX" />
                             </div>
-                            <!-- Mother row -->
-                            <div class="grid grid-cols-5 gap-3 items-center mb-3">
-                                <div class="text-sm text-gray-800">Mother's</div>
-                                <input type="text" wire:model.defer="mother_last" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="mother_first" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="mother_middle" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="mother_contact" class="rounded-md border border-gray-300 px-3 py-2" />
+
+                            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-center mb-3">
+                                <div class="text-sm text-gray-800">
+                                    <span class="sm:inline block font-medium">Mother's Name</span>
+                                </div>
+                                <input type="text" wire:model.defer="mother_last" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Last Name" />
+                                <input type="text" wire:model.defer="mother_first" class="rounded-md border border-gray-300 px-3 py-2" placeholder="First Name" />
+                                <input type="text" wire:model.defer="mother_middle" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Middle Name" />
+                                <input type="text" wire:model.defer="mother_contact" class="rounded-md border border-gray-300 px-3 py-2" placeholder="09XXXXXXXXX" />
                             </div>
-                            <!-- Spouse / Guardian row (with contact field) -->
-                            <div class="grid grid-cols-5 gap-3 items-center">
-                                <div class="text-sm text-gray-800">Spouse / Guardian</div>
-                                <input type="text" wire:model.defer="spouse_last" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="spouse_first" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="spouse_middle" class="rounded-md border border-gray-300 px-3 py-2" />
-                                <input type="text" wire:model.defer="spouse_contact" class="rounded-md border border-gray-300 px-3 py-2" />
+
+                            <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-center">
+                                <div class="text-sm text-gray-800">
+                                    <span class="sm:inline block font-medium">Spouse / Guardian <span class="text-red-500"> *</span></span>
+                                </div>
+                                <input type="text" wire:model.defer="spouse_last" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Last Name" />
+                                <input type="text" wire:model.defer="spouse_first" class="rounded-md border border-gray-300 px-3 py-2" placeholder="First Name" />
+                                <input type="text" wire:model.defer="spouse_middle" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Middle Name" />
+                                <input type="text" wire:model.defer="spouse_contact" class="rounded-md border border-gray-300 px-3 py-2" placeholder="09XXXXXXXXX" />
                             </div>
                         </div>
                     </div>
 
+
                     <!-- Physician Name -->
                     <div class="mt-6">
-                        <label class="block text-sm font-medium text-gray-700">Physician Name</label>
+                        <label class="block text-sm font-medium text-gray-700">Physician Name <span class="text-red-500"> *</span></label>
                         <input type="text" wire:model.defer="physician_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                     </div>
 
@@ -440,7 +661,7 @@
                             <!-- 1x1 ID Picture -->
                             <div class="bg-white border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h4 class="font-medium text-gray-900">1x1 ID Picture</h4>
+                                    <h4 class="font-medium text-gray-900">1x1 ID Picture <span class="text-red-500"> *</span></h4>
                                     <span class="text-xs text-gray-500">JPG, JPEG, PNG only</span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -487,7 +708,7 @@
                             <!-- PSA Birth Certificate -->
                             <div class="bg-white border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h4 class="font-medium text-gray-900">PSA Birth Certificate</h4>
+                                    <h4 class="font-medium text-gray-900">PSA Birth Certificate <span class="text-red-500"> *</span></h4>
                                     <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -534,7 +755,7 @@
                             <!-- Certificate of Disability -->
                             <div class="bg-white border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h4 class="font-medium text-gray-900">Certificate of Disability</h4>
+                                    <h4 class="font-medium text-gray-900">Certificate of Disability <span class="text-red-500"> *</span></h4>
                                     <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -581,7 +802,7 @@
                             <!-- Medical Certificate -->
                             <div class="bg-white border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h4 class="font-medium text-gray-900">Medical Certificate</h4>
+                                    <h4 class="font-medium text-gray-900">Medical Certificate <span class="text-red-500"> *</span></h4>
                                     <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -628,7 +849,7 @@
                             <!-- Endorsement Letter -->
                             <div class="bg-white border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h4 class="font-medium text-gray-900">Endorsement Letter</h4>
+                                    <h4 class="font-medium text-gray-900">Endorsement Letter <span class="text-red-500"> *</span></h4>
                                     <span class="text-xs text-gray-500">PDF, DOC, DOCX, JPG, JPEG, PNG</span>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -703,11 +924,15 @@
                     </div>
                                         
                     <!-- Submit Button-->
-                    <div class="flex justify-end">
-                        <button type="submit" class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2.5 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Submit Application
-                        </button>
-                    </div>
+                    @php
+                        $canSubmit = $this->isFormComplete();
+                    @endphp
+                    <button type="submit"
+                            @if(!$canSubmit) disabled @endif
+                            class="inline-flex items-center rounded-md px-4 py-2.5 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500
+                                {{ $canSubmit ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}">
+                        Submit Application
+                    </button>
                 </form>
             </div>
         @endif

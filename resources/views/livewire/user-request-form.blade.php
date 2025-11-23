@@ -123,7 +123,7 @@
                     <!-- Device Request Form -->
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Are you a Local Social Pension recipient?</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Are you a Local Social Pension recipient? <span class="text-red-500"> *</span></label>
                             <div class="flex space-x-4">
                                 <label class="flex items-center">
                                     <input type="radio" wire:model="local_social_pension" value="Y" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
@@ -138,13 +138,14 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Device Requested</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Device Requested <span class="text-red-500"> *</span></label>
                             <input type="text" wire:model.defer="device_requested" placeholder="e.g., Wheelchair, Hearing Aid, Crutches" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             @error('device_requested') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Request <span class="text-red-500"> *</span></label>
+                            <p class="text-xs text-gray-500 mb-2 pt-1">You can use Tagalog or English.</p>
                             <textarea wire:model.defer="device_reason" rows="4" placeholder="Please explain why you need this device and how it will help you..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                             @error('device_reason') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                         </div>
@@ -154,7 +155,7 @@
                     <!-- Booklet Request Form -->
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Type of Booklet</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Type of Booklet <span class="text-red-500"> *</span></label>
                             <div class="space-y-3">
                                 <label class="flex items-start p-3 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer">
                                     <input type="radio" wire:model="booklet_type" value="grocery" class="mt-1 w-4 h-4 text-green-600 focus:ring-green-500">
@@ -175,7 +176,8 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Request <span class="text-red-500"> *</span></label>
+                            <p class="text-xs text-gray-500 mb-2 pt-1">You can use Tagalog or English.</p>
                             <textarea wire:model.defer="booklet_reason" rows="4" placeholder="Please explain why you need this booklet..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
                             @error('booklet_reason') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                         </div>
@@ -186,6 +188,7 @@
                     <div class="space-y-5">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Financial Assistance Request</label>
+                            <p class="text-xs text-gray-500 mb-2 pt-1">You can use Tagalog or English.</p>
                             <textarea wire:model.defer="financial_reason" rows="6" placeholder="Please provide detailed information about why you need financial assistance, including any medical expenses, emergency situations, or other relevant circumstances..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
                             <p class="text-xs text-gray-500 mt-1">Please be as specific as possible about your situation and needs.</p>
                             @error('financial_reason') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
@@ -196,7 +199,11 @@
 
             <!-- Submit Button -->
             <div class="flex justify-end space-x-3">
-                <button type="button" onclick="window.history.back()" class="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors">
+                <button type="button" onclick="window.history.back()" 
+                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-300 rounded-md font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
                     Cancel
                 </button>
                 <button type="submit" 

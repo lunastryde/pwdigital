@@ -164,7 +164,7 @@
                 <div style="flex:1;">
                     <div style="font-weight:700; font-size:{{ $pt(6) }};">BLOOD TYPE</div>
                     <div style="border-bottom:1px solid #111; font-size:{{ $pt(6.5) }};">
-                        {{ $form->bloodtype ?? '—' }}
+                        {{ $form->blood_type ?? '—' }}
                     </div>
                 </div>
                 <div style="flex:1;">

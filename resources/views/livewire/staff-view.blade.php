@@ -30,16 +30,21 @@
                 <div class="ml-auto relative">
                     <details class="relative">
                         <summary class="list-none p-1 rounded-full hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Profile menu">
-                            <div class="w-9 h-9 rounded-full bg-blue-200 ring-2 ring-blue-300 flex items-center justify-center text-blue-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                    <path fill-rule="evenodd" d="M12 2.25a5.25 5.25 0 00-3.71 9.01A9.004 9.004 0 003 19.5a.75.75 0 001.5 0 7.5 7.5 0 0115 0 .75.75 0 001.5 0 9.004 9.004 0 00-5.29-8.24A5.25 5.25 0 0012 2.25zm0 8.25a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clip-rule="evenodd" />
-                                </svg>
+                            <div class="w-9 h-9 rounded-full overflow-hidden bg-gray-200 ring-2 ring-gray-300 flex items-center justify-center">
+                                @if (Auth::user()->profile && Auth::user()->profile->profile_picture)
+                                    <img src="{{ asset('storage/' . Auth::user()->profile->profile_picture) }}"
+                                        class="w-full h-full object-cover">
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd" d="M12 2a5 5 0 00-3.5 8.5A9 9 0 003 19h18a9 9 0 00-5.5-8.5A5 5 0 0012 2z" clip-rule="evenodd"/>
+                                    </svg>
+                                @endif
                             </div>
                         </summary>
 
                         <div class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
                             <!-- Profile Settings -->
-                            <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-gray-500">
                                     <circle cx="12" cy="8" r="3" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -102,25 +107,14 @@
                     <span>Encode Form</span>
                 </a>
 
-                {{-- @if (auth()->user()->identifier == 1)
-                    <a wire:click="$set('section','admin')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='admin' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
+                @if (auth()->user()->identifier == 1)
+                    <a wire:click="$set('section','admin')" 
+                    class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='admin' ? 'bg-white/10' : 'hover:bg-white/10' }}" 
+                    href="#" 
+                    onclick="return false;">
                         <span>Admin Panel</span>
                     </a>
-                @endif --}}
-
-                @php
-                    $isAdmin = auth()->user()->identifier == 1;
-                @endphp
-                <a 
-                    @if($isAdmin) 
-                        wire:click="$set('section','admin')" 
-                        href="#" onclick="return false;" 
-                    @endif
-                    class="flex items-center gap-3 px-3 py-2 rounded-md transition
-                        {{ $section==='admin' ? 'bg-white/10' : 'hover:bg-white/10' }}
-                        {{ !$isAdmin ? 'opacity-50 cursor-not-allowed' : '' }}">
-                    <span>Admin Panel</span>
-                </a>
+                @endif
 
                 <a wire:click="$set('section','released')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='released' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Released ID</span>
@@ -233,7 +227,7 @@
                                                         $statusClass = 'inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full';
                                                         if ($status === 'Pending') {
                                                             $statusClass .= ' bg-yellow-100 text-yellow-800';
-                                                        } elseif ($status === 'Awaiting Admin Approval') {
+                                                        } elseif ($status === 'Under Final Review') {
                                                             $statusClass .= ' bg-blue-100 text-blue-800';
                                                         } elseif ($status === 'Finalized') {
                                                             $statusClass .= ' bg-green-100 text-green-800';
@@ -395,7 +389,7 @@
 
                     <button wire:click="confirmAcceptPersonal"
                         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Yes, Accept
+                        Confirm
                     </button>
                 </div>
             </div>
@@ -417,7 +411,7 @@
 
                     <button wire:click="confirmAcceptRequest"
                         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Yes, Accept
+                        Confirm
                     </button>
                 </div>
             </div>

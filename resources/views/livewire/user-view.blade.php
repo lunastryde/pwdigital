@@ -27,13 +27,6 @@
                     </button>
                     <button
                         type="button"
-                        wire:click="setTab('drafts')"
-                        class="py-4 px-1 border-b-2 text-sm font-medium transition-colors
-                            {{ $tab === 'drafts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                        Drafts
-                    </button>
-                    <button
-                        type="button"
                         wire:click="setTab('notifications')"
                         class="py-4 px-1 border-b-2 text-sm font-medium transition-colors {{ $tab === 'notifications' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                         <span class="relative inline-flex items-center">
@@ -62,7 +55,7 @@
                         <div class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
 
                             <!-- Account Settings -->
-                            <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-gray-500">
                                     <circle cx="12" cy="8" r="3" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -132,11 +125,17 @@
 
                     <div class="flex flex-col sm:flex-row gap-6">
                         <!-- Avatar -->
-                        <div class="flex-shrink-0">
-                            <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ring-2 ring-gray-300">
-                                
-                            </div>
+                        <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gray-200 overflow-hidden ring-2 ring-gray-300 flex items-center justify-center">
+                            @if ($profile->profile_picture)
+                                <img src="{{ asset('storage/' . $profile->profile_picture) }}"
+                                    class="w-full h-full object-cover">
+                            @else
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd" d="M12 2a5 5 0 00-3.5 8.5A9 9 0 003 19h18a9 9 0 00-5.5-8.5A5 5 0 0012 2z" clip-rule="evenodd"/>
+                                </svg>
+                            @endif
                         </div>
+
 
                         <!-- Details -->
                         <div class="flex-1">
@@ -148,7 +147,7 @@
                                     <dl class="space-y-2 text-sm">
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">PWD ID</dt>
-                                            <dd class="font-medium text-gray-900">{{ $user->pwd_id ?? '—' }}</dd>
+                                            <dd class="font-medium text-gray-900">{{ $profile->pwd_number ?? '—' }}</dd>
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">Full Name</dt>
@@ -160,7 +159,7 @@
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">Date of Birth</dt>
-                                            <dd class="font-medium text-gray-900">{{ $user->date_of_birth ?? '—' }}</dd>
+                                            <dd class="font-medium text-gray-900">{{ $profile->birthdate ?? '—' }}</dd>
                                         </div>
                                     </dl>
                                 </div>
@@ -168,15 +167,30 @@
                                     <dl class="space-y-2 text-sm">
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">Civil Status</dt>
-                                            <dd class="font-medium text-gray-900">{{ $user->civil_status ?? '—' }}</dd>
+                                            <dd class="font-medium text-gray-900">{{ $profile->civil_status ?? '—' }}</dd>
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">Type of Disability</dt>
-                                            <dd class="font-medium text-gray-900">{{ $user->disability_type ?? '—' }}</dd>
+                                            <dd class="font-medium text-gray-900">{{ $profile->disability_type ?? '—' }}</dd>
                                         </div>
                                         <div class="flex items-center justify-between">
                                             <dt class="text-gray-500">Email</dt>
                                             <dd class="font-medium text-gray-900">{{ $user->email ?? '—' }}</dd>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <dt class="text-gray-500">Address</dt>
+                                            <dd class="font-medium text-gray-900">
+                                                @php
+                                                    $addrParts = array_filter([
+                                                        $profile->house_no ?? null,
+                                                        $profile->street ?? null,
+                                                        $profile->barangay ?? null,
+                                                        $profile->municipality ?? null,
+                                                        $profile->province ?? null,
+                                                    ]);
+                                                @endphp
+                                                {{ $addrParts ? implode(', ', $addrParts) : '—' }}
+                                            </dd>
                                         </div>
                                     </dl>
                                 </div>
@@ -392,12 +406,6 @@
                     </div>
                 </div>
                 @livewire('user-applications-tab')
-            </div>
-
-        @elseif ($tab === 'drafts')
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-lg font-semibold mb-2">Drafts</h2>
-                <p class="text-gray-600 text-sm">Placeholder for drafts.</p>
             </div>
             
         @elseif ($tab === 'notifications')

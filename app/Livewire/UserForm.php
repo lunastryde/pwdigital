@@ -20,12 +20,12 @@ class UserForm extends Component
 
     // Step 1: Personal Information + Disability
     public string $first_name = '';
-    public string $middle_name = '';
+    public ?string $middle_name = null;
     public string $last_name = '';
     public string $suffix = '';
     public ?string $date_of_birth = null;
     public string $blood_type = '';
-    public string $age = '';
+    public ?string $age = '';
 
     public string $civil_status = '';
     public string $gender = '';
@@ -44,8 +44,9 @@ class UserForm extends Component
     // removed region field from UI
 
     // Disability info (moved to Step 1 UI)
-    public array $disability_types = [];
-    public array $disability_causes = [];
+    public string $disability_type = '';
+    public string $disability_cause = '';
+    public ?string $disability_cause_other = '';
 
     // Step 2: Education, Employment, Organization, IDs
     public string $educational_attainment = '';
@@ -70,8 +71,11 @@ class UserForm extends Component
     public string $id_sss = '';
     public string $id_gsis = '';
     public string $id_philhealth = '';
-    public string $id_others = '';
     public string $id_pagibig = '';
+    public string $id_others = '';
+    public string $id_others_type = '';
+    public string $id_others_number = '';
+
 
     // Step 3: Family Background
     // Family background
@@ -115,6 +119,22 @@ class UserForm extends Component
             session()->flash('error', 'You already have an active PWD ID. Please request renewal or lost ID instead.');
             return redirect()->route('home', ['tab' => 'applications']);
         }
+
+        $profile = auth()->user()->profile;
+
+        // Prefill readonly fields (from registration)
+        $this->first_name   = $profile->fname;
+        $this->middle_name  = $profile->mname;
+        $this->last_name    = $profile->lname;
+        $this->gender       = strtoupper($profile->sex);
+        $this->mobile_no    = $profile->contact_no;
+        $this->date_of_birth = $profile->birthdate;
+        $this->age          = $profile->age;
+
+
+        $this->municipality = 'Calapan City';
+        $this->province     = 'Oriental Mindoro';
+        $this->email = Auth::user()->email;
     }
 
     public function nextStep(): void
@@ -189,12 +209,61 @@ class UserForm extends Component
         ];
     }
 
-    /**
-     * Persist the application across related tables.
-     */
+    public function isFormComplete(): bool
+    {
+        // Required text-like fields
+        $required = [
+            $this->first_name,
+            $this->last_name,
+            $this->date_of_birth,
+            $this->gender,         // still property 'gender', label "Sex"
+            $this->civil_status,
+            $this->barangay,
+            $this->municipality,
+            $this->province,
+            $this->disability_type,
+            $this->disability_cause,
+        ];
+
+        foreach ($required as $value) {
+            if (trim((string) $value) === '') {
+                return false;
+            }
+        }
+
+        // At least one ID reference
+        $hasAnyId =
+            !empty($this->id_sss) ||
+            !empty($this->id_gsis) ||
+            !empty($this->id_philhealth) ||
+            !empty($this->id_pagibig) ||
+            (!empty($this->id_others_type) && !empty($this->id_others_number));
+
+        if (!$hasAnyId) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function updatedDateOfBirth($value)
+    {
+        if ($value) {
+            try {
+                $this->age = \Carbon\Carbon::parse($value)->age;
+            } catch (\Exception $e) {
+                $this->age = null;
+            }
+        } else {
+            $this->age = null;
+        }
+    }
+
+
     public function submit(): void
     {
         // Basic validation for required fields present in the UI
+        // NEED NAKALAGAY LAHAT DITO PARA UMILAW MAAYOS YUNG SUBMIT
         $this->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -210,6 +279,13 @@ class UserForm extends Component
             'employment_status' => 'nullable|string|max:100',
             'employment_category' => 'nullable|string|max:100',
             'occupation' => 'nullable|string|max:150',
+
+            // ID validation rules
+            'id_sss'        => 'nullable|numeric|digits:10',
+            'id_philhealth' => 'nullable|numeric|digits:12',
+            'id_pagibig'    => 'nullable|numeric|digits:12',
+            'id_gsis'       => 'nullable|numeric|digits_between:10,12',
+            'id_others_number' => 'nullable|string|max:20',
         ]);
 
         $account = Auth::user();
@@ -221,14 +297,46 @@ class UserForm extends Component
         // Generate 8-digit PWD number
         $pwdNumber = str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
 
-        // Compose disability strings (DB columns are VARCHAR)
-        $disabilityType = empty($this->disability_types) ? null : implode(', ', $this->disability_types);
-        $disabilityCause = empty($this->disability_causes) ? null : implode(', ', $this->disability_causes);
+        // --- Require at least one ID reference ---
+        if (
+            empty($this->id_sss) &&
+            empty($this->id_gsis) &&
+            empty($this->id_philhealth) &&
+            empty($this->id_pagibig) &&
+            (empty($this->id_others_type) || empty($this->id_others_number))
+        ) {
+            $this->addError('id_reference', 'Please provide at least one valid ID number.');
+            $this->step = 2;
+            return;
+        }
+
+        // Compose disability strings
+        $disabilityType = $this->disability_type ?: null;
+
+        if ($this->disability_cause === 'Others, Specify') {
+            $disabilityCause = $this->disability_cause_other ?: 'Others, Specify';
+        } else {
+            $disabilityCause = $this->disability_cause ?: null;
+        }
+
+        // Compose occupation field
+        if ($this->occupation === 'Others, Specify') {
+            $finalOccupation = $this->occupation_other ?: 'Others, Specify';
+        } else {
+            $finalOccupation = $this->occupation ?: null;
+        }
+
+        // Compose refno_others
+        if (!empty($this->id_others_type) && !empty($this->id_others_number)) {
+            $refOther = $this->id_others_type . ' - ' . $this->id_others_number;
+        } else {
+            $refOther = null;
+        }
+
 
         // 1) form_personal
         $personal = FormPersonal::create([
-            // Foreign keys / linkage
-            'account_id'     => $account->id,             // explicit FK to accounts_master
+            'account_id'     => $account->id,
 
             // Account snapshot
             'email'          => $this->email ?: ($account->email ?? ''),
@@ -247,7 +355,7 @@ class UserForm extends Component
             'birthdate'      => $this->date_of_birth,
             'age'            => $this->age ?: null,
             'sex'            => $this->gender,
-            'bloodtype'      => $this->blood_type ?: null,
+            'blood_type'      => $this->blood_type ?: null,
             'civil_status'   => $this->civil_status,
             'disability_type'=> $disabilityType,
             'disability_cause'=> $disabilityCause,
@@ -270,7 +378,7 @@ class UserForm extends Component
         // 2) form_occupation
         FormOccupation::create([
             'applicant_id'        => $personal->applicant_id,
-            'occupation'          => $this->occupation ?: ($this->occupation_other ?: null),
+            'occupation'          => $finalOccupation,
             'employment_status'   => $this->employment_status ?: null,
             'employment_category' => $this->employment_category ?: null,
             'employment_type'     => $this->employment_type ?: null,
@@ -297,7 +405,7 @@ class UserForm extends Component
             'refno_gsis'      => $this->id_gsis ?: null,
             'refno_pagibig'   => $this->id_pagibig ?: null,
             'refno_philhealth'=> $this->id_philhealth ?: null,
-            'refno_others'    => $this->id_others ?: null,
+            'refno_others'    => $refOther,
         ]);
 
         // 5) form_guardian

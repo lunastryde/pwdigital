@@ -15,7 +15,7 @@ class UserView extends Component
 {
     /**
      * Currently active tab key.
-     * Supported: profile, applications, drafts, notifications
+     * Supported: profile, applications, notifications
      */
     public string $tab = 'profile';
 
@@ -28,7 +28,7 @@ class UserView extends Component
 
     public function setTab(string $tab): void
     {
-        $allowed = ['profile', 'applications', 'drafts', 'notifications'];
+        $allowed = ['profile', 'applications', 'notifications'];
         if (in_array($tab, $allowed, true)) {
             $this->tab = $tab;
         }

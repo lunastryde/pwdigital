@@ -8,7 +8,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-    <header class="relative w-full h-25 bg-blue-600 flex items-center justify-center">
+    <header class="relative w-full h-25 bg-violet-600 flex items-center justify-center">
         <div class="absolute top-2 left-4 z-10">
             <img src="{{ asset('images/pdao_logo.png') }}" 
                 alt="PWD Office Logo" 
@@ -29,9 +29,9 @@
                      alt="PWD Office Logo" 
                      class="w-40 h-40 rounded-full border-4 border-white shadow-lg">
             </div>
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Sign in</h2>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">SUPER ADMIN</h2>
 
-            <form action="{{ route('staff.login') }}" method="POST" class="space-y-5">
+            <form action="{{ route('super-admin.login') }}" method="POST" class="space-y-5">
                 @csrf
 
                 <div>
@@ -67,7 +67,7 @@
 
                 <button
                     type="submit"
-                    class="w-full inline-flex justify-center items-center rounded-md bg-blue-600 px-4 py-2.5 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    class="w-full inline-flex justify-center items-center rounded-md bg-violet-600 px-4 py-2.5 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     Login
                 </button>
             </form>

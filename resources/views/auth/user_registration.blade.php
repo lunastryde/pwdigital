@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -29,102 +30,146 @@
             <form action="/register" method="POST" class="space-y-5">
                 @csrf
 
+                {{-- Email --}}
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <label for="email" class="block text-sm font-medium text-gray-700">
+                        Email <span class="text-red-500">*</span>
+                    </label>
                     <input
                         id="email"
                         type="email"
                         name="email"
+                        value="{{ old('email') }}"
                         placeholder="you@example.com"
                         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         required
                         autocomplete="email"
                     />
+                    @error('email')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
+                {{-- Username --}}
                 <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <label for="username" class="block text-sm font-medium text-gray-700">
+                        Username <span class="text-red-500">*</span>
+                    </label>
                     <input
                         id="username"
                         type="text"
                         name="username"
+                        value="{{ old('username') }}"
                         placeholder="Choose a username"
                         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         required
                         autocomplete="username"
                     />
+                    @error('username')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <!-- Name fields -->
+                {{-- Names --}}
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">
+                            First Name <span class="text-red-500">*</span>
+                        </label>
                         <input
                             id="first_name"
                             type="text"
                             name="first_name"
-                            placeholder=""
+                            value="{{ old('first_name') }}"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required
                             autocomplete="given-name"
                         />
+                        @error('first_name')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
-                        <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
+                        <label for="middle_name" class="block text-sm font-medium text-gray-700">
+                            Middle Name
+                        </label>
                         <input
                             id="middle_name"
                             type="text"
                             name="middle_name"
+                            value="{{ old('middle_name') }}"
                             placeholder="Optional"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             autocomplete="additional-name"
                         />
+                        @error('middle_name')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
-                        <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
                         <input
                             id="last_name"
                             type="text"
                             name="last_name"
-                            placeholder=""
+                            value="{{ old('last_name') }}"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required
                             autocomplete="family-name"
                         />
+                        @error('last_name')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
-                <!-- Contact & Gender -->
+                {{-- Contact & Sex --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="contact_number" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                        <label for="contact_no" class="block text-sm font-medium text-gray-700">
+                            Contact Number <span class="text-red-500">*</span>
+                        </label>
                         <input
                             id="contact_no"
                             type="text"
                             name="contact_no"
+                            value="{{ old('contact_no') }}"
                             placeholder="09XXXXXXXXX"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required
                             inputmode="numeric"
                         />
+                        @error('contact_no')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
-                        <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                        <label for="sex" class="block text-sm font-medium text-gray-700">
+                            Gender <span class="text-red-500">*</span>
+                        </label>
                         <select
                             id="sex"
                             name="sex"
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required
                         >
-                            <option value="" disabled selected>Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
+                            <option value="" disabled {{ old('sex') ? '' : 'selected' }}>Select gender</option>
+                            <option value="Male"   {{ old('sex') === 'Male' ? 'selected' : '' }}>Male</option>
+                            <option value="Female" {{ old('sex') === 'Female' ? 'selected' : '' }}>Female</option>
                         </select>
+                        @error('sex')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
+                {{-- Password --}}
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <label for="password" class="block text-sm font-medium text-gray-700">
+                        Password <span class="text-red-500">*</span>
+                    </label>
                     <input
                         id="password"
                         type="password"
@@ -134,6 +179,27 @@
                         required
                         autocomplete="new-password"
                     />
+                    @error('password')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Date of Birth --}}
+                <div>
+                    <label for="date_of_birth" class="block text-sm font-medium text-gray-700">
+                        Date of Birth <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="date_of_birth"
+                        type="date"
+                        name="date_of_birth"
+                        value="{{ old('date_of_birth') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                    @error('date_of_birth')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <button
@@ -142,7 +208,10 @@
                     Register
                 </button>
 
-                <p class="text-sm text-center text-gray-600">Already have an account? <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700">Sign in</a></p>
+                <p class="text-sm text-center text-gray-600 mt-2">
+                    Already have an account?
+                    <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700">Sign in</a>
+                </p>
             </form>
         </div>
     </main>

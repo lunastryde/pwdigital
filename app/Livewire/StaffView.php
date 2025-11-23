@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\User;
+use Carbon\Carbon;
+
 
 class StaffView extends Component
 {
@@ -100,7 +103,7 @@ class StaffView extends Component
 
         if ($application) {
             $application->update([
-                'status' => 'Awaiting Admin Approval',
+                'status' => 'Under Final Review',
                 'reviewed_by' => auth()->user()->identifier,
                 'reviewed_at' => now(),
                 'remarks' => null
@@ -133,7 +136,7 @@ class StaffView extends Component
 
         if ($request) {
             $request->update([
-                'status' => 'Awaiting Admin Approval',
+                'status' => 'Under Final Review',
                 'reviewed_by' => auth()->user()->identifier,
                 'reviewed_at' => now(),
                 'remarks' => null
@@ -175,7 +178,7 @@ class StaffView extends Component
             $personal->update([
                 'status' => 'Finalized',
                 'date_issued' => now(),
-                'expiration_date' => now()->addYears(3),
+                'expiration_date' => now()->addYears(5),
                 'reviewed_by' => auth()->user()->identifier,
                 'reviewed_at' => now(),
             ]);
@@ -264,8 +267,37 @@ class StaffView extends Component
                 'date_issued' => now(),
                 'reviewed_by' => auth()->user()->identifier,
                 'reviewed_at' => now(),
-                'expiration_date' => now()->addYears(3),
+                'expiration_date' => now()->addYears(5),
             ]);
+        }
+
+        // 2) Sync to user's profile
+        if (!empty($application->account_id)) {
+            $user = User::find($application->account_id);
+
+            if ($user) {
+                $profile = $user->profile ?: $user->profile()->create([]);
+
+                // Only fields that depend on ID APPLICATION
+                $profile->update([
+                    'pwd_number'      => $application->pwd_number,
+                    'civil_status'    => $application->civil_status,
+                    'disability_type' => $application->disability_type,
+
+                    // Address
+                    'house_no'     => $application->house_no,
+                    'street'       => $application->street,
+                    'barangay'     => $application->barangay,
+                    'municipality' => $application->municipality,
+                    'province'     => $application->province,
+
+                    // DO NOT overwrite (registration-owned):
+                    // birthdate
+                    // age
+                    // sex
+                    // contact_no
+                ]);
+            }
         }
 
         // Notification for release
@@ -326,7 +358,7 @@ class StaffView extends Component
                         ->where('request_type', $requestType);
 
                     if ($userRole == 1) { // IF USER IS ADMIN
-                        $query->where('status', 'Awaiting Admin Approval');
+                        $query->where('status', 'Under Final Review');
                         $query->orderByDesc('reviewed_at');
 
                     } elseif ($userRole == 2) { // IF USER IS STAFF
@@ -346,7 +378,7 @@ class StaffView extends Component
                 $query = FormPersonal::query()->where('applicant_type', $type);
 
                 if ($userRole == 1) { // IF USER IS ADMIN
-                    $query->where('status', 'Awaiting Admin Approval');
+                    $query->where('status', 'Under Final Review');
                     $query->orderByDesc('reviewed_at');
 
                 } elseif ($userRole == 2) { // IF USER IS STAFF

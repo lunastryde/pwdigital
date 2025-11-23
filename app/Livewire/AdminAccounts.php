@@ -4,7 +4,8 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\User;
-use App\Models\AccountsProfile;
+use App\Models\Profile;
+use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 
@@ -20,11 +21,16 @@ class AdminAccounts extends Component
     public $last_name;
     public $contact_no;
     public $sex;
-    public $identifier = 3; // Default to user
-    public $role = 'user'; // Will auto-update based on identifier
+    public $birthdate;
+    public $age;
 
     // UI state
     public $showCreateForm = false;
+
+    // Deactivation state
+    public ?int $selectedUserId = null;
+    public bool $showDeactivateConfirm = false;
+    public bool $showReactivateConfirm = false;
 
     protected function rules()
     {
@@ -38,52 +44,49 @@ class AdminAccounts extends Component
             'last_name' => ['required', 'string', 'max:50'],
             'contact_no' => ['required', 'string', 'max:15'],
             'sex' => ['required', 'in:Male,Female'],
-            'identifier' => ['required', 'in:1,2,3'],
+            'birthdate' => ['required', 'date', 'before:today']
         ];
     }
 
-    protected $messages = [
-        'password_confirmation.same' => 'Passwords do not match.',
-        'identifier.required' => 'Please select an account type.',
-    ];
-
-    public function updatedIdentifier($value)
+    public function updatedBirthdate()
     {
-        // Auto-update role based on identifier
-        $roleMap = [
-            1 => 'admin',
-            2 => 'staff',
-            3 => 'user'
-        ];
-        $this->role = $roleMap[$value] ?? 'user';
+        if ($this->birthdate) {
+            $this->age = Carbon::parse($this->birthdate)->age;
+        }
     }
 
     public function createAccount()
     {
-        $this->validate();
+        $incomingData = $this->validate();
 
         try {
             $user = User::create([
-                'email' => $this->email,
-                'username' => $this->username,
-                'password' => Hash::make($this->password),
-                'identifier' => $this->identifier,
-                'role' => $this->role,
+                'email' => $incomingData['email'],
+                'username' => $incomingData['username'],
+                'password' => Hash::make($incomingData['password']),
+                'identifier' => 3,
+                'role' => 'user',
             ]);
 
+            // AUTO-CALCULATE AGE
+            $dob = Carbon::parse($incomingData['birthdate']);
+            $age = $dob->age;
+
+            // Create profile
             $user->profile()->create([
-                'fname' => $this->first_name,
-                'mname' => $this->middle_name,
-                'lname' => $this->last_name,
-                'contact_no' => $this->contact_no,
-                'sex' => $this->sex,
+                'fname' => $incomingData['first_name'],
+                'mname' => $incomingData['middle_name'] ?? null,
+                'lname' => $incomingData['last_name'],
+                'contact_no' => $incomingData['contact_no'],
+                'sex' => $incomingData['sex'],
+
+                'birthdate'     => $incomingData['birthdate'],   // NEW
+                'age'           => $age,
             ]);
 
-            session()->flash('success', ucfirst($this->role) . ' account created successfully!');
-            
-            $this->reset(['email', 'username', 'password', 'password_confirmation', 'first_name', 'middle_name', 'last_name', 'contact_no', 'sex', 'identifier']);
-            $this->identifier = 3; // Reset to default
-            $this->role = 'user';
+            session()->flash('success', 'User account created successfully!');
+
+            $this->reset(['email','username','password','password_confirmation','first_name','middle_name','last_name','contact_no','sex']);
             $this->showCreateForm = false;
 
         } catch (\Exception $e) {
@@ -95,17 +98,75 @@ class AdminAccounts extends Component
     public function toggleCreateForm()
     {
         $this->showCreateForm = !$this->showCreateForm;
+
         if (!$this->showCreateForm) {
             $this->reset();
-            $this->identifier = 3;
-            $this->role = 'user';
         }
     }
 
+    public function confirmDeactivate(int $userId)
+    {
+        $this->selectedUserId = $userId;
+        $this->showDeactivateConfirm = true;
+    }
+
+    public function deactivateUser()
+    {
+        if (!$this->selectedUserId) return;
+
+        $user = User::find($this->selectedUserId);
+
+        if ($user) {
+            $user->update(['is_active' => 0]);
+        }
+
+        $this->showDeactivateConfirm = false;
+        $this->selectedUserId = null;
+
+        session()->flash('success', 'Account has been deactivated.');
+    }
+
+    public function confirmReactivate($userId)
+    {
+        $this->selectedUserId = $userId;
+        $this->showReactivateConfirm = true;
+    }
+
+    public function reactivateUser()
+    {
+        if (!$this->selectedUserId) return;
+
+        $user = User::find($this->selectedUserId);
+
+        if (!$user) {
+            session()->flash('error', 'User not found.');
+            return;
+        }
+
+        try {
+            $user->is_active = 1;
+            $user->save();
+
+            session()->flash('success', 'Account has been reactivated.');
+        } catch (\Throwable $e) {
+            \Log::error("Reactivate error: " . $e->getMessage());
+            session()->flash('error', 'Failed to reactivate account.');
+        }
+
+        $this->showReactivateConfirm = false;
+        $this->selectedUserId = null;
+    }
+
+
+
+
     public function render()
     {
-        $accounts = User::with('profile')->orderByDesc('created_at')->get();
-        
+        $accounts = User::with('profile')
+            ->where('identifier', 3)
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('livewire.admin-accounts', [
             'accounts' => $accounts
         ]);
