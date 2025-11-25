@@ -43,7 +43,7 @@ class UserEdit extends Component
             'mname'       => 'nullable|string|max:100',
             'lname'       => 'required|string|max:100',
             'contact_no'  => 'required|string|max:50',
-            'civil_status'=> ($this->role === 'user' ? 'required' : 'nullable'),
+            'civil_status'=> ($this->role === 'user' ? 'nullable' : 'nullable'),
         ]);
 
         Auth::user()->profile->update([

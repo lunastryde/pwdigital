@@ -125,6 +125,24 @@
                     </div>
                 </div>
 
+                {{-- Date of Birth --}}
+                <div>
+                    <label for="date_of_birth" class="block text-sm font-medium text-gray-700">
+                        Date of Birth <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="date_of_birth"
+                        type="date"
+                        name="date_of_birth"
+                        value="{{ old('date_of_birth') }}"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                    @error('date_of_birth')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Contact & Sex --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -184,23 +202,7 @@
                     @enderror
                 </div>
 
-                {{-- Date of Birth --}}
-                <div>
-                    <label for="date_of_birth" class="block text-sm font-medium text-gray-700">
-                        Date of Birth <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="date_of_birth"
-                        type="date"
-                        name="date_of_birth"
-                        value="{{ old('date_of_birth') }}"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                    />
-                    @error('date_of_birth')
-                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+                
 
                 <button
                     type="submit"

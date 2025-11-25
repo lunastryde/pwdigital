@@ -353,9 +353,7 @@
 
                 @elseif ($section === 'reports')
                     {{-- Report Analytics Tab --}}
-                    <div class="bg-white rounded-2xl shadow p-6">
-                        <h3 class="text-xl font-semibold text-gray-800">Report Analytics</h3>
-                        @livewire('reports-summary')
+                    <div class="w-full max-w-none bg-white rounded-2xl shadow p-6">
                         @livewire('reports-charts')
                     </div>
 
