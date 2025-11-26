@@ -27,57 +27,67 @@
                 </button>
                 <h2 class="ml-3 text-gray-800 font-semibold">{{ $labels[$section] ?? 'Dashboard' }}</h2>
 
-                <div class="ml-auto relative">
-                    <details class="relative">
-                        <summary class="list-none p-1 rounded-full hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Profile menu">
-                            <div class="w-9 h-9 rounded-full overflow-hidden bg-gray-200 ring-2 ring-gray-300 flex items-center justify-center">
-                                @if (Auth::user()->profile && Auth::user()->profile->profile_picture)
-                                    <img src="{{ asset('storage/' . Auth::user()->profile->profile_picture) }}"
-                                        class="w-full h-full object-cover">
-                                @else
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                                        <path fill-rule="evenodd" d="M12 2a5 5 0 00-3.5 8.5A9 9 0 003 19h18a9 9 0 00-5.5-8.5A5 5 0 0012 2z" clip-rule="evenodd"/>
-                                    </svg>
-                                @endif
-                            </div>
-                        </summary>
+                <div class="ml-auto flex items-center gap-3">
 
-                        <div class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
-                            <!-- Profile Settings -->
-                            <a href="{{ route('profile.edit') }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-gray-500">
-                                    <circle cx="12" cy="8" r="3" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-                                </svg>
-                                <span class="ml-3">Profile Settings</span>
-                            </a>
-
-                            <div class="border-t border-gray-200 my-1"></div>
-
-                            <!-- Log Out -->
-                            <form action="/staff/logout" method="POST">
-                                @csrf
-                                <button type="submit" class="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 text-left">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 7v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 12h9m0 0-3-3m3 3-3 3" />
-                                    </svg>
-                                    <span class="ml-3">Log Out</span>
-                                </button>
-                            </form>
+                    {{-- SUPPORT INBOX BUTTON --}}
+                    <a href="{{ route('staff.support.chat') }}" 
+                    class="group flex items-center gap-2 px-3 py-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Support Inbox">
+                        
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                            </svg>
+                            
+                            {{-- Optional: Red Dot for unread messages (You can add logic later) --}}
+                            {{-- <span class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span> --}}
                         </div>
-                    </details>
 
-                    <!-- close dropdown when clicking outside -->
-                    <script>
-                        document.addEventListener('click', function(event) {
-                            document.querySelectorAll('details[open]').forEach(function(dropdown) {
-                                if (!dropdown.contains(event.target)) {
-                                    dropdown.removeAttribute('open');
-                                }
-                            });
-                        });
-                    </script>
+                        <span class="hidden sm:block text-sm font-medium">Support Inbox</span>
+                    </a>
+
+                    <div class="h-6 w-px bg-gray-200 mx-1"></div>
+
+                    {{-- EXISTING PROFILE DROPDOWN --}}
+                    <div class="relative">
+                        <details class="relative">
+                            <summary class="list-none p-1 rounded-full hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Profile menu">
+                                <div class="w-9 h-9 rounded-full overflow-hidden bg-gray-200 ring-2 ring-gray-300 flex items-center justify-center">
+                                    @if (Auth::user()->profile && Auth::user()->profile->profile_picture)
+                                        <img src="{{ asset('storage/' . Auth::user()->profile->profile_picture) }}" class="w-full h-full object-cover">
+                                    @else
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path fill-rule="evenodd" d="M12 2a5 5 0 00-3.5 8.5A9 9 0 003 19h18a9 9 0 00-5.5-8.5A5 5 0 0012 2z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @endif
+                                </div>
+                            </summary>
+
+                            <div class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                                <a href="{{ route('profile.edit') }}" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-gray-500">
+                                        <circle cx="12" cy="8" r="3" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                                    </svg>
+                                    <span class="ml-3">Profile Settings</span>
+                                </a>
+
+                                <div class="border-t border-gray-200 my-1"></div>
+
+                                <form action="/staff/logout" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 text-left">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 7v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 12h9m0 0-3-3m3 3-3 3" />
+                                        </svg>
+                                        <span class="ml-3">Log Out</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </details>
+                        </div>
+
                 </div>
             </div>
         </header>
@@ -138,7 +148,6 @@
                     {{-- Dashboard Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <h3 class="text-xl font-semibold text-gray-800">Dashboard</h3>
-                        @livewire('reports-summary')
                     </div>
 
                 @elseif ($section === 'applications')

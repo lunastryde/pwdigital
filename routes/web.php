@@ -7,6 +7,20 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PrintIDController;
 use App\Http\Controllers\ReportsExportController;
 use App\Http\Controllers\ProfileController;
+use App\Livewire\UserSupportChat;
+use App\Livewire\StaffSupportChat;
+
+// Email OTP's
+Route::get('/verify-otp', [AuthController::class, 'showOtpForm'])->name('otp.show');
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
+Route::post('/resend-otp', [AuthController::class, 'resendOtp'])->name('otp.resend');
+
+// Password Resrts
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+
+Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])->name('password.reset.form');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
 
 Route::get('/', function () {
@@ -104,3 +118,26 @@ Route::get('/super-admin/home', function () {
 // ID Preview
 Route::get('/admin/form-personal/{id}/print', [PrintIdController::class, 'print'])
     ->name('admin.form_personal.print');
+
+
+// ============================================================
+//    =================  User Support Chat    =================
+// ============================================================)
+
+Route::middleware('auth')->group(function () {
+    Route::get('/support/chat', function () {
+        return view('support.chat-page');
+    })->name('support.chat');
+});
+
+
+// ============================================================
+//    =================  Staff Support Chat    =================
+// ============================================================)\
+
+Route::middleware('auth')->group(function () {
+    Route::get('/staff/support/chat', function () {
+        return view('staff.support-chat-page');
+    })->name('staff.support.chat');
+});
+
