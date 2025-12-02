@@ -434,7 +434,7 @@ class ReportsCharts extends Component
         ];
 
         $pdf = Pdf::loadView('exports.reports-pdf', $data)
-            ->setPaper('a4', 'landscape');
+            ->setPaper('a4', 'portrait');
 
         return response()->streamDownload(
             fn () => print($pdf->output()),

@@ -1,4 +1,17 @@
+{{-- PDAO Header --}}
 <table>
+    <tr>
+        <td colspan="3">
+            <strong>Persons with Disability Affairs Office (PDAO)</strong><br>
+            City of Calapan, Oriental Mindoro<br>
+            <span style="font-size: 10px; color: #555;">
+                PDAO Information System – Reports &amp; Analytics
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="height: 4px;"></td>
+    </tr>
     <tr>
         <td colspan="3">
             <strong>PDAO Reports &amp; Analytics</strong><br>
@@ -7,6 +20,9 @@
         </td>
     </tr>
 </table>
+
+{{-- Spacer row --}}
+<table><tr><td colspan="3"></td></tr></table>
 
 {{-- Summary --}}
 @php $summary = $report['summary'] ?? []; @endphp
@@ -56,6 +72,9 @@
     </tbody>
 </table>
 
+{{-- Spacer --}}
+<table><tr><td colspan="3"></td></tr></table>
+
 {{-- Applications by Category --}}
 @php $cat = $report['applications_by_category'] ?? ['labels' => [], 'values' => []]; @endphp
 <table>
@@ -77,6 +96,9 @@
     @endforeach
     </tbody>
 </table>
+
+{{-- Spacer --}}
+<table><tr><td colspan="3"></td></tr></table>
 
 {{-- Status Breakdown --}}
 @php $st = $report['status_breakdown'] ?? ['labels' => [], 'values' => []]; @endphp
@@ -100,6 +122,9 @@
     </tbody>
 </table>
 
+{{-- Spacer --}}
+<table><tr><td colspan="3"></td></tr></table>
+
 {{-- Gender --}}
 @php $gd = $report['gender_distribution'] ?? ['labels' => [], 'values' => []]; @endphp
 <table>
@@ -121,6 +146,9 @@
     @endforeach
     </tbody>
 </table>
+
+{{-- Spacer --}}
+<table><tr><td colspan="3"></td></tr></table>
 
 {{-- Disability --}}
 @php $ds = $report['disability_breakdown'] ?? ['labels' => [], 'values' => []]; @endphp
@@ -144,6 +172,9 @@
     </tbody>
 </table>
 
+{{-- Spacer --}}
+<table><tr><td colspan="3"></td></tr></table>
+
 {{-- Barangay --}}
 @php $loc = $report['location_counts'] ?? ['labels' => [], 'values' => []]; @endphp
 <table>
@@ -165,6 +196,9 @@
     @endforeach
     </tbody>
 </table>
+
+{{-- Spacer --}}
+<table><tr><td colspan="3"></td></tr></table>
 
 {{-- Monthly Trend --}}
 @php $mt = $report['monthly_trend'] ?? ['labels' => [], 'values' => [], 'year' => '' ]; @endphp

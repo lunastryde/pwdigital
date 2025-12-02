@@ -386,6 +386,18 @@
             </div>
 
         @elseif ($tab === 'applications')
+        {{-- Global error/success for applications (ID, requests, support) --}}
+        @if (session('error'))
+            <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                {{ session('success') }}
+            </div>
+        @endif
             <div class="bg-white shadow rounded-lg p-6">
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-lg font-semibold">My Applications</h2>

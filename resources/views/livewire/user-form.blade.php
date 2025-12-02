@@ -28,25 +28,36 @@
             <div class="bg-white shadow rounded-lg overflow-hidden" wire:key="step-1">
                 <div class="bg-teal-600 text-white text-center py-2 font-medium">ID Application Form</div>
                 <div class="p-6">
+                    @if ($errors->any())
+                        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            <p class="font-semibold">Some required fields are missing or invalid.</p>
+                            <ul class="mt-1 list-disc list-inside space-y-0.5">
+                                @foreach ($errors->all() as $message)
+                                    <li>{{ $message }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Left column -->
                         <div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">First Name<span class="text-red-500"> *</span></label>
-                                    <input type="text" wire:model.defer="first_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="text" wire:model.defer="first_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"/>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Middle Name</label>
-                                    <input type="text" wire:model.defer="middle_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="text" wire:model.defer="middle_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Last Name<span class="text-red-500"> *</span></label>
-                                    <input type="text" wire:model.defer="last_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="text" wire:model.defer="last_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Suffix</label>
-                                    <input type="text" wire:model.defer="suffix" placeholder="Leave blank if none" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="text" wire:model.defer="suffix" placeholder="Leave blank if none" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">
@@ -122,11 +133,11 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">House No.<span class="text-red-500"> *</span></label>
-                                        <input type="text" wire:model.defer="house_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                        <input type="text" wire:model.defer="house_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700">Street<span class="text-red-500"> *</span></label>
-                                        <input type="text" wire:model.defer="street" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                        <input type="text" wire:model.defer="street" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                                     </div>
                                 </div>
                                 <div>
@@ -331,7 +342,7 @@
                                     <input type="text"
                                         wire:model.defer="disability_cause_other"
                                         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
-                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                                 </div>
                             @endif
                         </div>
@@ -345,6 +356,17 @@
             <div class="bg-white shadow rounded-lg overflow-hidden" wire:key="step-2">
                 <div class="bg-teal-600 text-white text-center py-2 font-medium">Application Form</div>
                 <div class="p-6 space-y-8">
+                    @if ($errors->any())
+                        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            <p class="font-semibold">Some required fields are missing or invalid.</p>
+                            <ul class="mt-1 list-disc list-inside space-y-0.5">
+                                @foreach ($errors->all() as $message)
+                                    <li>{{ $message }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <!-- Educational Attainment -->
                         <div>
@@ -361,25 +383,34 @@
                             </div>
                         </div>
 
-                        <!-- Type of Employment -->
-                        <div>
-                            <h3 class="text-sm font-medium text-gray-900 mb-3">Type of Employment <span class="text-red-500"> *</span></h3>
-                            <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
-                                @foreach (['Permanent / Regular','Seasonal','Casual','Emergency'] as $opt)
-                                    <label class="flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="{{ $opt }}" wire:model.defer="employment_type"> {{ $opt }}
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
-
                         <!-- Status Employment -->
                         <div>
                             <h3 class="text-sm font-medium text-gray-900 mb-3">Status Employment <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                                 @foreach (['Employed','Unemployed','Self-employed'] as $opt)
                                     <label class="flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="{{ $opt }}" wire:model.defer="employment_status"> {{ $opt }}
+                                        <input type="radio"
+                                            class="accent-blue-600"
+                                            value="{{ $opt }}"
+                                            wire:model.live="employment_status">
+                                        {{ $opt }}
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Type of Employment -->
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900 mb-3">Type of Employment <span class="text-red-500"> *</span></h3>
+                            <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
+                                @foreach (['Permanent / Regular','Seasonal','Casual','Emergency'] as $opt)
+                                    <label class="flex items-center gap-2 {{ $employment_status === 'Unemployed' ? 'opacity-60 cursor-not-allowed' : '' }}">
+                                        <input type="radio"
+                                            class="accent-blue-600"
+                                            value="{{ $opt }}"
+                                            wire:model.defer="employment_type"
+                                            @if($employment_status === 'Unemployed') disabled @endif>
+                                        {{ $opt }}
                                     </label>
                                 @endforeach
                             </div>
@@ -390,12 +421,18 @@
                             <h3 class="text-sm font-medium text-gray-900 mb-3">Category of Employment <span class="text-red-500"> *</span></h3>
                             <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                                 @foreach (['Government','Private'] as $opt)
-                                    <label class="flex items-center gap-2">
-                                        <input type="radio" class="accent-blue-600" value="{{ $opt }}" wire:model.defer="employment_category"> {{ $opt }}
+                                    <label class="flex items-center gap-2 {{ $employment_status === 'Unemployed' ? 'opacity-60 cursor-not-allowed' : '' }}">
+                                        <input type="radio"
+                                            class="accent-blue-600"
+                                            value="{{ $opt }}"
+                                            wire:model.defer="employment_category"
+                                            @if($employment_status === 'Unemployed') disabled @endif>
+                                        {{ $opt }}
                                     </label>
                                 @endforeach
                             </div>
                         </div>
+
 
                         <!-- Occupation -->
                         <div class="md:col-span-2">
@@ -409,11 +446,12 @@
                                 @endphp
 
                                 @foreach ($occups as $opt)
-                                    <label class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 {{ $employment_status === 'Unemployed' ? 'opacity-60 cursor-not-allowed' : '' }}">
                                         <input type="radio"
                                             class="accent-blue-600"
                                             value="{{ $opt }}"
-                                            wire:model.live="occupation">
+                                            wire:model.live="occupation"
+                                            @if($employment_status === 'Unemployed') disabled @endif>
                                         {{ $opt }}
                                     </label>
                                 @endforeach
@@ -423,7 +461,7 @@
                                     wire:model.defer="occupation_other"
                                     @if($occupation !== 'Others, Specify') disabled @endif
                                     class="block w-full rounded-md border border-gray-300 px-3 py-2
-                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase
                                         @if($occupation !== 'Others, Specify') bg-gray-100 cursor-not-allowed @endif"
                                 />
                             </div>
@@ -446,15 +484,30 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <h3 class="text-sm font-medium text-gray-900 mb-3">Organization Information</h3>
-                            <div class="rounded-md border border-gray-200 p-4 space-y-4">
+
+                            <div class="rounded-md border border-gray-200 p-4 space-y-4
+                                {{ $employment_status === 'Unemployed' ? 'bg-gray-50 opacity-60 cursor-not-allowed' : '' }}">
+                                
                                 <div>
                                     <label class="block text-sm text-gray-700">Organization Affiliated</label>
-                                    <input type="text" wire:model.defer="org_affiliated" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="text"
+                                        wire:model.defer="org_affiliated"
+                                        @if($employment_status === 'Unemployed') disabled @endif
+                                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                 </div>
+
                                 <div>
                                     <label class="block text-sm text-gray-700">Contact Person</label>
-                                    <input type="text" wire:model.defer="org_contact_person" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="text"
+                                        wire:model.defer="org_contact_person"
+                                        @if($employment_status === 'Unemployed') disabled @endif
+                                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                 </div>
+
                                 <!-- Office Address removed as per request -->
                                 <div>
                                     <div class="flex items-center gap-3 mb-2">
@@ -462,34 +515,72 @@
                                         <div class="flex-1 border-t border-gray-200"></div>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
                                         <div>
                                             <label class="block text-sm text-gray-700">House No.</label>
-                                            <input type="text" wire:model.defer="org_house_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
+                                            <input type="text"
+                                                wire:model.defer="org_house_no"
+                                                @if($employment_status === 'Unemployed') disabled @endif
+                                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                         </div>
+
                                         <div>
                                             <label class="block text-sm text-gray-700">Street</label>
-                                            <input type="text" wire:model.defer="org_street" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
+                                            <input type="text"
+                                                wire:model.defer="org_street"
+                                                @if($employment_status === 'Unemployed') disabled @endif
+                                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                         </div>
+
                                         <div>
                                             <label class="block text-sm text-gray-700">Barangay</label>
-                                            <input type="text" wire:model.defer="org_brgy" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
+                                            <input type="text"
+                                                wire:model.defer="org_brgy"
+                                                @if($employment_status === 'Unemployed') disabled @endif
+                                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                         </div>
+
                                         <div>
                                             <label class="block text-sm text-gray-700">Municipality</label>
-                                            <input type="text" wire:model.defer="org_municipality" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
+                                            <input type="text"
+                                                wire:model.defer="org_municipality"
+                                                @if($employment_status === 'Unemployed') disabled @endif
+                                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                         </div>
+
                                         <div class="sm:col-span-1">
                                             <label class="block text-sm text-gray-700">Province</label>
-                                            <input type="text" wire:model.defer="org_province" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
+                                            <input type="text"
+                                                wire:model.defer="org_province"
+                                                @if($employment_status === 'Unemployed') disabled @endif
+                                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                         </div>
+
                                         <div>
                                             <label class="block text-sm text-gray-700">Contact No.</label>
-                                            <input type="text" wire:model.defer="org_contact_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                            <input type="text"
+                                                wire:model.defer="org_contact_no"
+                                                @if($employment_status === 'Unemployed') disabled @endif
+                                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif" />
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         <div>
                             <div>
                                 <h3 class="text-sm font-medium text-gray-900 mb-3">ID Reference</h3>
@@ -507,6 +598,7 @@
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder = "00-0000000-0"
                                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
                                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                        <p class="mt-1 text-xs text-gray-500">Minimum of 10 digits required</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700">
@@ -518,6 +610,7 @@
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder = "0000-0000000-0"
                                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
                                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                        <p class="mt-1 text-xs text-gray-500">Minimum of 10–12 digits required</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700">
@@ -529,6 +622,7 @@
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder = "00-000000000-0"
                                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
                                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                        <p class="mt-1 text-xs text-gray-500">Minimum of 12 digits required</p>
                                     </div>
                                     <div>
                                         <label class="block text-sm text-gray-700">
@@ -540,6 +634,7 @@
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder= "0000-0000-0000"
                                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
                                                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                        <p class="mt-1 text-xs text-gray-500">Minimum of 12 digits required</p>
                                     </div>
 
                                     {{-- Other IDs --}}
@@ -568,7 +663,7 @@
                                                 wire:model.defer="id_others_number"
                                                 @if(empty($id_others_type)) disabled @endif
                                                 class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
-                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase
                                                         @if(empty($id_others_type)) bg-gray-100 cursor-not-allowed @endif" />
                                         </div>
                                     </div>
@@ -589,6 +684,17 @@
             <div class="bg-white shadow rounded-lg overflow-hidden" wire:key="step-3">
                 <div class="bg-teal-600 text-white text-center py-2 font-medium">Application Form</div>
                 <form wire:submit.prevent="submit" class="p-6 space-y-8">
+                    @if ($errors->any())
+                        <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            <p class="font-semibold">Some required fields are missing or invalid.</p>
+                            <ul class="mt-1 list-disc list-inside space-y-0.5">
+                                @foreach ($errors->all() as $message)
+                                    <li>{{ $message }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <!-- Family Background -->
                     <div>
                         <h3 class="text-sm font-medium text-gray-900 mb-3">Family Background</h3>
@@ -606,9 +712,9 @@
                                 <div class="text-sm text-gray-800">
                                     <span class="sm:inline block font-medium">Father's Name</span>
                                 </div>
-                                <input type="text" wire:model.defer="father_last" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Last Name" />
-                                <input type="text" wire:model.defer="father_first" class="rounded-md border border-gray-300 px-3 py-2" placeholder="First Name" />
-                                <input type="text" wire:model.defer="father_middle" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Middle Name" />
+                                <input type="text" wire:model.defer="father_last" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="Last Name " />
+                                <input type="text" wire:model.defer="father_first" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="First Name" />
+                                <input type="text" wire:model.defer="father_middle" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="Middle Name" />
                                 <input type="text" wire:model.defer="father_contact" class="rounded-md border border-gray-300 px-3 py-2" placeholder="09XXXXXXXXX" />
                             </div>
 
@@ -616,9 +722,9 @@
                                 <div class="text-sm text-gray-800">
                                     <span class="sm:inline block font-medium">Mother's Name</span>
                                 </div>
-                                <input type="text" wire:model.defer="mother_last" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Last Name" />
-                                <input type="text" wire:model.defer="mother_first" class="rounded-md border border-gray-300 px-3 py-2" placeholder="First Name" />
-                                <input type="text" wire:model.defer="mother_middle" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Middle Name" />
+                                <input type="text" wire:model.defer="mother_last" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="Last Name" />
+                                <input type="text" wire:model.defer="mother_first" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="First Name" />
+                                <input type="text" wire:model.defer="mother_middle" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="Middle Name" />
                                 <input type="text" wire:model.defer="mother_contact" class="rounded-md border border-gray-300 px-3 py-2" placeholder="09XXXXXXXXX" />
                             </div>
 
@@ -626,10 +732,10 @@
                                 <div class="text-sm text-gray-800">
                                     <span class="sm:inline block font-medium">Spouse / Guardian <span class="text-red-500"> *</span></span>
                                 </div>
-                                <input type="text" wire:model.defer="spouse_last" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Last Name" />
-                                <input type="text" wire:model.defer="spouse_first" class="rounded-md border border-gray-300 px-3 py-2" placeholder="First Name" />
-                                <input type="text" wire:model.defer="spouse_middle" class="rounded-md border border-gray-300 px-3 py-2" placeholder="Middle Name" />
-                                <input type="text" wire:model.defer="spouse_contact" class="rounded-md border border-gray-300 px-3 py-2" placeholder="09XXXXXXXXX" />
+                                <input type="text" wire:model.live="spouse_last" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="Last Name" />
+                                <input type="text" wire:model.live="spouse_first" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="First Name" />
+                                <input type="text" wire:model.live="spouse_middle" class="rounded-md border border-gray-300 px-3 py-2 uppercase" placeholder="Middle Name" />
+                                <input type="text" wire:model.live="spouse_contact" class="rounded-md border border-gray-300 px-3 py-2" placeholder="09XXXXXXXXX" />
                             </div>
                         </div>
                     </div>
@@ -638,7 +744,7 @@
                     <!-- Physician Name -->
                     <div class="mt-6">
                         <label class="block text-sm font-medium text-gray-700">Physician Name <span class="text-red-500"> *</span></label>
-                        <input type="text" wire:model.defer="physician_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                        <input type="text" wire:model.live="physician_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                     </div>
 
                     <!-- File Upload Section -->
@@ -923,22 +1029,24 @@
                         </div>
                     </div>
                                         
-                    <!-- Submit Button-->
+                    <!-- Submit Button -->
                     @php
                         $canSubmit = $this->isFormComplete();
                     @endphp
-                    <button type="submit"
-                            @if(!$canSubmit) disabled @endif
-                            class="inline-flex items-center rounded-md px-4 py-2.5 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500
-                                {{ $canSubmit ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}">
-                        Submit Application
-                    </button>
+                    <div class="mt-6 flex justify-end">
+                        <button type="submit"
+                                @if(!$canSubmit) disabled @endif
+                                class="inline-flex items-center rounded-md px-4 py-2.5 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500
+                                    {{ $canSubmit ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}">
+                            Submit Application
+                        </button>
+                    </div>
                 </form>
             </div>
         @endif
 
         <!-- Bottom Navigation -->
-         <script>
+        <script>
             document.addEventListener('livewire:initialized', () => {
                 Livewire.on('scroll-to-top', () => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });

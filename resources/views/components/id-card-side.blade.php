@@ -1,6 +1,7 @@
 @php
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Facades\DB;
+    use Carbon\Carbon;
 
     $file = $form->files ?? null;
     $photoUrl = $file && $file->id_picture
@@ -17,6 +18,12 @@
     $scale = isset($preview) && $preview ? 1.35 : 1;
     $mm = fn($n) => (string)($n * $scale) . 'mm';
     $pt = fn($n) => (string)($n * $scale) . 'pt';
+    
+    // Parse expiration date
+    $validUntil = $form->expiration_date 
+        ? Carbon::parse($form->expiration_date)->format('Y-m-d') 
+        : '—';
+
     $guardian = DB::table('form_guardian')
         ->where('applicant_id', $form->applicant_id ?? $form->id ?? null)
         ->first();
@@ -86,17 +93,29 @@
                 {{-- Left details --}}
                 <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
 
-                    {{-- ID NO --}}
-                    <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }};">
-                        <div style="white-space:nowrap; font-weight:600; font-size:{{ $pt(6) }};">ID NO.</div>
-                        <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.5) }}; font-size:{{ $pt(9) }};">
-                            {{ $form->pwd_number ?? '—' }}
+                    {{-- ID NO and EXPIRY DATE Row --}}
+                    <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }}; margin-bottom:{{ $mm(1) }};">
+                        
+                        {{-- ID Number --}}
+                        <div style="flex:1;">
+                            <div style="white-space:nowrap; font-weight:600; font-size:{{ $pt(5) }}; color:#555;">ID NO.</div>
+                            <div style="border-bottom:1px solid #111; padding-bottom:{{ $mm(.5) }}; font-size:{{ $pt(8) }}; font-weight:700;">
+                                {{ $form->pwd_number ?? '—' }}
+                            </div>
+                        </div>
+
+                        {{-- Expiry Date --}}
+                        <div style="width:{{ $mm(20) }};">
+                            <div style="white-space:nowrap; font-weight:600; font-size:{{ $pt(5) }}; color:#d00;">VALID UNTIL</div>
+                            <div style="border-bottom:1px solid #111; padding-bottom:{{ $mm(.5) }}; font-size:{{ $pt(8) }}; color:#d00; font-weight:700; text-align:center;">
+                                {{ $validUntil }}
+                            </div>
                         </div>
                     </div>
 
                     {{-- NAME (underline above label) --}}
-                    <div style="text-align:center; margin-top:{{ $mm(1) }};">
-                        <div style="font-weight:700; font-size:{{ $pt(8) }};">
+                    <div style="text-align:center; margin-top:{{ $mm(0.5) }};">
+                        <div style="font-weight:700; font-size:{{ $pt(8) }}; line-height:1.1;">
                             {{ trim(($form->fname ?? '').' '.($form->mname ?? '').' '.($form->lname ?? '').' '.($form->suffix ?? '')) }}
                         </div>
                         <div style="border-bottom:1px solid #111; margin:{{ $mm(.6) }} 0;"></div>
@@ -111,10 +130,10 @@
                         <div style="border-bottom:1px solid #111; margin:{{ $mm(.6) }} 0 0;"></div>
                         <div style="font-size:{{ $pt(6) }}; margin-top:{{ $mm(.6) }};">TYPE OF DISABILITY</div>
                         <div style="margin-bottom:{{ $mm(1.2) }};"></div>
-                    </div> <div style="margin-bottom: 4px;"> </div>
-                    {{-- underline directly under the value --}}
+                    </div> 
+                    
+                    {{-- Signature Line --}}
                     <div style="border-bottom:1px solid #111; margin:{{ $mm(.6) }} 0 0;"></div> 
-                    {{-- Signature label --}}
                     <div style="text-align:center; font-size:{{ $pt(6) }};">SIGNATURE / or THUMBMARK</div>
                 </div>
 
@@ -126,7 +145,7 @@
                 </div>
             </div>
 
-            {{-- FULL-WIDTH policy text (CENTERED across the card) --}}
+            {{-- Footer Text --}}
             <div style="text-align:center; font-size:{{ $pt(5.5) }}; color:#444; line-height:1.25; margin-top:{{ $mm(1) }};">
                 The holder of this card is a person with disability. Non-transferable.<br>
                 Valid for 5 years. Any violations is punishable by law.<br>

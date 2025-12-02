@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="{{ asset('images/pdao_logo.png') }}">
     <title>Reset Password</title>
 </head>
 <body>

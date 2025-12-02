@@ -7,7 +7,6 @@
             $labels = [
                 'dashboard' => 'Dashboard',
                 'applications' => 'Applications',
-                'chat' => 'Chat',
                 'announcements' => 'Announcements',
                 'encode' => 'Encode Form',
                 'admin' => 'Admin Panel',
@@ -106,9 +105,6 @@
                 </a>
                 <a wire:click="$set('section','applications')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='applications' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Applications</span>
-                </a>
-                <a wire:click="$set('section','chat')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='chat' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
-                    <span>Chat</span>
                 </a>
                 <a wire:click="$set('section','announcements')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='announcements' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Announcements</span>
@@ -318,13 +314,6 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
-
-                @elseif ($section === 'chat')
-                    {{-- Chat Tab --}}
-                    <div class="bg-white rounded-2xl shadow p-6">
-                        <h3 class="text-xl font-semibold text-gray-800">Chat</h3>
-                        <p class="mt-2 text-gray-700">Messaging system placeholder.</p>
                     </div>
 
                 @elseif ($section === 'announcements')

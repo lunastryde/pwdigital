@@ -107,6 +107,56 @@ class UserForm extends Component
         'endorsement_letter' => null
     ];
 
+    protected function normalizeUppercase(): void
+    {
+        // Plain text fields we want stored as UPPERCASE
+        $fields = [
+            'first_name',
+            'middle_name',
+            'last_name',
+            'suffix',
+            'house_no',
+            'street',
+            'barangay',
+            'org_affiliated',
+            'org_contact_person',
+            'org_contact_no',
+            'org_house_no',
+            'org_street',
+            'org_brgy',
+            'org_municipality',
+            'org_province',
+            'father_last',
+            'father_first',
+            'father_middle',
+            'father_contact',
+            'mother_last',
+            'mother_first',
+            'mother_middle',
+            'mother_contact',
+            'spouse_last',
+            'spouse_first',
+            'spouse_middle',
+            'spouse_contact',
+            'physician_name',
+        ];
+
+        foreach ($fields as $field) {
+            if ($this->$field !== null && $this->$field !== '') {
+                $this->$field = mb_strtoupper($this->$field, 'UTF-8');
+            }
+        }
+
+        // Just to be extra sure these stay uppercase too
+        if ($this->municipality !== '') {
+            $this->municipality = mb_strtoupper($this->municipality, 'UTF-8');
+        }
+
+        if ($this->province !== '') {
+            $this->province = mb_strtoupper($this->province, 'UTF-8');
+        }
+    }
+
     public function mount()
     {
         // Get user's existing record
@@ -132,18 +182,75 @@ class UserForm extends Component
         $this->age          = $profile->age;
 
 
-        $this->municipality = 'Calapan City';
-        $this->province     = 'Oriental Mindoro';
+        $this->municipality = 'CALAPAN CITY';
+        $this->province     = 'ORIENTAL MINDORO';
         $this->email = Auth::user()->email;
     }
 
     public function nextStep(): void
     {
+        if ($this->step === 1) {
+            // Validate STEP 1 before going to STEP 2
+            $this->validate([
+                'first_name'       => 'required|string|max:100',
+                'last_name'        => 'required|string|max:100',
+                'date_of_birth'    => 'required|date',
+                'gender'           => 'required|string',
+                'civil_status'     => 'required|string',
+                'blood_type'       => 'required|string',
+                'house_no'         => 'required|string|max:100',
+                'street'           => 'required|string|max:100',
+                'barangay'         => 'required|string|max:100',
+                'municipality'     => 'required|string|max:100',
+                'province'         => 'required|string|max:100',
+                'disability_type'  => 'required|string',
+                'disability_cause' => 'required|string',
+            ]);
+
+            // Manual check for "Others, Specify" since it has a comma
+            if ($this->disability_cause === 'Others, Specify'
+                && trim((string) $this->disability_cause_other) === ''
+            ) {
+                $this->addError('disability_cause_other', 'Please specify cause of disability.');
+                return;
+            }
+        } elseif ($this->step === 2) {
+            // Validate STEP 2 before going to STEP 3
+            $rules = [
+                'educational_attainment' => 'required|string|max:100',
+                'employment_status'      => 'required|string|max:100',
+                'four_ps_member'         => 'required|string|max:5',
+            ];
+
+            // Only require these if not Unemployed
+            if ($this->employment_status !== 'Unemployed') {
+                $rules['employment_type']    = 'required|string|max:100';
+                $rules['employment_category'] = 'required|string|max:100';
+                $rules['occupation']          = 'required|string|max:150';
+            }
+
+            $this->validate($rules);
+
+            // Same "at least one ID" rule but checked before leaving Step 2
+            if (
+                empty($this->id_sss) &&
+                empty($this->id_gsis) &&
+                empty($this->id_philhealth) &&
+                empty($this->id_pagibig) &&
+                (empty($this->id_others_type) || empty($this->id_others_number))
+            ) {
+                $this->addError('id_reference', 'Please provide at least one valid ID number.');
+                return;
+            }
+        }
+
         if ($this->step < 3) {
             $this->step++;
         }
+
         $this->dispatch('scroll-to-top');
     }
+
 
     public function prevStep(): void
     {
@@ -211,13 +318,20 @@ class UserForm extends Component
 
     public function isFormComplete(): bool
     {
-        // Required text-like fields
-        $required = [
+        if ($this->step !== 3) {
+            return false;
+        }
+
+        // STEP 1: Required text-like fields
+        $requiredStep1 = [
             $this->first_name,
             $this->last_name,
             $this->date_of_birth,
-            $this->gender,         // still property 'gender', label "Sex"
+            $this->gender,
             $this->civil_status,
+            $this->blood_type,
+            $this->house_no,
+            $this->street,
             $this->barangay,
             $this->municipality,
             $this->province,
@@ -225,13 +339,41 @@ class UserForm extends Component
             $this->disability_cause,
         ];
 
-        foreach ($required as $value) {
+        foreach ($requiredStep1 as $value) {
             if (trim((string) $value) === '') {
                 return false;
             }
         }
 
-        // At least one ID reference
+        if ($this->disability_cause === 'Others, Specify' &&
+            trim((string) $this->disability_cause_other) === ''
+        ) {
+            return false;
+        }
+
+        if (trim($this->educational_attainment) === '' ||
+            trim($this->employment_status) === '' ||
+            trim($this->four_ps_member) === ''
+        ) {
+            return false;
+        }
+
+        if ($this->employment_status !== 'Unemployed') {
+            if (
+                trim($this->employment_type) === '' ||
+                trim($this->employment_category) === '' ||
+                trim($this->occupation) === ''
+            ) {
+                return false;
+            }
+
+            if ($this->occupation === 'Others, Specify' &&
+                trim((string) $this->occupation_other) === ''
+            ) {
+                return false;
+            }
+        }
+
         $hasAnyId =
             !empty($this->id_sss) ||
             !empty($this->id_gsis) ||
@@ -243,52 +385,107 @@ class UserForm extends Component
             return false;
         }
 
-        return true;
-    }
+        $requiredStep3 = [
+            $this->spouse_last,
+            $this->spouse_first,
+            $this->spouse_contact,
+            $this->physician_name,
+        ];
 
-    public function updatedDateOfBirth($value)
-    {
-        if ($value) {
-            try {
-                $this->age = \Carbon\Carbon::parse($value)->age;
-            } catch (\Exception $e) {
-                $this->age = null;
+        foreach ($requiredStep3 as $value) {
+            if (trim((string) $value) === '') {
+                return false;
             }
-        } else {
-            $this->age = null;
         }
+
+        // FILES
+        $requiredFiles = [
+            'id_picture',
+            'psa',
+            'cert_of_disability',
+            'med_cert',
+            'endorsement_letter',
+        ];
+
+        foreach ($requiredFiles as $key) {
+            if (empty($this->files[$key])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
     public function submit(): void
     {
-        // Basic validation for required fields present in the UI
-        // NEED NAKALAGAY LAHAT DITO PARA UMILAW MAAYOS YUNG SUBMIT
-        $this->validate([
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|string',
-            'civil_status' => 'required|string',
-            'barangay' => 'required|string|max:100',
-            'municipality' => 'required|string|max:100',
-            'province' => 'required|string|max:100',
-            // Step 2 (some can be optional)
-            'educational_attainment' => 'nullable|string|max:100',
-            'employment_type' => 'nullable|string|max:100',
-            'employment_status' => 'nullable|string|max:100',
-            'employment_category' => 'nullable|string|max:100',
-            'occupation' => 'nullable|string|max:150',
 
-            // ID validation rules
-            'id_sss'        => 'nullable|numeric|digits:10',
-            'id_philhealth' => 'nullable|numeric|digits:12',
-            'id_pagibig'    => 'nullable|numeric|digits:12',
-            'id_gsis'       => 'nullable|numeric|digits_between:10,12',
-            'id_others_number' => 'nullable|string|max:20',
+        if (!$this->allFilesUploaded()) {
+            if (empty($this->files['id_picture'])) {
+                $this->addError('files.id_picture', '1x1 ID Picture is required.');
+            }
+
+            if (empty($this->files['psa'])) {
+                $this->addError('files.psa', 'PSA Birth Certificate is required.');
+            }
+
+            if (empty($this->files['cert_of_disability'])) {
+                $this->addError('files.cert_of_disability', 'Certificate of Disability is required.');
+            }
+
+            if (empty($this->files['med_cert'])) {
+                $this->addError('files.med_cert', 'Medical Certificate is required.');
+            }
+
+            if (empty($this->files['endorsement_letter'])) {
+                $this->addError('files.endorsement_letter', 'Endorsement Letter is required.');
+            }
+
+            $this->step = 3;
+            return;
+        }
+
+        $this->validate($this->rules());
+
+        // Basic validation for required fields present in the UI
+        $this->validate([
+            'first_name'       => 'required|string|max:100',
+            'last_name'        => 'required|string|max:100',
+            'date_of_birth'    => 'required|date',
+            'gender'           => 'required|string',
+            'civil_status'     => 'required|string',
+            'blood_type'       => 'required|string',
+
+            'house_no'         => 'required|string|max:100',
+            'street'           => 'required|string|max:100',
+            'barangay'         => 'required|string|max:100',
+            'municipality'     => 'required|string|max:100',
+            'province'         => 'required|string|max:100',
+
+            // Step 2 (some conditionally required, DB still accepts null)
+            'educational_attainment' => 'required|string|max:100',
+            'employment_status'      => 'required|string|max:100',
+            'employment_type'        => 'nullable|string|max:100',
+            'employment_status'      => 'required|string|max:100',
+            'employment_category'    => 'nullable|string|max:100',
+            'occupation'             => 'nullable|string|max:150',
+            'four_ps_member'         => 'required|string|max:5',
+
+            'id_sss'            => 'nullable|numeric|digits:10',
+            'id_philhealth'     => 'nullable|numeric|digits:12',
+            'id_pagibig'        => 'nullable|numeric|digits:12',
+            'id_gsis'           => 'nullable|numeric|digits_between:10,12',
+            'id_others_number'  => 'nullable|string|max:20',
+
+            // ✅ Step 3 required (father/mother still optional)
+            'spouse_last'       => 'required|string|max:100',
+            'spouse_first'      => 'required|string|max:100',
+            'spouse_contact'    => 'required|string|max:50',
+            'physician_name'    => 'required|string|max:150',
         ]);
 
         $account = Auth::user();
+
         if (!$account) {
             $this->addError('auth', 'You must be logged in to submit an application.');
             return;
@@ -333,6 +530,38 @@ class UserForm extends Component
             $refOther = null;
         }
 
+        // 🔹 1) Uppercase all plain text fields on the component
+        $this->normalizeUppercase();
+
+        // 🔹 2) Uppercase radio/select string fields (choices)
+        if ($this->civil_status !== '') {
+            $this->civil_status = mb_strtoupper($this->civil_status, 'UTF-8');
+        }
+
+        if ($this->employment_type !== '') {
+            $this->employment_type = mb_strtoupper($this->employment_type, 'UTF-8');
+        }
+
+        if ($this->employment_status !== '') {
+            $this->employment_status = mb_strtoupper($this->employment_status, 'UTF-8');
+        }
+
+        if ($this->employment_category !== '') {
+            $this->employment_category = mb_strtoupper($this->employment_category, 'UTF-8');
+        }
+
+        if ($this->four_ps_member !== '') {
+            $this->four_ps_member = mb_strtoupper($this->four_ps_member, 'UTF-8');
+        }
+
+        if ($this->educational_attainment !== '') {
+            $this->educational_attainment = mb_strtoupper($this->educational_attainment, 'UTF-8');
+        }
+
+        // 🔹 3) Uppercase the final composed special fields
+        $disabilityType  = $disabilityType  ? mb_strtoupper($disabilityType, 'UTF-8')  : null;
+        $disabilityCause = $disabilityCause ? mb_strtoupper($disabilityCause, 'UTF-8') : null;
+        $finalOccupation = $finalOccupation ? mb_strtoupper($finalOccupation, 'UTF-8') : null;
 
         // 1) form_personal
         $personal = FormPersonal::create([
@@ -371,8 +600,6 @@ class UserForm extends Component
 
             // Education
             'educ_attainment'=> $this->educational_attainment ?: null,
-
-            // reviewed_by/on left null for now
         ]);
 
         // 2) form_occupation

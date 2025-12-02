@@ -2,6 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/pdao_logo.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <title>Login</title>
@@ -80,6 +81,14 @@
                     Login
                 </button>
             </form>
+
+            <div class="hidden md:block mt-6 pt-6 border-t border-gray-100 text-center">
+                <p class="text-xs text-gray-500 mb-3 uppercase tracking-wide font-semibold">Authorized Personnel</p>
+                <a href="{{ route('staff.login') }}" 
+                   class="w-full inline-flex justify-center items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                   Access Staff Portal
+                </a>
+            </div>
         </div>
     </main>
 </body>

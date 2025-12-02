@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="{{ asset('images/pdao_logo.png') }}">
     <title>Support Chat - PDAO</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

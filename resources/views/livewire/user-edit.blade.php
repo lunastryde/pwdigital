@@ -89,58 +89,6 @@
             </div>
         </div>
 
-        {{-- PERSONAL INFORMATION --}}
-        <div class="space-y-6">
-            <h3 class="text-lg font-medium text-gray-900">Personal Information</h3>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                    <input type="text" wire:model.defer="fname" 
-                        class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
-                    <input type="text" wire:model.defer="mname" 
-                        class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                    <input type="text" wire:model.defer="lname" 
-                        class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact Number</label>
-                    <div class="relative rounded-md shadow-sm">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <span class="text-gray-500 font-medium">#</span>
-                        </div>
-                        <input type="text" wire:model.defer="contact_no" 
-                            class="pl-8 w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
-                    </div>
-                </div>
-
-                @if ($role === 'user')
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Civil Status</label>
-                        <select wire:model.defer="civil_status" 
-                            class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
-                            <option value="">Select status</option>
-                            <option>Single</option>
-                            <option>Married</option>
-                            <option>Separated</option>
-                            <option>Widowed</option>
-                        </select>
-                    </div>
-                @endif
-            </div>
-        </div>
-
         {{-- SECURITY / PASSWORD SECTION --}}
         <div class="pt-6 border-t border-gray-100">
             <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
@@ -199,6 +147,60 @@
                 </div>
             </div>
         </div>
+
+        {{-- PERSONAL INFORMATION --}}
+        <div class="space-y-6">
+            <h3 class="text-lg font-medium text-gray-900">Personal Information</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <input type="text" wire:model.defer="fname" 
+                        class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
+                    <input type="text" wire:model.defer="mname" 
+                        class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <input type="text" wire:model.defer="lname" 
+                        class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact Number</label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span class="text-gray-500 font-medium">#</span>
+                        </div>
+                        <input type="text" wire:model.defer="contact_no" 
+                            class="pl-8 w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
+                    </div>
+                </div>
+
+                @if ($role === 'user')
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Civil Status</label>
+                        <select wire:model.defer="civil_status" 
+                            class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-blue-500 shadow-sm transition duration-150 ease-in-out">
+                            <option value="">Select status</option>
+                            <option>Single</option>
+                            <option>Married</option>
+                            <option>Separated</option>
+                            <option>Widowed</option>
+                        </select>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        
 
         {{-- MAIN SAVE ACTION --}}
         <div class="flex justify-end pt-4 border-t border-gray-100">

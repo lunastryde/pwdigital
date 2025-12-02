@@ -73,6 +73,20 @@
         @endif
 
         <form wire:submit.prevent="submit">
+
+            @php
+                if ($requestType === 'device') {
+                    $currentLocked  = $deviceLocked;
+                    $currentMessage = $deviceLockMessage;
+                } elseif ($requestType === 'booklet') {
+                    $currentLocked  = $bookletLocked;
+                    $currentMessage = $bookletLockMessage;
+                } else {
+                    $currentLocked  = $financialLocked;
+                    $currentMessage = $financialLockMessage;
+                }
+            @endphp
+
             <!-- Applicant Information (Read-Only) -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -119,18 +133,30 @@
                     Request Details
                 </h3>
 
+                @if($currentLocked && !session()->has('success'))
+                    <div class="mb-4 rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+                        {{ $currentMessage }}
+                    </div>
+                @endif
+
                 @if($requestType === 'device')
                     <!-- Device Request Form -->
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Are you a Local Social Pension recipient? <span class="text-red-500"> *</span></label>
-                            <div class="flex space-x-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Are you a Local Social Pension recipient? <span class="text-red-500"> *</span>
+                            </label>
+                            <div class="flex space-x-4 {{ $currentLocked ? 'opacity-60 cursor-not-allowed' : '' }}">
                                 <label class="flex items-center">
-                                    <input type="radio" wire:model="local_social_pension" value="Y" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                    <input type="radio" wire:model="local_social_pension" value="Y"
+                                        class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                        @if($currentLocked) disabled @endif>
                                     <span class="ml-2 text-sm text-gray-700">Yes</span>
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="radio" wire:model="local_social_pension" value="N" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                    <input type="radio" wire:model="local_social_pension" value="N"
+                                        class="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                        @if($currentLocked) disabled @endif>
                                     <span class="ml-2 text-sm text-gray-700">No</span>
                                 </label>
                             </div>
@@ -138,15 +164,28 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Device Requested <span class="text-red-500"> *</span></label>
-                            <input type="text" wire:model.defer="device_requested" placeholder="e.g., Wheelchair, Hearing Aid, Crutches" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Device Requested <span class="text-red-500"> *</span>
+                            </label>
+                            <input type="text"
+                                wire:model.defer="device_requested"
+                                placeholder="e.g., Wheelchair, Hearing Aid, Crutches"
+                                @if($currentLocked) disabled @endif
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                        {{ $currentLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}">
                             @error('device_requested') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Request <span class="text-red-500"> *</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Reason for Request <span class="text-red-500"> *</span>
+                            </label>
                             <p class="text-xs text-gray-500 mb-2 pt-1">You can use Tagalog or English.</p>
-                            <textarea wire:model.defer="device_reason" rows="4" placeholder="Please explain why you need this device and how it will help you..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            <textarea wire:model.defer="device_reason" rows="4"
+                                    placeholder="Please explain why you need this device and how it will help you..."
+                                    @if($currentLocked) disabled @endif
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                            {{ $currentLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}"></textarea>
                             @error('device_reason') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -155,17 +194,23 @@
                     <!-- Booklet Request Form -->
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Type of Booklet <span class="text-red-500"> *</span></label>
-                            <div class="space-y-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                Type of Booklet <span class="text-red-500"> *</span>
+                            </label>
+                            <div class="space-y-3 {{ $currentLocked ? 'opacity-60 cursor-not-allowed' : '' }}">
                                 <label class="flex items-start p-3 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer">
-                                    <input type="radio" wire:model="booklet_type" value="grocery" class="mt-1 w-4 h-4 text-green-600 focus:ring-green-500">
+                                    <input type="radio" wire:model="booklet_type" value="grocery"
+                                        class="mt-1 w-4 h-4 text-green-600 focus:ring-green-500"
+                                        @if($currentLocked) disabled @endif>
                                     <div class="ml-3">
                                         <span class="block text-sm font-medium text-gray-900">Grocery Discount Booklet</span>
                                         <span class="block text-xs text-gray-500">For use at participating grocery stores and supermarkets</span>
                                     </div>
                                 </label>
                                 <label class="flex items-start p-3 border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer">
-                                    <input type="radio" wire:model="booklet_type" value="medicine" class="mt-1 w-4 h-4 text-green-600 focus:ring-green-500">
+                                    <input type="radio" wire:model="booklet_type" value="medicine"
+                                        class="mt-1 w-4 h-4 text-green-600 focus:ring-green-500"
+                                        @if($currentLocked) disabled @endif>
                                     <div class="ml-3">
                                         <span class="block text-sm font-medium text-gray-900">Medicine Discount Booklet</span>
                                         <span class="block text-xs text-gray-500">For use at participating pharmacies and drugstores</span>
@@ -176,9 +221,15 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Request <span class="text-red-500"> *</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Reason for Request <span class="text-red-500"> *</span>
+                            </label>
                             <p class="text-xs text-gray-500 mb-2 pt-1">You can use Tagalog or English.</p>
-                            <textarea wire:model.defer="booklet_reason" rows="4" placeholder="Please explain why you need this booklet..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
+                            <textarea wire:model.defer="booklet_reason" rows="4"
+                                    placeholder="Please explain why you need this booklet..."
+                                    @if($currentLocked) disabled @endif
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500
+                                            {{ $currentLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}"></textarea>
                             @error('booklet_reason') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -187,9 +238,15 @@
                     <!-- Financial Assistance Form -->
                     <div class="space-y-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Financial Assistance Request</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Reason for Financial Assistance Request
+                            </label>
                             <p class="text-xs text-gray-500 mb-2 pt-1">You can use Tagalog or English.</p>
-                            <textarea wire:model.defer="financial_reason" rows="6" placeholder="Please provide detailed information about why you need financial assistance, including any medical expenses, emergency situations, or other relevant circumstances..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
+                            <textarea wire:model.defer="financial_reason" rows="6"
+                                    placeholder="Please provide detailed information about why you need financial assistance..."
+                                    @if($currentLocked) disabled @endif
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500
+                                            {{ $currentLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}"></textarea>
                             <p class="text-xs text-gray-500 mt-1">Please be as specific as possible about your situation and needs.</p>
                             @error('financial_reason') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                         </div>
@@ -198,22 +255,45 @@
             </div>
 
             <!-- Submit Button -->
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="window.history.back()" 
-                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-300 rounded-md font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <div class="flex justify-end space-x-3 mt-6">
+                {{-- Cancel button (left) --}}
+                <button type="button"
+                        onclick="window.history.back()"
+                        class="inline-flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-300 rounded-md
+                            font-medium text-gray-700 shadow-sm hover:bg-gray-50
+                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     Cancel
                 </button>
-                <button type="submit" 
-                    class="px-6 py-2.5 font-medium rounded-md text-white transition-colors
-                        {{ $requestType === 'device' ? 'bg-blue-600 hover:bg-blue-700' : '' }}
-                        {{ $requestType === 'booklet' ? 'bg-green-600 hover:bg-green-700' : '' }}
-                        {{ $requestType === 'financial' ? 'bg-purple-600 hover:bg-purple-700' : '' }}">
+
+                @php
+                    $locked = $currentLocked;
+
+                    $colorClasses = '';
+                    if (!$locked) {
+                        if ($requestType === 'device') {
+                            $colorClasses = 'bg-blue-600 hover:bg-blue-700';
+                        } elseif ($requestType === 'booklet') {
+                            $colorClasses = 'bg-green-600 hover:bg-green-700';
+                        } else {
+                            $colorClasses = 'bg-purple-600 hover:bg-purple-700';
+                        }
+                    }
+                @endphp
+
+                {{-- Submit button (right) --}}
+                <button type="submit"
+                        @if($locked) disabled @endif
+                        class="px-6 py-2.5 font-medium rounded-md transition-colors
+                            {{ $locked ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'text-white ' . $colorClasses }}">
                     Submit Request
                 </button>
             </div>
+
         </form>
     </div>
 </div>

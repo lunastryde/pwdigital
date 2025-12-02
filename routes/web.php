@@ -23,9 +23,12 @@ Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])-
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+// Redirects anyone hitting "/" straight to "/login"
+Route::redirect('/', '/login');
 
 // ============================================================
 //    =================  Authentication   =================
