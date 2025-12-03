@@ -29,21 +29,20 @@
                 <div class="ml-auto flex items-center gap-3">
 
                     {{-- SUPPORT INBOX BUTTON --}}
-                    <a href="{{ route('staff.support.chat') }}" 
-                    class="group flex items-center gap-2 px-3 py-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    title="Support Inbox">
-                        
-                        <div class="relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                            </svg>
+                    @if (auth()->check() && auth()->user()->identifier != 1)
+                        <a href="{{ route('staff.support.chat') }}" 
+                        class="group flex items-center gap-2 px-3 py-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        title="Support Inbox">
                             
-                            {{-- Optional: Red Dot for unread messages (You can add logic later) --}}
-                            {{-- <span class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span> --}}
-                        </div>
+                            <div class="relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                                </svg>
+                            </div>
 
-                        <span class="hidden sm:block text-sm font-medium">Support Inbox</span>
-                    </a>
+                            <span class="hidden sm:block text-sm font-medium">Support Inbox</span>
+                        </a>
+                    @endif
 
                     <div class="h-6 w-px bg-gray-200 mx-1"></div>
 
@@ -143,176 +142,206 @@
                 @if ($section === 'dashboard')
                     {{-- Dashboard Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
-                        <h3 class="text-xl font-semibold text-gray-800">Dashboard</h3>
+                        <livewire:staff-dashboard />
                     </div>
 
                 @elseif ($section === 'applications')
                     {{-- Application Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
-                        <h3 class="text-xl font-semibold text-gray-800">Application List</h3>
+                        {{-- 1. Header & Navigation Area --}}
+                        <div class="px-6 py-5 border-b border-gray-200">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900">Application List</h3>
+                                    <p class="text-sm text-gray-500 mt-1">Manage incoming PWD applications and requests.</p>
+                                </div>
 
-                        <!-- Sub Tabs -->
-                        <div class="mt-4 flex justify-center">
-                            <div class="inline-flex rounded-full bg-gray-100 p-1 shadow-sm">
-                                @php $tabClasses = 'px-4 py-1.5 text-sm rounded-full transition'; @endphp
-                                <button type="button" wire:click="$set('appTab','id')"
-                                    class="{{ $tabClasses }} {{ $appTab === 'id' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
-                                    ID Applications
-                                </button>
-                                <button type="button" wire:click="$set('appTab','renewal')"
-                                    class="{{ $tabClasses }} {{ $appTab === 'renewal' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
-                                    ID Renewal
-                                </button>
-                                <button type="button" wire:click="$set('appTab','loss')"
-                                    class="{{ $tabClasses }} {{ $appTab === 'loss' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
-                                    Loss ID
-                                </button>
-                                <button type="button" wire:click="$set('appTab','booklet')"
-                                    class="{{ $tabClasses }} {{ $appTab === 'booklet' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
-                                    Booklet Request
-                                </button>
-                                <button type="button" wire:click="$set('appTab','device')"
-                                    class="{{ $tabClasses }} {{ $appTab === 'device' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
-                                    Request Device
-                                </button>
-                                <button type="button" wire:click="$set('appTab','financial')"
-                                    class="{{ $tabClasses }} {{ $appTab === 'financial' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800' }}">
-                                    Financial Request
-                                </button>
+                                {{-- Tabs: Segmented "Pill" Style --}}
+                                <div class="flex flex-wrap gap-2">
+                                    @php 
+                                        $tabs = [
+                                            'id' => 'ID Apps',
+                                            'renewal' => 'Renewal',
+                                            'loss' => 'Loss ID',
+                                            'booklet' => 'Booklet',
+                                            'device' => 'Device',
+                                            'financial' => 'Financial'
+                                        ];
+                                    @endphp
+
+                                    @foreach($tabs as $key => $label)
+                                        <button 
+                                            type="button" 
+                                            wire:click="$set('appTab','{{ $key }}')"
+                                            class="px-3 py-1.5 text-xs font-semibold rounded-md border transition-all
+                                            {{ $appTab === $key 
+                                                ? 'bg-gray-900 text-white border-gray-900' 
+                                                : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400 hover:bg-gray-50' 
+                                            }}"
+                                        >
+                                            {{ $label }}
+                                        </button>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Table-like List -->
-                        <div class="mt-6 overflow-x-auto">
-                            <div class="min-w-[720px] rounded-lg ring-1 ring-gray-200">
-                                <table class="w-full text-sm">
-                                    <thead class="text-left">
-                                        <tr class="bg-blue-400 text-white">
-                                            <th class="w-12 rounded-l-lg px-3 py-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 opacity-90">
-                                                    <path d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 .8 1.6l-6.4 8.53V19a1 1 0 0 1-1.45.9l-3-1.5A1 1 0 0 1 9 17.5v-4.37L3.2 5.6A1 1 0 0 1 3 5V4Z" />
-                                                </svg>
-                                            </th>
-                                            <th class="px-4 py-2">Applicant Name</th>
-                                            <th class="px-4 py-2">Method</th>
-                                            <th class="px-4 py-2">Application Date</th>
-                                            <th class="px-4 py-2">Status</th>
-                                            <th class="px-4 py-2">Details</th>
-                                            <th class="px-4 py-2 rounded-r-lg">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        @forelse ($applications as $app)
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="px-3 py-3 align-middle">
-                                                    <input type="checkbox" class="rounded border-gray-300">
-                                                </td>
-                                                <td class="px-4 py-3 align-middle text-gray-800">
-                                                    @if ($isRequestType && $app->applicant)
-                                                        {{-- For FormRequest, get name from the related applicant model --}}
-                                                        {{ trim(($app->applicant->fname ?? '') . ' ' . ($app->applicant->mname ?? '') . ' ' . ($app->applicant->lname ?? '')) }}
-                                                    @else
-                                                        {{-- For FormPersonal, get name directly from the model --}}
-                                                        {{ trim(($app->fname ?? '') . ' ' . ($app->mname ?? '') . ' ' . ($app->lname ?? '')) }}
-                                                    @endif
-                                                </td>
-                                                <td class="px-4 py-3 align-middle text-gray-600">—</td>
-                                                <td class="px-4 py-3 align-middle text-gray-600">
-                                                    @php
-                                                        // This now correctly uses 'submitted_at' for all types.
-                                                        $dateString = $app->submitted_at;
-                                                        try { $dt = \Illuminate\Support\Carbon::parse($dateString); } catch (\Throwable $e) { $dt = null; }
+                        {{-- 2. Data Table --}}
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 border-b border-gray-200 uppercase text-xs font-semibold text-gray-500">
+                                    <tr>
+                                        <th class="px-6 py-3">Applicant Name</th>
+                                        <th class="px-6 py-3">Type & Method</th>
+                                        <th class="px-6 py-3">Date</th>
+                                        <th class="px-6 py-3">Status</th>
+                                        <th class="px-6 py-3 text-center">Requirements</th>
+                                        <th class="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @forelse ($applications as $app)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            
+                                            {{-- Name --}}
+                                            <td class="px-6 py-4 font-medium text-gray-900">
+                                                @if ($isRequestType && $app->applicant)
+                                                    {{ trim(($app->applicant->fname ?? '') . ' ' . ($app->applicant->lname ?? '')) }}
+                                                @else
+                                                    {{ trim(($app->fname ?? '') . ' ' . ($app->lname ?? '')) }}
+                                                @endif
+                                            </td>
+
+                                            {{-- Type/Method --}}
+                                            <td class="px-6 py-4">
+                                                @if ($isRequestType)
+                                                    <div class="inline-flex items-center px-2 py-1 rounded bg-gray-100 text-gray-600 text-xs font-medium border border-gray-200">
+                                                        {{ ucfirst($app->request_type ?? 'request') }} Request
+                                                    </div>
+                                                @else
+                                                    @php 
+                                                        $isEncoded = $app->applicant_type === 'Encoded Application';
                                                     @endphp
-                                                    {{ $dt ? $dt->format('m-d-y') : '—' }}
-                                                </td>
-                                                <td class="px-4 py-3 align-middle">
-                                                    {{-- DYNAMIC STATUS BADGE --}}
-                                                    @php
-                                                        $status = $app->status ?? 'Pending';
-                                                        $statusClass = 'inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full';
-                                                        if ($status === 'Pending') {
-                                                            $statusClass .= ' bg-yellow-100 text-yellow-800';
-                                                        } elseif ($status === 'Under Final Review') {
-                                                            $statusClass .= ' bg-blue-100 text-blue-800';
-                                                        } elseif ($status === 'Finalized') {
-                                                            $statusClass .= ' bg-green-100 text-green-800';
-                                                        } elseif ($status === 'Rejected' || $status === 'Needs Revision') {
-                                                            $statusClass .= ' bg-red-100 text-red-800';
-                                                        }
-                                                    @endphp
-                                                    <span class="{{ $statusClass }}">{{ $status }}</span>
-                                                </td>
-                                                <td class="px-4 py-3 align-middle">
+                                                    <div class="inline-flex items-center gap-1.5">
+                                                        <span class="w-2 h-2 rounded-full {{ $isEncoded ? 'bg-purple-500' : 'bg-blue-500' }}"></span>
+                                                        <span>{{ $isEncoded ? 'Encoded by Staff' : 'Online App' }}</span>
+                                                    </div>
+                                                @endif
+                                            </td>
+
+                                            {{-- Date --}}
+                                            <td class="px-6 py-4">
+                                                @php
+                                                    $dateString = $app->submitted_at;
+                                                    try { $dt = \Illuminate\Support\Carbon::parse($dateString); } catch (\Throwable $e) { $dt = null; }
+                                                @endphp
+                                                {{ $dt ? $dt->format('M d, Y') : '—' }}
+                                            </td>
+
+                                            {{-- Status --}}
+                                            <td class="px-6 py-4">
+                                                @php
+                                                    $status = $app->status ?? 'Pending';
+                                                    $statusClass = match($status) {
+                                                        'Pending' => 'text-yellow-600 bg-yellow-50 border-yellow-100',
+                                                        'Under Final Review' => 'text-blue-600 bg-blue-50 border-blue-100',
+                                                        'Finalized' => 'text-green-600 bg-green-50 border-green-100',
+                                                        'Rejected', 'Needs Revision' => 'text-red-600 bg-red-50 border-red-100',
+                                                        default => 'text-gray-600 bg-gray-50 border-gray-100',
+                                                    };
+                                                @endphp
+                                                <span class="px-2.5 py-1 rounded text-xs font-semibold border {{ $statusClass }}">
+                                                    {{ $status }}
+                                                </span>
+                                            </td>
+
+                                            {{-- Details Button --}}
+                                            <td class="px-6 py-4 text-center">
+                                                @if ($isRequestType)
+                                                    <button type="button" wire:click="openRequestDetails({{ $app->request_id }})" 
+                                                        class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                                                        View Details
+                                                    </button>
+                                                @else
+                                                    <button type="button" wire:click="openRequirements({{ $app->applicant_id }})" 
+                                                        class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                                                        View Requirements
+                                                    </button>
+                                                @endif
+                                            </td>
+
+                                            {{-- Actions --}}
+                                            <td class="px-6 py-4 text-right">
+                                                <div class="flex items-center justify-end gap-2">
                                                     @if ($isRequestType)
-                                                        <button type="button" class="text-indigo-600 hover:underline"
-                                                            wire:click="openRequestDetails({{ $app->request_id }})">
-                                                            View Details
-                                                        </button>
-                                                    @else
-                                                        <button type="button" class="text-indigo-600 hover:underline"
-                                                            wire:click="openRequirements({{ $app->applicant_id }})">
-                                                            View Requirements
-                                                        </button>
-                                                    @endif
-                                                </td>
-                                                <td class="px-4 py-3 align-middle">
-                                                    {{-- DYNAMIC ACTION BUTTONS --}}
-                                                    <div class="flex items-center gap-2">
-                                                        @if ($isRequestType)
-                                                            {{-- Buttons for Requests --}}
-                                                            @if (auth()->user()->identifier == 1) {{-- Admin --}}
-                                                                @if ($app->status === 'Finalized')
-                                                                    <button type="button" wire:click="$dispatch('open-id-preview', {{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-purple-500 text-white hover:bg-purple-600">Preview/Release ID</button>
-                                                                @else
-                                                                    <button type="button" wire:click="openConfirmFinalizeRequest({{ $app->request_id }})"
-                                                                        class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">
-                                                                        Finalize
-                                                                    </button>
-                                                                @endif
-                                                            @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
-                                                                <button type="button" wire:click="openConfirmAcceptRequest({{ $app->request_id }})"
-                                                                    class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">
-                                                                    Accept
+                                                        {{-- REQUEST BUTTONS --}}
+                                                        @if (auth()->user()->identifier == 1) {{-- Admin --}}
+                                                            @if ($app->status === 'Finalized')
+                                                                <button type="button" wire:click="$dispatch('open-id-preview', {{ $app->applicant_id }})" 
+                                                                    class="px-3 py-1.5 text-xs font-medium rounded border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100">
+                                                                    Preview ID
+                                                                </button>
+                                                            @else
+                                                                <button type="button" wire:click="openConfirmFinalizeRequest({{ $app->request_id }})" 
+                                                                    class="px-3 py-1.5 text-xs font-medium rounded border border-green-200 bg-green-50 text-green-700 hover:bg-green-100">
+                                                                    Finalize
                                                                 </button>
                                                             @endif
-                                                            <button type="button"
-                                                                wire:click="$dispatch('open-rejection-modal', { id: {{ $app->request_id }}, type: 'request' })"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
-                                                                Reject
-                                                            </button>
-                                                        @else
-                                                            {{-- Buttons for Personal Applications --}}
-                                                            @if (auth()->user()->identifier == 1) {{-- Admin --}}
-                                                                @if ($app->status === 'Finalized')
-                                                                    <button type="button" wire:click="$dispatch('open-id-preview', {{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-purple-500 text-white hover:bg-purple-600">Preview/Release ID</button>
-                                                                @else
-                                                                    <button type="button" wire:click="finalizeApplication({{ $app->applicant_id }})" class="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 text-white hover:bg-green-600">Finalize</button>
-                                                                @endif
-                                                            @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
-                                                                <button type="button" wire:click="openConfirmAcceptPersonal({{ $app->applicant_id }})"
-                                                                    class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-500 text-white hover:bg-blue-600">
-                                                                    Accept
-                                                                </button>
-                                                            @endif
-                                                            <button type="button"
-                                                                wire:click="$dispatch('open-rejection-modal', { id: {{ $app->applicant_id }}, type: 'application' })"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
-                                                                Reject
+                                                        @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
+                                                            <button type="button" wire:click="openConfirmAcceptRequest({{ $app->request_id }})" 
+                                                                class="px-3 py-1.5 text-xs font-medium rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                                                Accept
                                                             </button>
                                                         @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">
-                                                    No applications found for this category.
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
+                                                        
+                                                        <button type="button" wire:click="$dispatch('open-rejection-modal', { id: {{ $app->request_id }}, type: 'request' })" 
+                                                            class="px-3 py-1.5 text-xs font-medium rounded border border-red-200 bg-red-50 text-red-700 hover:bg-red-100">
+                                                            Reject
+                                                        </button>
+
+                                                    @else
+                                                        {{-- PERSONAL APP BUTTONS --}}
+                                                        @if (auth()->user()->identifier == 1) {{-- Admin --}}
+                                                            @if ($app->status === 'Finalized')
+                                                                <button type="button" wire:click="$dispatch('open-id-preview', {{ $app->applicant_id }})" 
+                                                                    class="px-3 py-1.5 text-xs font-medium rounded border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100">
+                                                                    Preview ID
+                                                                </button>
+                                                            @else
+                                                                <button type="button" wire:click="finalizeApplication({{ $app->applicant_id }})" 
+                                                                    class="px-3 py-1.5 text-xs font-medium rounded border border-green-200 bg-green-50 text-green-700 hover:bg-green-100">
+                                                                    Finalize
+                                                                </button>
+                                                            @endif
+                                                        @elseif (auth()->user()->identifier == 2) {{-- Staff --}}
+                                                            <button type="button" wire:click="openConfirmAcceptPersonal({{ $app->applicant_id }})" 
+                                                                class="px-3 py-1.5 text-xs font-medium rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                                                Accept
+                                                            </button>
+                                                        @endif
+
+                                                        <button type="button" wire:click="$dispatch('open-rejection-modal', { id: {{ $app->applicant_id }}, type: 'application' })" 
+                                                            class="px-3 py-1.5 text-xs font-medium rounded border border-red-200 bg-red-50 text-red-700 hover:bg-red-100">
+                                                            Reject
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                                                <div class="flex flex-col items-center">
+                                                    <svg class="w-10 h-10 mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    <span class="text-sm">No applications found in this category.</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -323,11 +352,16 @@
                         <livewire:announcement-manager />
                     </div>
 
-                @elseif ($section === 'encode-form')
+                @elseif ($section === 'encode')
                     {{-- Encode Form Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
-                        <h3 class="text-xl font-semibold text-gray-800">Encode Form</h3>
-                        <p class="mt-2 text-gray-700">Encode form content placeholder.</p>
+                        @if (session('status'))
+                            <div class="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        <livewire:staff-encode-form />
                     </div>
 
                 @elseif ($section === 'admin')
@@ -439,5 +473,37 @@
         </div>
     @endif
 
+    @push('scripts')
+        <script>
+            let staffRegisterWin = null;
+
+            function openStaffRegister() {
+                const url = "{{ route('register') }}?from=staff";
+
+                // If the window is already open, just focus it
+                if (staffRegisterWin && !staffRegisterWin.closed) {
+                    staffRegisterWin.focus();
+                    return;
+                }
+
+                // Open a child window/tab that JS is allowed to close
+                staffRegisterWin = window.open(
+                    url,
+                    "staffRegisterWindow",
+                    "width=900,height=700"
+                );
+            }
+
+            // Listen for the “account verified” message from the OTP window
+            window.addEventListener('message', function (event) {
+                if (event.data === 'staff-encode:account-verified') {
+                    // trigger Livewire event so StaffEncodeForm can show the toast/banner
+                    if (window.Livewire && Livewire.dispatch) {
+                        Livewire.dispatch('encode-account-verified');
+                    }
+                }
+            });
+        </script>
+    @endpush
 
 </div>

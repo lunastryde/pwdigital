@@ -18,6 +18,9 @@ class UserForm extends Component
 
     public int $step = 1;
 
+    public ?int $reapply_from_applicant_id = null; // last Cancelled/Rejected app
+    public ?string $reused_pwd_number = null;      // PWD number to reuse
+
     // Step 1: Personal Information + Disability
     public string $first_name = '';
     public ?string $middle_name = null;
@@ -159,33 +162,282 @@ class UserForm extends Component
 
     public function mount()
     {
-        // Get user's existing record
-        $existing = \App\Models\FormPersonal::where('account_id', auth()->id())
-            ->where('status', 'Finalized')
-            ->first();
+        $account = Auth::user();
 
-        // If ID already issued, prevent access.
-        if ($existing) {
-            session()->flash('error', 'You already have an active PWD ID. Please request renewal or lost ID instead.');
-            return redirect()->route('home', ['tab' => 'applications']);
+        if (!$account) {
+            return redirect()->route('login');
         }
 
-        $profile = auth()->user()->profile;
+        $accountId = $account->id;
+
+        // Get latest application for this account (any status)
+        $latest = FormPersonal::where('account_id', $accountId)
+            ->orderByDesc('submitted_at')
+            ->orderByDesc('submitted_at')
+            ->first();
+
+        // ---------- BLOCKING LOGIC ----------
+        if ($latest) {
+            // 1. Finalized -> permanently blocked
+            if ($latest->status === 'Finalized') {
+                session()->flash(
+                    'error',
+                    'You already have an active PWD ID. Please request renewal or lost ID instead.'
+                );
+                return redirect()->route('home', ['tab' => 'applications']);
+            }
+
+            // 2. Pending -> block duplicate application
+            if ($latest->status === 'Pending') {
+                session()->flash(
+                    'error',
+                    'You already have a pending PWD ID application. You may only submit a new application if your previous one is cancelled or rejected.'
+                );
+                return redirect()->route('home', ['tab' => 'applications']);
+            }
+
+            // 3. Rejected / Cancelled -> allow re-apply, reuse PWD + prefill
+            if (in_array($latest->status, ['Rejected', 'Cancelled'], true)) {
+                $this->reapply_from_applicant_id = $latest->applicant_id;
+                $this->reused_pwd_number = $latest->pwd_number;
+
+                // -------- Prefill from form_personal --------
+                $this->first_name     = $latest->fname ?? '';
+                $this->middle_name    = $latest->mname;
+                $this->last_name      = $latest->lname ?? '';
+                $this->suffix         = $latest->suffix ?? '';
+                $this->date_of_birth  = $latest->birthdate;
+                $this->age            = $latest->age;
+                $this->gender         = $latest->sex ?? '';
+                $this->blood_type     = $latest->blood_type ?? '';
+
+                // Civil status -> map DB uppercase back to radio labels
+                $this->civil_status = '';
+                if ($latest->civil_status) {
+                    $civilOptions = ['Single','Separated','Cohabitation','Married','Widowed'];
+                    $mappedCivil = null;
+                    foreach ($civilOptions as $opt) {
+                        if (mb_strtoupper($opt, 'UTF-8') === mb_strtoupper($latest->civil_status, 'UTF-8')) {
+                            $mappedCivil = $opt;
+                            break;
+                        }
+                    }
+                    $this->civil_status = $mappedCivil ?? $latest->civil_status;
+                }
+
+                $this->house_no      = $latest->house_no ?? '';
+                $this->street        = $latest->street ?? '';
+                $this->barangay      = $latest->barangay ?? '';
+                $this->municipality  = $latest->municipality ?? 'CALAPAN CITY';
+                $this->province      = $latest->province ?? 'ORIENTAL MINDORO';
+                $this->landline_no   = $latest->landline_no ?? '';
+                $this->mobile_no     = $latest->contact_no ?? '';
+                $this->email         = $latest->email ?: ($account->email ?? '');
+
+                // Disability type is stored uppercase, same as radio values
+                $this->disability_type = $latest->disability_type ?? '';
+
+                // Disability cause: handle "Others, Specify"
+                $storedCause = $latest->disability_cause;
+                $this->disability_cause = '';
+                $this->disability_cause_other = '';
+
+                if ($storedCause) {
+                    $knownCauses = [
+                        'CONGENITAL OR INBORN',
+                        'AUTISM',
+                        'ADHD',
+                        'CEREBRAL PALSY',
+                        'ACQUIRED',
+                        'CHRONIC ILLNESS',
+                        'INJURY',
+                        'OTHERS, SPECIFY',
+                    ];
+                    $upperCause = mb_strtoupper($storedCause, 'UTF-8');
+
+                    if (in_array($upperCause, $knownCauses, true) && $upperCause !== 'OTHERS, SPECIFY') {
+                        $this->disability_cause = $upperCause;
+                        $this->disability_cause_other = '';
+                    } else {
+                        $this->disability_cause = 'Others, Specify';
+                        $this->disability_cause_other = $upperCause === 'OTHERS, SPECIFY'
+                            ? ''
+                            : $storedCause;
+                    }
+                }
+
+                // Educational attainment (map back to label)
+                $this->educational_attainment = '';
+                if ($latest->educ_attainment) {
+                    $educOptions = [
+                        'None','Kindergarten','Elementary','Junior Highschool','Senior Highschool',
+                        'College','Vocational / ALS','Post Graduate Program'
+                    ];
+                    $mappedEduc = null;
+                    foreach ($educOptions as $opt) {
+                        if (mb_strtoupper($opt, 'UTF-8') === mb_strtoupper($latest->educ_attainment, 'UTF-8')) {
+                            $mappedEduc = $opt;
+                            break;
+                        }
+                    }
+                    $this->educational_attainment = $mappedEduc ?? $latest->educ_attainment;
+                }
+
+                // -------- Prefill from form_occupation --------
+                $occRow = FormOccupation::where('applicant_id', $latest->applicant_id)->first();
+                if ($occRow) {
+                    // Employment status
+                    $this->employment_status = '';
+                    if ($occRow->employment_status) {
+                        $statusOptions = ['Employed','Unemployed','Self-employed'];
+                        $mappedStatus = null;
+                        foreach ($statusOptions as $opt) {
+                            if (mb_strtoupper($opt, 'UTF-8') === mb_strtoupper($occRow->employment_status, 'UTF-8')) {
+                                $mappedStatus = $opt;
+                                break;
+                            }
+                        }
+                        $this->employment_status = $mappedStatus ?? $occRow->employment_status;
+                    }
+
+                    // Employment type
+                    $this->employment_type = '';
+                    if ($occRow->employment_type) {
+                        $typeOptions = ['Permanent / Regular','Seasonal','Casual','Emergency'];
+                        $mappedType = null;
+                        foreach ($typeOptions as $opt) {
+                            if (mb_strtoupper($opt, 'UTF-8') === mb_strtoupper($occRow->employment_type, 'UTF-8')) {
+                                $mappedType = $opt;
+                                break;
+                            }
+                        }
+                        $this->employment_type = $mappedType ?? $occRow->employment_type;
+                    }
+
+                    // Employment category
+                    $this->employment_category = '';
+                    if ($occRow->employment_category) {
+                        $catOptions = ['Government','Private'];
+                        $mappedCat = null;
+                        foreach ($catOptions as $opt) {
+                            if (mb_strtoupper($opt, 'UTF-8') === mb_strtoupper($occRow->employment_category, 'UTF-8')) {
+                                $mappedCat = $opt;
+                                break;
+                            }
+                        }
+                        $this->employment_category = $mappedCat ?? $occRow->employment_category;
+                    }
+
+                    // Occupation (handle “Others, Specify”)
+                    $this->occupation = '';
+                    $this->occupation_other = '';
+                    if ($occRow->occupation) {
+                        $occOptions = [
+                            'Manager','Professionals','Technician & Associate Professionals','Clerical Support',
+                            'Service & Sales Workers',
+                            'Skilled Agricultural, Forestry and Fishery Workers',
+                            'Armed Forces Occupation',
+                            'Elementary Occupation',
+                            'Crafts & Related Trade Workers',
+                            'Others, Specify',
+                        ];
+                        $matchedLabel = null;
+                        foreach ($occOptions as $opt) {
+                            if (mb_strtoupper($opt, 'UTF-8') === mb_strtoupper($occRow->occupation, 'UTF-8')) {
+                                $matchedLabel = $opt;
+                                break;
+                            }
+                        }
+
+                        if ($matchedLabel && $matchedLabel !== 'Others, Specify') {
+                            $this->occupation = $matchedLabel;
+                            $this->occupation_other = '';
+                        } else {
+                            $this->occupation = 'Others, Specify';
+                            $this->occupation_other = $occRow->occupation;
+                        }
+                    }
+
+                    $this->four_ps_member = $occRow->four_pmem ?? '';
+                }
+
+                // -------- Prefill from form_oi --------
+                $orgRow = FormOi::where('applicant_id', $latest->applicant_id)->first();
+                if ($orgRow) {
+                    $this->org_affiliated      = $orgRow->oi_affiliated ?? '';
+                    $this->org_contact_person  = $orgRow->oi_contactperson ?? '';
+                    $this->org_contact_no      = $orgRow->oi_telno ?? '';
+                    $this->org_house_no        = $orgRow->oi_house_no ?? '';
+                    $this->org_street          = $orgRow->oi_street ?? '';
+                    $this->org_brgy            = $orgRow->oi_brgy ?? '';
+                    $this->org_municipality    = $orgRow->oi_municipality ?? '';
+                    $this->org_province        = $orgRow->oi_province ?? '';
+                }
+
+                // -------- Prefill from form_refnos --------
+                $refRow = FormRefnos::where('applicant_id', $latest->applicant_id)->first();
+                if ($refRow) {
+                    $this->id_sss        = $refRow->refno_sss ?? '';
+                    $this->id_gsis       = $refRow->refno_gsis ?? '';
+                    $this->id_pagibig    = $refRow->refno_pagibig ?? '';
+                    $this->id_philhealth = $refRow->refno_philhealth ?? '';
+
+                    $this->id_others_type = '';
+                    $this->id_others_number = '';
+                    if (!empty($refRow->refno_others)) {
+                        if (strpos($refRow->refno_others, ' - ') !== false) {
+                            [$type, $num] = explode(' - ', $refRow->refno_others, 2);
+                            $this->id_others_type = $type;
+                            $this->id_others_number = $num;
+                        } else {
+                            $this->id_others_number = $refRow->refno_others;
+                        }
+                    }
+                }
+
+                // -------- Prefill from form_guardian --------
+                $guardRow = FormGuardian::where('applicant_id', $latest->applicant_id)->first();
+                if ($guardRow) {
+                    $this->mother_last     = $guardRow->mother_lname ?? '';
+                    $this->mother_first    = $guardRow->mother_fname ?? '';
+                    $this->mother_middle   = $guardRow->mother_mname ?? '';
+                    $this->mother_contact  = $guardRow->mother_contact ?? '';
+
+                    $this->father_last     = $guardRow->father_lname ?? '';
+                    $this->father_first    = $guardRow->father_fname ?? '';
+                    $this->father_middle   = $guardRow->father_mname ?? '';
+                    $this->father_contact  = $guardRow->father_contact ?? '';
+
+                    $this->spouse_last     = $guardRow->spouse_guardian_lname ?? '';
+                    $this->spouse_first    = $guardRow->spouse_guardian_fname ?? '';
+                    $this->spouse_middle   = $guardRow->spouse_guardian_mname ?? '';
+                    $this->spouse_contact  = $guardRow->spouse_guardian_contact ?? '';
+
+                    $this->physician_name  = $guardRow->physician_name ?? '';
+                }
+
+                // Files remain empty on re-apply (never prefilled)
+                return;
+            }
+        }
+
+        // ---------- Fallback: first-time application (original behaviour) ----------
+        $profile = $account->profile;
 
         // Prefill readonly fields (from registration)
-        $this->first_name   = $profile->fname;
-        $this->middle_name  = $profile->mname;
-        $this->last_name    = $profile->lname;
-        $this->gender       = strtoupper($profile->sex);
-        $this->mobile_no    = $profile->contact_no;
+        $this->first_name    = $profile->fname ?? '';
+        $this->middle_name   = $profile->mname;
+        $this->last_name     = $profile->lname ?? '';
+        $this->gender        = strtoupper($profile->sex ?? '');
+        $this->mobile_no     = $profile->contact_no ?? '';
         $this->date_of_birth = $profile->birthdate;
-        $this->age          = $profile->age;
+        $this->age           = $profile->age;
 
-
-        $this->municipality = 'CALAPAN CITY';
-        $this->province     = 'ORIENTAL MINDORO';
-        $this->email = Auth::user()->email;
+        $this->municipality  = 'CALAPAN CITY';
+        $this->province      = 'ORIENTAL MINDORO';
+        $this->email         = $account->email ?? '';
     }
+
 
     public function nextStep(): void
     {
@@ -462,11 +714,13 @@ class UserForm extends Component
             'municipality'     => 'required|string|max:100',
             'province'         => 'required|string|max:100',
 
+            'disability_type'  => 'required|string',
+            'disability_cause' => 'required|string',
+
             // Step 2 (some conditionally required, DB still accepts null)
             'educational_attainment' => 'required|string|max:100',
             'employment_status'      => 'required|string|max:100',
             'employment_type'        => 'nullable|string|max:100',
-            'employment_status'      => 'required|string|max:100',
             'employment_category'    => 'nullable|string|max:100',
             'occupation'             => 'nullable|string|max:150',
             'four_ps_member'         => 'required|string|max:5',
@@ -491,8 +745,14 @@ class UserForm extends Component
             return;
         }
 
-        // Generate 8-digit PWD number
-        $pwdNumber = str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        // Generate or reuse 8-digit PWD number
+        if ($this->reused_pwd_number) {
+            // Reapply after Cancelled/Rejected → reuse old PWD number
+            $pwdNumber = $this->reused_pwd_number;
+        } else {
+            // First-time application → generate new PWD number
+            $pwdNumber = str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        }
 
         // --- Require at least one ID reference ---
         if (
@@ -692,6 +952,12 @@ class UserForm extends Component
 
         session()->flash('success', 'Your ID Application was submitted successfully!');
         $this->redirect(route('home', ['tab' => 'applications']));
+    }
+
+    public function closeErrorModal(): void
+    {
+        // Clear all validation errors so the modal disappears
+        $this->resetErrorBag();
     }
 
     public function render()

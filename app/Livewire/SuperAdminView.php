@@ -20,6 +20,11 @@ class SuperAdminView extends Component
     // UI
     public $showCreateForm = false;
 
+    // Deactivation state
+    public ?int $selectedUserId = null;
+    public bool $showDeactivateConfirm = false;
+    public bool $showReactivateConfirm = false;
+
     protected function rules()
     {
         return [
@@ -106,6 +111,59 @@ class SuperAdminView extends Component
 
         $this->identifier = 2; 
         $this->role = 'staff';
+    }
+
+    public function confirmDeactivate(int $userId)
+    {
+        $this->selectedUserId = $userId;
+        $this->showDeactivateConfirm = true;
+    }
+
+    public function deactivateUser()
+    {
+        if (!$this->selectedUserId) return;
+
+        $user = User::find($this->selectedUserId);
+
+        if ($user) {
+            $user->update(['is_active' => 0]);
+        }
+
+        $this->showDeactivateConfirm = false;
+        $this->selectedUserId = null;
+
+        session()->flash('success', 'Account has been deactivated.');
+    }
+
+    public function confirmReactivate($userId)
+    {
+        $this->selectedUserId = $userId;
+        $this->showReactivateConfirm = true;
+    }
+
+    public function reactivateUser()
+    {
+        if (!$this->selectedUserId) return;
+
+        $user = User::find($this->selectedUserId);
+
+        if (!$user) {
+            session()->flash('error', 'User not found.');
+            return;
+        }
+
+        try {
+            $user->is_active = 1;
+            $user->save();
+
+            session()->flash('success', 'Account has been reactivated.');
+        } catch (\Throwable $e) {
+            \Log::error("Reactivate error: " . $e->getMessage());
+            session()->flash('error', 'Failed to reactivate account.');
+        }
+
+        $this->showReactivateConfirm = false;
+        $this->selectedUserId = null;
     }
 
     public function render()

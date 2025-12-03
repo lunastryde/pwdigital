@@ -1,19 +1,24 @@
 @php use Illuminate\Support\Str; @endphp
 
-{{-- 
-    FIXES APPLIED: 
-    1. Added 'min-h-0' to grid children to prevent content from forcing height.
-    2. Added 'flex-shrink-0' to Header and Input areas so they never get pushed out.
-    3. Adjusted spacing to space-y-4 to reduce huge gaps.
---}}
 <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col h-[calc(100vh-140px)] min-h-[500px] relative" wire:poll.3s="pollData">
     
     {{-- Header (Fixed Height) --}}
     <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0 z-20">
-        <h2 class="text-lg font-bold text-gray-900">Support Inbox</h2>
-        <div class="flex items-center gap-2">
-             <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-             <span class="text-xs text-gray-500 font-medium">Live</span>
+        
+        <div class="flex items-center gap-3">
+            {{-- Back Button --}}
+            <a href="{{ route('staff.home') }}" 
+               class="p-2 -ml-2 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all group"
+               title="Back to Dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 group-hover:-translate-x-1 transition-transform">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </a>
+
+            {{-- Divider --}}
+            <div class="h-5 w-px bg-gray-200"></div>
+
+            <h2 class="text-lg font-bold text-gray-900">Support Inbox</h2>
         </div>
     </div>
 

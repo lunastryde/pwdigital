@@ -370,12 +370,9 @@ class StaffView extends Component
                 }
 
             } else {
-                $personalMap = [
-                    'id'      => 'ID Application',
-                ];
-                $type = $personalMap[$this->appTab] ?? 'ID Application';
-
-                $query = FormPersonal::query()->where('applicant_type', $type);
+                // Show BOTH normal online applications and staff-encoded applications
+                $query = FormPersonal::query()
+                    ->whereIn('applicant_type', ['ID Application', 'Encoded Application']);
 
                 if ($userRole == 1) { // IF USER IS ADMIN
                     $query->where('status', 'Under Final Review');

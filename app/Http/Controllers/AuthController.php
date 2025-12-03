@@ -159,15 +159,22 @@ class AuthController extends Controller
         $user->email_verified_at = now();
         $user->save();
 
-        // Delete used OTP
+        // Delete used OTP (ONCE)
         DB::table('email_otps')->where('id', $otp->id)->delete();
 
-        // Optionally log them in directly
-        auth()->login($user);
-        $request->session()->regenerate();
+        // STAFF FLOW: staff is logged in and opened the register page in a popup
+        if (auth()->check()) {
+            return response()->view('auth.otp-staff-close', [
+                'email' => $user->email,
+            ]);
+        }
 
-        return redirect()->route('home')->with('status', 'Your account has been verified.');
+        // NORMAL USER FLOW: they registered on their own
+        return redirect()
+            ->route('login')
+            ->with('status', 'Your account has been verified. You can now sign in.');
     }
+
 
     public function resendOtp(Request $request)
     {

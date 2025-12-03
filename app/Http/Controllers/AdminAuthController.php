@@ -18,6 +18,14 @@ class AdminAuthController extends Controller
     
         if (auth()->attempt($credentials)) {
             $user = auth()->user();
+
+            // Block if account is deactivated
+            if (!$user->is_active) {
+                auth()->logout();
+                return back()->withErrors([
+                    'username' => 'Your account has been deactivated. Please contact the administrator.',
+                ]);
+            }
     
             // Only allow identifier 1 or 2
             if (in_array($user->identifier, [1, 2])) {

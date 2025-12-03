@@ -4,13 +4,20 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\FormPersonal;
-use Illuminate\Support\Facades\DB; // Don't forget to import DB
+use Illuminate\Support\Facades\DB; // still here, harmless if unused
 
 class IdReleased extends Component
 {
     public $items;
-    public $selectedYear = ''; // Stores the currently selected year
-    public $years = [];        // Stores the list of available years for the dropdown
+
+    // Filters
+    public $selectedYear   = '';
+    public $selectedMonth  = '';
+    public $selectedType   = ''; // '', 'ID Application', 'Encoded Application'
+
+    // Options for dropdowns
+    public $years  = [];
+    public $months = [];
 
     protected $listeners = [
         'application-updated' => 'load',
@@ -18,22 +25,55 @@ class IdReleased extends Component
 
     public function mount()
     {
-        // 1. Get all distinct years where IDs were released
+        // Distinct years with finalized IDs
         $this->years = FormPersonal::where('status', 'Finalized')
             ->whereNotNull('date_issued')
-            ->selectRaw('YEAR(date_issued) as year') // Extract year from date
+            ->selectRaw('YEAR(date_issued) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')
             ->toArray();
 
+        // Distinct months (for initial state: all years)
+        $this->refreshMonths();
+
         $this->load();
     }
 
-    // 2. Livewire Hook: Runs automatically when $selectedYear changes
+    // ---- Livewire hooks ----
+
     public function updatedSelectedYear()
     {
+        // When year changes, refresh month options and reset selected month
+        $this->selectedMonth = '';
+        $this->refreshMonths();
         $this->load();
+    }
+
+    public function updatedSelectedMonth()
+    {
+        $this->load();
+    }
+
+    public function updatedSelectedType()
+    {
+        $this->load();
+    }
+
+    // ---- Helpers ----
+
+    protected function refreshMonths(): void
+    {
+        $this->months = FormPersonal::where('status', 'Finalized')
+            ->whereNotNull('date_issued')
+            ->when($this->selectedYear !== '', function ($q) {
+                $q->whereYear('date_issued', $this->selectedYear);
+            })
+            ->selectRaw('MONTH(date_issued) as month')
+            ->distinct()
+            ->orderBy('month', 'asc')
+            ->pluck('month')
+            ->toArray();
     }
 
     public function load()
@@ -41,18 +81,32 @@ class IdReleased extends Component
         $query = FormPersonal::with('files')
             ->where('status', 'Finalized');
 
-        // 3. Apply Year Filter if selected
-        if (!empty($this->selectedYear)) {
+        // Year filter
+        if ($this->selectedYear !== '') {
             $query->whereYear('date_issued', $this->selectedYear);
         }
 
-        $this->items = $query->orderByDesc('date_issued')->get();
+        // Month filter
+        if ($this->selectedMonth !== '') {
+            $query->whereMonth('date_issued', $this->selectedMonth);
+        }
+
+        // Application type filter: normal vs encoded
+        if ($this->selectedType !== '') {
+            $query->where('applicant_type', $this->selectedType);
+        }
+
+        $this->items = $query
+            ->orderByDesc('date_issued')
+            ->get();
     }
 
     public function render()
     {
         return view('livewire.id-released', [
-            'items' => $this->items,
+            'items'  => $this->items,
+            'years'  => $this->years,
+            'months' => $this->months,
         ]);
     }
 }

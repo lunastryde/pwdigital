@@ -1,7 +1,7 @@
-<div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative">
+<div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative flex flex-col h-[calc(100vh-140px)] min-h-[500px]">
     
-    {{-- 1. Header Section --}}
-    <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between sticky top-0 z-10">
+    {{-- 1. Header Section (Fixed Height) --}}
+    <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0 z-10">
         <div class="flex items-center gap-3">
             <div class="bg-blue-50 p-2 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-blue-600">
@@ -15,7 +15,7 @@
         </div>
 
         <a href="{{ route('home') }}" class="group flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-            <span>Exit</span>
+            <span class="hidden sm:inline">Exit</span>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 group-hover:translate-x-1 transition-transform">
                 <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
             </svg>
@@ -24,7 +24,7 @@
 
     {{-- 2. Resolved Notice --}}
     @if($isResolved)
-        <div class="bg-gray-50 px-6 py-3 border-b border-gray-100 flex items-start gap-3">
+        <div class="bg-gray-50 px-6 py-3 border-b border-gray-100 flex items-start gap-3 flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-400 mt-0.5">
                 <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
             </svg>
@@ -34,10 +34,10 @@
         </div>
     @endif
 
-    {{-- 3. Chat Area --}}
+    {{-- 3. Chat Area (Flexible Height) --}}
     <div 
         id="user-chat-box"
-        class="bg-gray-50/50 p-4 sm:p-6 h-[500px] overflow-y-auto scroll-smooth space-y-6 custom-scrollbar"
+        class="bg-gray-50/50 p-4 sm:p-6 flex-1 overflow-y-auto scroll-smooth space-y-6 custom-scrollbar min-h-0"
         wire:poll.5s="refreshMessages"
     >
         @forelse($chatMessages as $message)
@@ -107,9 +107,9 @@
         @endforelse
     </div>
 
-    {{-- 4. Input Area --}}
+    {{-- 4. Input Area (Fixed Height) --}}
     @unless($isResolved)
-        <div class="bg-white p-4 border-t border-gray-100">
+        <div class="bg-white p-4 border-t border-gray-100 flex-shrink-0 z-10">
             
             {{-- Error Display --}}
             @if($errors->any())

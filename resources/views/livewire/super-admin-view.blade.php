@@ -195,7 +195,19 @@
                         </td>
                         <td class="px-4 py-3 text-gray-600">{{ $account->created_at->format('M d, Y') }}</td>
                         <td class="px-4 py-3">
-                            <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</button>
+                            @if ($account->is_active)
+                                <!-- Active → Show Deactivate button -->
+                                <button wire:click="confirmDeactivate({{ $account->id }})"
+                                        class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                    Deactivate
+                                </button>
+                            @else
+                                <!-- Inactive → Show Reactivate button -->
+                                <button wire:click="confirmReactivate({{ $account->id }})"
+                                        class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                    Reactivate
+                                </button>
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -205,6 +217,57 @@
                 @endforelse
             </tbody>
         </table>
+
+        {{-- CONFIRMATION MODAL --}}
+        @if ($showDeactivateConfirm)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <h2 class="text-lg font-semibold mb-4">Confirm Deactivation</h2>
+                <p class="mb-6">
+                    Are you sure you want to deactivate this account?
+                    The user will no longer be able to log in.
+                </p>
+
+                <div class="flex justify-end gap-3">
+                    <button
+                        wire:click="$set('showDeactivateConfirm', false)"
+                        class="px-4 py-2 bg-gray-300 rounded">
+                        Cancel
+                    </button>
+
+                    <button
+                        wire:click="deactivateUser"
+                        class="px-4 py-2 bg-red-600 text-white rounded">
+                        Deactivate
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        @if ($showReactivateConfirm)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                <h2 class="text-lg font-semibold mb-4">Reactivate Account</h2>
+                <p class="mb-6">
+                    Are you sure you want to reactivate this account?
+                    The user will be able to log in again.
+                </p>
+
+                <div class="flex justify-end gap-3">
+                    <button wire:click="$set('showReactivateConfirm', false)"
+                        class="px-4 py-2 bg-gray-300 rounded">
+                        Cancel
+                    </button>
+
+                    <button wire:click="reactivateUser"
+                        class="px-4 py-2 bg-green-600 text-white rounded">
+                        Reactivate
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 

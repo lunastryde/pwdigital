@@ -157,9 +157,6 @@ class AdminAccounts extends Component
         $this->selectedUserId = null;
     }
 
-
-
-
     public function render()
     {
         $accounts = User::with('profile')
