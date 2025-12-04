@@ -1,6 +1,7 @@
 @php
     use Illuminate\Support\Facades\Storage;
     use Illuminate\Support\Facades\DB;
+    use Illuminate\Support\Facades\File;
     use Carbon\Carbon;
 
     $file = $form->files ?? null;
@@ -23,22 +24,24 @@
     $storedMayorName   = $settings['mayor_name']     ?? null;
     $storedMayorTitle  = $settings['mayor_title']    ?? 'City Mayor';
     $storedSignature   = $settings['signature_path'] ?? 'id-signatures/mayor-signature.png';
+    $signatureVersion   = $settings['signature_version']   ?? 1;
 
     // Final mayor name used on card
     $mayorName = $mayorName ?? $storedMayorName ?? 'ATTY. DOY C. LEACHON';
     $mayorTitle = $mayorTitle ?? $storedMayorTitle;
 
-    // Build signature URL (public disk or fallbacks)
-    $signaturePath = $mayorSignature ?? $storedSignature; // if a specific path is passed, use it
+    $signaturePath = $storedSignature;
+
+    $signaturePath = $storedSignature; 
     $mayorSignatureUrl = null;
 
     if ($signaturePath && Storage::disk('public')->exists($signaturePath)) {
-        $mayorSignatureUrl = Storage::url($signaturePath);
+        $mayorSignatureUrl = Storage::url($signaturePath) . '?v=' . $signatureVersion;
     } elseif (Storage::disk('public')->exists('id-signatures/mayor-signature.png')) {
-        $mayorSignatureUrl = Storage::url('id-signatures/mayor-signature.png');
+        $mayorSignatureUrl = Storage::url('id-signatures/mayor-signature.png') . '?v=' . $signatureVersion;
     } else {
         // ultimate fallback to old static image if you have one
-        $mayorSignatureUrl = asset('images/mayor-signature.png');
+        $mayorSignatureUrl = asset('images/mayor-signature.png') . '?v=' . $signatureVersion;
     }
 
     $scale = isset($preview) && $preview ? 1.35 : 1;
@@ -228,27 +231,48 @@
 
                 <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }}; margin-top:{{ $mm(.6) }};">
                     <div style="white-space:nowrap; font-size:{{ $pt(6.5) }};">Parent/Guardian</div>
-                    <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.8) }}; font-size:{{ $pt(6.5) }};">
+                    <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.2) }}; font-size:{{ $pt(6.5) }};">
                         {{ $iceNameDisplay }}
                     </div>
                 </div>
 
                 <div style="display:flex; align-items:flex-end; gap:{{ $mm(2) }}; margin-top:{{ $mm(.8) }};">
                     <div style="white-space:nowrap; font-size:{{ $pt(6.5) }};">Contact No.</div>
-                    <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.8) }}; font-size:{{ $pt(6.5) }};">
+                    <div style="flex:1; border-bottom:1px solid #111; padding-bottom:{{ $mm(.2) }}; font-size:{{ $pt(6.5) }};">
                         {{ $icePhoneDisplay }}
                     </div>
                 </div>
-            </div><div style="margin-bottom: 1px;"> </div>
+            </div>
 
-            {{-- Mayor signature --}}
-            <div style="text-align:right; font-size:{{ $pt(5.0) }}; margin-top:auto;">
-                @if($mayorSignatureUrl)
-                    <img src="{{ $mayorSignatureUrl }}" alt="Mayor Signature"
-                        style="width:{{ $mm(18) }}; height:auto; margin-left:auto; margin-bottom:-{{ $mm(2) }};">
-                @endif
-                <div style="text-align:center; font-weight:700;">{{ $mayorName }}</div>
-                <div style="text-align:center;">{{ $mayorTitle }}</div>
+            {{-- Mayor signature (scribble over name) --}}
+            <div style="font-size:{{ $pt(5.0) }}; text-align:center;">
+                <div style="
+                    position:relative;
+                    display:inline-block;
+                    padding:{{ $mm(2.2) }} 0 {{ $mm(0.3) }};
+                ">
+                    @if($mayorSignatureUrl)
+                        <img src="{{ $mayorSignatureUrl }}"
+                            alt="Mayor Signature"
+                            style="
+                                position:absolute;
+                                left:50%;
+                                top:45%;
+                                transform:translate(-50%, -50%);
+                                width:{{ $mm(16) }};
+                                height:auto;
+                            ">
+                    @endif
+
+                    {{-- Name sits under the signature, they overlap visually --}}
+                    <span style="position:relative; z-index:1; font-weight:700;">
+                        {{ $mayorName }}
+                    </span>
+                </div>
+
+                <div style="margin-top:{{ $mm(0.8) }};">
+                    {{ $mayorTitle }}
+                </div>
             </div>
         </div>
     @endif

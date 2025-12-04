@@ -18,9 +18,11 @@ class IdPreview extends Component
     // Mayor settings
     public string $mayorName = 'ATTY. DOY C. LEACHON';
     public string $mayorTitle = 'City Mayor';
-    public string $mayorSignaturePath = 'id-signatures/mayor-signature.png'; // relative to storage/app/public
+    public string $mayorSignaturePath = 'id-signatures/mayor-signature.png';
     public bool $showMayorEditor = false;
-    public $newSignature; // temporary upload
+    public $newSignature;
+
+    public int $signatureVersion = 1;
 
     protected string $settingsFile = 'pdao_id_settings.json';
 
@@ -56,11 +58,13 @@ class IdPreview extends Component
         if (File::exists($path)) {
             $data = json_decode(File::get($path), true) ?: [];
 
-            $this->mayorName         = $data['mayor_name']     ?? $this->mayorName;
-            $this->mayorTitle        = $data['mayor_title']    ?? $this->mayorTitle;
+            $this->mayorName          = $data['mayor_name']     ?? $this->mayorName;
+            $this->mayorTitle         = $data['mayor_title']    ?? $this->mayorTitle;
             $this->mayorSignaturePath = $data['signature_path'] ?? $this->mayorSignaturePath;
+            $this->signatureVersion   = $data['signature_version'] ?? $this->signatureVersion;
         }
     }
+
 
     public function saveMayorSettings(): void
     {
@@ -75,12 +79,15 @@ class IdPreview extends Component
                 'mayor-signature.png',
                 'public' // storage/app/public
             );
+
+            $this->signatureVersion++;
         }
 
         $data = [
-            'mayor_name'     => $this->mayorName,
-            'mayor_title'    => $this->mayorTitle,
-            'signature_path' => $signaturePath,
+            'mayor_name'        => $this->mayorName,
+            'mayor_title'       => $this->mayorTitle,
+            'signature_path'    => $signaturePath,
+            'signature_version' => $this->signatureVersion,
         ];
 
         File::put(
@@ -95,10 +102,18 @@ class IdPreview extends Component
         session()->flash('success', 'Mayor details updated.');
     }
 
+
     public function getMayorSignatureUrlProperty(): string
     {
-        return asset('storage/' . $this->mayorSignaturePath);
+        $url = asset('storage/' . $this->mayorSignaturePath);
+
+        if ($this->signatureVersion) {
+            $url .= '?v=' . $this->signatureVersion;
+        }
+
+        return $url;
     }
+
 
     public function close(): void
     {
