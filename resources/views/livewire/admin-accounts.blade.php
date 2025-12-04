@@ -1,14 +1,37 @@
 <div>
-    <div class="mb-6 flex items-center justify-between">
-        <h3 class="text-xl font-semibold text-gray-800">Manage User Accounts</h3>
-        <button type="button" wire:click="toggleCreateForm" 
-            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-2">
+            <h3 class="text-xl font-semibold text-gray-800">Manage User Accounts</h3>
+            {{-- Search bar --}}
+            <div class="relative max-w-sm">
+                <input
+                    type="text"
+                    wire:model.live.debounce.500ms="search"
+                    class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Search by email or username..."
+                >
+                <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-gray-400">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 5.25 5.25a7.5 7.5 0 0 0 11.4 11.4Z" />
+                    </svg>
+                </span>
+            </div>
+        </div>
+
+        <button
+            type="button"
+            wire:click="toggleCreateForm" 
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+        >
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             {{ $showCreateForm ? 'Cancel' : 'Create New User' }}
         </button>
     </div>
+
 
     @if (session()->has('success'))
         <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">

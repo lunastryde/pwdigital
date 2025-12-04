@@ -31,6 +31,9 @@ class StaffEncodeForm extends Component
     public ?string $summary_address = null;
     public ?string $summary_pwd_number = null;  // if they already have one
 
+    // PWD number reuse (for latest Rejected app)
+    public ?string $reused_pwd_number = null;
+
     // Step 1: Personal Information + Disability
     public string $first_name = '';
     public ?string $middle_name = null;
@@ -104,7 +107,10 @@ class StaffEncodeForm extends Component
     public string $spouse_middle = '';
     public string $spouse_contact = '';
 
-    public string $physician_name = '';
+    public string $physician_last = '';
+    public string $physician_first = '';
+    public string $physician_middle = '';
+    public string $physician_contact = '';
 
     protected $listeners = [
         'encode-account-verified' => 'onEncodeAccountVerified',
@@ -120,7 +126,6 @@ class StaffEncodeForm extends Component
             ? "Account {$email} has been verified. You may now select this email in the Encode Form tab."
             : 'Account has been verified. You may now select this email in the Encode Form tab.';
     }
-
 
     // ------------------ HELPERS ------------------
 
@@ -154,7 +159,10 @@ class StaffEncodeForm extends Component
             'spouse_first',
             'spouse_middle',
             'spouse_contact',
-            'physician_name',
+            'physician_last',
+            'physician_first',
+            'physician_middle',
+            'physician_contact',
         ];
 
         foreach ($fields as $field) {
@@ -172,6 +180,24 @@ class StaffEncodeForm extends Component
         }
     }
 
+    /**
+     * Generate a unique PWD number in the format 00-0000-000-0000000
+     * (same generator as UserForm, but used here for encoded applications).
+     */
+    private function generateUniquePwdNumber(): string
+    {
+        do {
+            $part1 = str_pad((string) random_int(0, 99), 2, '0', STR_PAD_LEFT);
+            $part2 = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+            $part3 = str_pad((string) random_int(0, 999), 3, '0', STR_PAD_LEFT);
+            $part4 = str_pad((string) random_int(0, 9999999), 7, '0', STR_PAD_LEFT);
+
+            $pwdNumber = "{$part1}-{$part2}-{$part3}-{$part4}";
+        } while (FormPersonal::where('pwd_number', $pwdNumber)->exists());
+
+        return $pwdNumber;
+    }
+
     public function mount()
     {
         // Nothing on mount; staff must choose an account first.
@@ -184,6 +210,7 @@ class StaffEncodeForm extends Component
         $this->encodingLocked = false;
         $this->encodingLockMessage = null;
         $this->summary_pwd_number = null;
+        $this->reused_pwd_number = null;   // reset reuse state
 
         $lookup = trim($this->accountLookup);
 
@@ -269,6 +296,10 @@ class StaffEncodeForm extends Component
                     '). You cannot encode another ID application for this user until it is rejected.';
 
                 $this->summary_pwd_number = $latestApp->pwd_number;
+            } else {
+                // ✅ Rejected: allow encoding and REUSE the previous PWD number
+                $this->reused_pwd_number  = $latestApp->pwd_number;
+                $this->summary_pwd_number = $latestApp->pwd_number;
             }
         }
 
@@ -305,7 +336,6 @@ class StaffEncodeForm extends Component
         // Reset step to 1 whenever you load a new account
         $this->step = 1;
     }
-
 
     // ---------- Step navigation (same idea as UserForm) ----------
 
@@ -458,9 +488,11 @@ class StaffEncodeForm extends Component
             'spouse_last'       => 'required|string|max:100',
             'spouse_first'      => 'required|string|max:100',
             'spouse_contact'    => 'required|string|max:50',
-            'physician_name'    => 'required|string|max:150',
+            'physician_last'     => 'required|string|max:100',
+            'physician_first'    => 'required|string|max:100',
+            'physician_middle'   => 'nullable|string|max:40',
+            'physician_contact'  => 'required|string|max:50',
         ]);
-
 
         // At least one ID reference
         if (
@@ -533,9 +565,14 @@ class StaffEncodeForm extends Component
             return;
         }
 
-
-        // Generate PWD number (same style as UserForm for now)
-        $pwdNumber = str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        // ✅ Generate or reuse PWD number (new format: 00-0000-000-0000000)
+        if ($this->reused_pwd_number) {
+            // Reapply after Rejected → reuse old PWD number as-is
+            $pwdNumber = $this->reused_pwd_number;
+        } else {
+            // First-time encoded application → generate new formatted PWD number
+            $pwdNumber = $this->generateUniquePwdNumber();
+        }
 
         // Compose disability strings
         $disabilityType = $this->disability_type ?: null;
@@ -669,7 +706,10 @@ class StaffEncodeForm extends Component
             'spouse_guardian_fname' => $this->spouse_first ?: null,
             'spouse_guardian_mname' => $this->spouse_middle ?: null,
             'spouse_guardian_contact' => $this->spouse_contact ?: null,
-            'physician_name'        => $this->physician_name ?: null,
+            'physician_lname'         => $this->physician_last ?: null,
+            'physician_fname'         => $this->physician_first ?: null,
+            'physician_mname'         => $this->physician_middle ?: null,
+            'physician_contact'       => $this->physician_contact ?: null,
         ]);
 
         // Lock encoding for this account (PENDING state)
@@ -730,14 +770,13 @@ class StaffEncodeForm extends Component
             'spouse_first',
             'spouse_middle',
             'spouse_contact',
-            'physician_name',
+            'physician_last',
+            'physician_first',
+            'physician_middle',
+            'physician_contact',
         ]);
 
-        // Optionally keep basic fields like names & address if staff might encode another request later.
         session()->flash('success', 'Encoded ID application submitted successfully for this user.');
-
-        // // After a successful encode, we might want to show the newly generated pwd_number
-        // $this->summary_pwd_number = $personal->pwd_number;
 
         $this->dispatch('scroll-to-top');
     }

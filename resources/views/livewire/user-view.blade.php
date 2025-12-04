@@ -63,14 +63,6 @@
                                 <span class="ml-3">Account Settings</span>
                             </a>
 
-                            <!-- Accessibility -->
-                            <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-gray-500">
-                                    <path stroke-linecap="round" d="M4 7h10M4 17h16M14 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0ZM8 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z" />
-                                </svg>
-                                <span class="ml-3">Accessibility</span>
-                            </a>
-
                             <div class="border-t border-gray-200 my-1"></div>
 
                             <!-- Log Out -->

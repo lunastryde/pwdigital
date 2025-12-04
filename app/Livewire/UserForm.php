@@ -97,7 +97,10 @@ class UserForm extends Component
     public string $spouse_middle = '';
     public string $spouse_contact = '';
 
-    public string $physician_name = '';
+    public string $physician_last = '';
+    public string $physician_first = '';
+    public string $physician_middle = '';
+    public string $physician_contact = '';
 
     // File upload properties
     public $uploadedFiles = [];
@@ -141,7 +144,10 @@ class UserForm extends Component
             'spouse_first',
             'spouse_middle',
             'spouse_contact',
-            'physician_name',
+            'physician_last',
+            'physician_first',
+            'physician_middle',
+            'physician_contact',
         ];
 
         foreach ($fields as $field) {
@@ -413,7 +419,10 @@ class UserForm extends Component
                     $this->spouse_middle   = $guardRow->spouse_guardian_mname ?? '';
                     $this->spouse_contact  = $guardRow->spouse_guardian_contact ?? '';
 
-                    $this->physician_name  = $guardRow->physician_name ?? '';
+                    $this->physician_last    = $guardRow->physician_lname ?? '';
+                    $this->physician_first   = $guardRow->physician_fname ?? '';
+                    $this->physician_middle  = $guardRow->physician_mname ?? '';
+                    $this->physician_contact = $guardRow->physician_contact ?? '';
                 }
 
                 // Files remain empty on re-apply (never prefilled)
@@ -641,7 +650,9 @@ class UserForm extends Component
             $this->spouse_last,
             $this->spouse_first,
             $this->spouse_contact,
-            $this->physician_name,
+            $this->physician_last,
+            $this->physician_first,
+            $this->physician_contact,
         ];
 
         foreach ($requiredStep3 as $value) {
@@ -668,6 +679,20 @@ class UserForm extends Component
         return true;
     }
 
+    private function generateUniquePwdNumber(): string
+    {
+        do {
+            // Build each numeric block, zero-padded
+            $part1 = str_pad((string) random_int(0, 99), 2, '0', STR_PAD_LEFT);        // 2 digits
+            $part2 = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);      // 4 digits
+            $part3 = str_pad((string) random_int(0, 999), 3, '0', STR_PAD_LEFT);       // 3 digits
+            $part4 = str_pad((string) random_int(0, 9999999), 7, '0', STR_PAD_LEFT);   // 7 digits
+
+            $pwdNumber = "{$part1}-{$part2}-{$part3}-{$part4}";
+        } while (\App\Models\FormPersonal::where('pwd_number', $pwdNumber)->exists());
+
+        return $pwdNumber;
+    }
 
     public function submit(): void
     {
@@ -735,7 +760,11 @@ class UserForm extends Component
             'spouse_last'       => 'required|string|max:100',
             'spouse_first'      => 'required|string|max:100',
             'spouse_contact'    => 'required|string|max:50',
-            'physician_name'    => 'required|string|max:150',
+
+            'physician_last'       => 'required|string|max:100',
+            'physician_first'      => 'required|string|max:100',
+            'physician_middle'     => 'nullable|string|max:100',
+            'physician_contact'    => 'required|string|max:50',
         ]);
 
         $account = Auth::user();
@@ -745,13 +774,13 @@ class UserForm extends Component
             return;
         }
 
-        // Generate or reuse 8-digit PWD number
+        // Generate or reuse PWD number (new format: 00-0000-000-0000000)
         if ($this->reused_pwd_number) {
-            // Reapply after Cancelled/Rejected → reuse old PWD number
+            // Reapply after Cancelled/Rejected → reuse old PWD number as-is
             $pwdNumber = $this->reused_pwd_number;
         } else {
-            // First-time application → generate new PWD number
-            $pwdNumber = str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+            // First-time application → generate new formatted PWD number
+            $pwdNumber = $this->generateUniquePwdNumber();
         }
 
         // --- Require at least one ID reference ---
@@ -910,7 +939,10 @@ class UserForm extends Component
             'spouse_guardian_fname' => $this->spouse_first ?: null,
             'spouse_guardian_mname' => $this->spouse_middle ?: null,
             'spouse_guardian_contact' => $this->spouse_contact ?: null,
-            'physician_name'        => $this->physician_name ?: null,
+            'physician_lname'         => $this->physician_last ?: null,
+            'physician_fname'         => $this->physician_first ?: null,
+            'physician_mname'         => $this->physician_middle ?: null,
+            'physician_contact'       => $this->physician_contact ?: null,
         ]);
 
         // 6) Save uploaded files

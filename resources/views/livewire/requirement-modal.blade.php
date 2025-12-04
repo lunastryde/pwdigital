@@ -176,9 +176,19 @@
                                         <div class="text-sm text-gray-500 font-medium">Contact</div>
                                         <div class="text-base text-gray-900">{{ optional($application->guardian)->spouse_guardian_contact ?? '—' }}</div>
                                     </div>
-                                    <div class="lg:col-span-2 space-y-1">
-                                        <div class="text-sm text-gray-500 font-medium">Physician Name</div>
-                                        <div class="text-base text-gray-900">{{ optional($application->guardian)->physician_name ?? '—' }}</div>
+                                    <div class="space-y-1">
+                                        <div class="text-sm text-gray-500 font-medium">Physician</div>
+                                        <div class="text-base text-gray-900">
+                                            {{ optional($application->guardian)->physician_lname ? (optional($application->guardian)->physician_lname . ', ') : '' }}
+                                            {{ optional($application->guardian)->physician_fname }}
+                                            {{ optional($application->guardian)->physician_mname }}
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="text-sm text-gray-500 font-medium">Physician Contact</div>
+                                        <div class="text-base text-gray-900">
+                                            {{ optional($application->guardian)->physician_contact ?? '—' }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

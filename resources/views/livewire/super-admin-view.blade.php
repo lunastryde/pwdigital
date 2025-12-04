@@ -1,14 +1,37 @@
 <div>
     <div class="mb-6 flex items-center justify-between">
         <h3 class="text-xl font-semibold text-gray-800">Super Admin Management</h3>
-        <button type="button" wire:click="toggleCreateForm" 
-            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            {{ $showCreateForm ? 'Cancel' : 'Create Privileged Account' }}
-        </button>
+
+        <div class="flex items-center gap-3">
+            {{-- Logout --}}
+            <form action="/super-admin/logout" method="POST" class="inline-block">
+                @csrf
+                <button type="submit" 
+                    class="inline-flex items-center px-3 py-2 text-sm text-red-600 border border-red-200 rounded-md bg-white hover:bg-red-50 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        fill="none"
+                        stroke="currentColor" 
+                        stroke-width="1.5" 
+                        class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 7v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 12h9m0 0-3-3m3 3-3 3" />
+                    </svg>
+                    <span class="ml-2">Log Out</span>
+                </button>
+            </form>
+
+            {{-- Create account toggle --}}
+            <button type="button" wire:click="toggleCreateForm" 
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ $showCreateForm ? 'Cancel' : 'Create Privileged Account' }}
+            </button>
+        </div>
     </div>
+
 
     @if (session()->has('success'))
         <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center">

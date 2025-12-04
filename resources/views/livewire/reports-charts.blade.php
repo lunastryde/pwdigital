@@ -63,6 +63,20 @@
                             </select>
                         </div>
                     @endif
+
+                    {{-- Age Filter --}}
+                    <div class="w-px h-4 bg-gray-300"></div>
+                    <div class="relative">
+                        <select
+                            wire:model="ageFilter"
+                            wire:change="refreshAllCharts"
+                            class="pl-3 pr-8 py-1.5 text-sm text-gray-600 bg-transparent border-none rounded-md focus:ring-0 focus:bg-white cursor-pointer"
+                        >
+                            @foreach($ageOptions as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 {{-- Divider on Desktop --}}

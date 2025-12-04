@@ -361,8 +361,6 @@ class AuthController extends Controller
         return redirect()->route('login')->with('status', 'Your password has been reset. You can now sign in.');
     }
 
-
-
     public function logout(Request $request)
     {
         auth()->logout();

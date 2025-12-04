@@ -24,6 +24,9 @@ class AdminAccounts extends Component
     public $birthdate;
     public $age;
 
+    public $search = '';
+
+
     // UI state
     public $showCreateForm = false;
 
@@ -161,6 +164,14 @@ class AdminAccounts extends Component
     {
         $accounts = User::with('profile')
             ->where('identifier', 3)
+            ->when($this->search, function ($query) {
+                $term = '%' . $this->search . '%';
+
+                $query->where(function ($q) use ($term) {
+                    $q->where('email', 'like', $term)
+                    ->orWhere('username', 'like', $term);
+                });
+            })
             ->orderByDesc('created_at')
             ->get();
 
@@ -168,4 +179,5 @@ class AdminAccounts extends Component
             'accounts' => $accounts
         ]);
     }
+
 }

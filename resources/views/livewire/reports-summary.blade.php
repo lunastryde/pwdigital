@@ -48,16 +48,16 @@
             </p>
         </div>
 
-        {{-- Open Applications (filtered) --}}
+        {{-- Encoded Applications (filtered) --}}
         <div class="rounded-xl border border-gray-100 bg-white/80 p-4 shadow-sm">
             <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                Open Applications
+                Encoded Applications
             </p>
             <p class="mt-2 text-2xl font-semibold text-gray-900">
-                {{ number_format($summary['openApplications'] ?? 0) }}
+                {{ number_format($summary['encodedApplications'] ?? 0) }}
             </p>
             <p class="mt-1 text-[11px] text-gray-500">
-                Pending / In review in period
+                Staff-encoded applications within period
             </p>
         </div>
 

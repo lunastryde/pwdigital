@@ -1,4 +1,14 @@
 {{-- PDAO Header --}}
+@php
+    $ageLabelMap = [
+        'all'     => 'All Ages',
+        'under18' => 'Under 18',
+        '18to29'  => '18–29',
+        '30to59'  => '30–59',
+        '60plus'  => '60 and above',
+    ];
+@endphp
+
 <table>
     <tr>
         <td colspan="3">
@@ -13,11 +23,15 @@
         <td colspan="3" style="height: 4px;"></td>
     </tr>
     <tr>
-        <td colspan="3">
-            <strong>PDAO Reports &amp; Analytics</strong><br>
-            Period: {{ $periodLabel }}<br>
-            Generated: {{ now()->format('Y-m-d H:i') }}
-        </td>
+        <strong>PDAO Reports &amp; Analytics</strong><br>
+        Period: {{ $periodLabel }}<br>
+        @if(isset($filter))
+            Filter: {{ ucfirst($filter) }}<br>
+        @endif
+        @if(isset($ageFilter))
+            Age Filter: {{ $ageLabelMap[$ageFilter] ?? $ageFilter }}<br>
+        @endif
+        Generated: {{ now()->format('Y-m-d H:i') }}
     </tr>
 </table>
 
@@ -50,8 +64,8 @@
             <td>{{ $summary['newRegistrations'] ?? 0 }}</td>
         </tr>
         <tr>
-            <td>Open Applications</td>
-            <td>{{ $summary['openApplications'] ?? 0 }}</td>
+            <td>Encoded Applications</td>
+            <td>{{ $summary['encodedApplications'] ?? 0 }}</td>
         </tr>
         <tr>
             <td>Finalized ID Applications</td>

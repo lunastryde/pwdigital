@@ -633,55 +633,75 @@
 
             {{-- STEP 3 --}}
             @if($step === 3)
-                <div class="bg-white rounded-2xl shadow border border-gray-200 p-6 space-y-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Family Background & Physician</h3>
+                <div class="bg-white rounded-2xl shadow border border-gray-200 p-4 space-y-3">
+                    <h3 class="text-lg font-semibold text-gray-900">Family Background &amp; Physician</h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Father</h4>
-                            <input type="text" wire:model.defer="father_last"   placeholder="Last Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="father_first"  placeholder="First Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="father_middle" placeholder="Middle Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="father_contact" placeholder="Contact Number"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                        </div>
-
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Mother</h4>
-                            <input type="text" wire:model.defer="mother_last"   placeholder="Last Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="mother_first"  placeholder="First Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="mother_middle" placeholder="Middle Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="mother_contact" placeholder="Contact Number"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                        </div>
+                    {{-- Header row --}}
+                    <div class="grid grid-cols-5 gap-3 text-xs font-semibold text-gray-600">
+                        <div></div>
+                        <div>Last Name</div>
+                        <div>First Name</div>
+                        <div>Middle Name</div>
+                        <div>Contact No.</div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Spouse / Guardian</h4>
-                            <input type="text" wire:model.defer="spouse_last"   placeholder="Last Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="spouse_first"  placeholder="First Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="spouse_middle" placeholder="Middle Name"
-                                   class="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md uppercase">
-                            <input type="text" wire:model.defer="spouse_contact" placeholder="Contact Number"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    {{-- Father --}}
+                    <div class="grid grid-cols-5 gap-3 items-center">
+                        <div class="text-sm font-medium text-gray-800">Father</div>
+                        <input type="text" wire:model.defer="father_last"   placeholder="Last Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="father_first"  placeholder="First Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="father_middle" placeholder="Middle Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="father_contact" placeholder="Contact Number"
+                            class="px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    {{-- Mother --}}
+                    <div class="grid grid-cols-5 gap-3 items-center">
+                        <div class="text-sm font-medium text-gray-800">Mother</div>
+                        <input type="text" wire:model.defer="mother_last"   placeholder="Last Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="mother_first"  placeholder="First Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="mother_middle" placeholder="Middle Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="mother_contact" placeholder="Contact Number"
+                            class="px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    {{-- Spouse / Guardian (required) --}}
+                    <div class="grid grid-cols-5 gap-3 items-center">
+                        <div class="text-sm font-medium text-gray-800">
+                            Spouse / Guardian <span class="text-red-500">*</span>
                         </div>
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-800 mb-2">Physician</h4>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Physician Name</label>
-                            <input type="text" wire:model.defer="physician_name"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="spouse_last"   placeholder="Last Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="spouse_first"  placeholder="First Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="spouse_middle" placeholder="Middle Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="spouse_contact" placeholder="Contact Number"
+                            class="px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    {{-- Physician (required) --}}
+                    <div class="grid grid-cols-5 gap-3 items-center">
+                        <div class="text-sm font-medium text-gray-800">
+                            Physician <span class="text-red-500">*</span>
                         </div>
+                        <input type="text" wire:model.defer="physician_last"   placeholder="Last Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="physician_first"  placeholder="First Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="physician_middle" placeholder="Middle Name"
+                            class="px-3 py-2 border border-gray-300 rounded-md uppercase">
+                        <input type="text" wire:model.defer="physician_contact" placeholder="Contact Number"
+                            class="px-3 py-2 border border-gray-300 rounded-md">
                     </div>
                 </div>
+
             @endif
 
             {{-- Navigation buttons --}}

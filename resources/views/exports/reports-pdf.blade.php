@@ -172,6 +172,16 @@
 </head>
 <body>
 
+    @php
+        $ageLabelMap = [
+            'all'     => 'All Ages',
+            'under18' => 'Under 18',
+            '18to29'  => '18–29',
+            '30to59'  => '30–59',
+            '60plus'  => '60 and above',
+        ];
+    @endphp
+
     {{-- FIXED HEADER --}}
     <div class="header-container">
         <table class="header-table">
@@ -191,6 +201,11 @@
                         <strong>Generated:</strong> {{ now()->format('M d, Y h:i A') }}<br>
                         @isset($filter)
                             <span class="badge">Filter: {{ ucfirst($filter) }}</span>
+                        @endisset
+                        @isset($ageFilter)
+                            <span class="badge">
+                                Age: {{ $ageLabelMap[$ageFilter] ?? $ageFilter }}
+                            </span>
                         @endisset
                     </div>
                 </td>
@@ -232,8 +247,8 @@
                 <td style="width: 50%; vertical-align: top; padding-left: 20px; border-left: 1px solid #e5e7eb;">
                     <table class="summary-table">
                         <tr>
-                            <td class="summary-label">Open Applications:</td>
-                            <td class="summary-value text-right">{{ number_format($summary['openApplications'] ?? 0) }}</td>
+                            <td class="summary-label">Encoded Applications:</td>
+                            <td class="summary-value text-right">{{ number_format($summary['encodedApplications'] ?? 0) }}</td>
                         </tr>
                         <tr>
                             <td class="summary-label">Finalized ID Applications:</td>

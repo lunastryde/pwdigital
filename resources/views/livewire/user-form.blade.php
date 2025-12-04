@@ -684,8 +684,49 @@
 
 
                 <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700">Physician Name <span class="text-red-500"> *</span></label>
-                    <input type="text" wire:model.live="physician_name" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">
+                        Attending Physician <span class="text-red-500">*</span>
+                    </h3>
+
+                    <div class="rounded-md border border-gray-200 p-4 bg-gray-50">
+                        <div class="hidden sm:grid grid-cols-5 gap-3 text-sm text-gray-700 font-medium mb-3">
+                            <div></div>
+                            <div>Last Name</div>
+                            <div>First Name</div>
+                            <div>Middle Name</div>
+                            <div>Contact No.</div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-center">
+                            <div class="text-sm text-gray-800">
+                                <span class="sm:inline block font-medium">Physician</span>
+                            </div>
+                            <input 
+                                type="text" 
+                                wire:model.live="physician_last" 
+                                class="rounded-md border border-gray-300 px-3 py-2 uppercase" 
+                                placeholder="Last Name" 
+                            />
+                            <input 
+                                type="text" 
+                                wire:model.live="physician_first" 
+                                class="rounded-md border border-gray-300 px-3 py-2 uppercase" 
+                                placeholder="First Name" 
+                            />
+                            <input 
+                                type="text" 
+                                wire:model.live="physician_middle" 
+                                class="rounded-md border border-gray-300 px-3 py-2 uppercase" 
+                                placeholder="Middle Name" 
+                            />
+                            <input 
+                                type="text" 
+                                wire:model.live="physician_contact" 
+                                class="rounded-md border border-gray-300 px-3 py-2" 
+                                placeholder="09XXXXXXXXX" 
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-6">

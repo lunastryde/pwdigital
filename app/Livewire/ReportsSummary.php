@@ -10,7 +10,7 @@ class ReportsSummary extends Component
         'totalPwds'            => 0,
         'totalFinalizedPwdIds' => 0,
         'newRegistrations'     => 0,
-        'openApplications'     => 0,
+        'encodedApplications'  => 0,
         'finalizedPwdId'       => 0,
         'finalizedBooklet'     => 0,
         'finalizedDevice'      => 0,

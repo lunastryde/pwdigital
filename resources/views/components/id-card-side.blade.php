@@ -12,8 +12,34 @@
     $greenLogo = asset('images/calapan_flag.png');
     $blueLogo   = asset('images/pdao_logo.png');
 
-    $mayorName       = $mayorName ?? 'ATTY. DOY C. LEACHON';
-    $mayorSignature = isset($mayorSignature) ? asset('storage/'.$mayorSignature) : null;
+    // --- Mayor settings from JSON (shared for preview + print) ---
+    $settingsFilePath = storage_path('app/pdao_id_settings.json');
+    $settings = [];
+
+    if (File::exists($settingsFilePath)) {
+        $settings = json_decode(File::get($settingsFilePath), true) ?: [];
+    }
+
+    $storedMayorName   = $settings['mayor_name']     ?? null;
+    $storedMayorTitle  = $settings['mayor_title']    ?? 'City Mayor';
+    $storedSignature   = $settings['signature_path'] ?? 'id-signatures/mayor-signature.png';
+
+    // Final mayor name used on card
+    $mayorName = $mayorName ?? $storedMayorName ?? 'ATTY. DOY C. LEACHON';
+    $mayorTitle = $mayorTitle ?? $storedMayorTitle;
+
+    // Build signature URL (public disk or fallbacks)
+    $signaturePath = $mayorSignature ?? $storedSignature; // if a specific path is passed, use it
+    $mayorSignatureUrl = null;
+
+    if ($signaturePath && Storage::disk('public')->exists($signaturePath)) {
+        $mayorSignatureUrl = Storage::url($signaturePath);
+    } elseif (Storage::disk('public')->exists('id-signatures/mayor-signature.png')) {
+        $mayorSignatureUrl = Storage::url('id-signatures/mayor-signature.png');
+    } else {
+        // ultimate fallback to old static image if you have one
+        $mayorSignatureUrl = asset('images/mayor-signature.png');
+    }
 
     $scale = isset($preview) && $preview ? 1.35 : 1;
     $mm = fn($n) => (string)($n * $scale) . 'mm';
@@ -140,7 +166,7 @@
                 {{-- Photo --}}
                 <div style="flex:0 0 {{ $mm(24) }}; width:{{ $mm(24) }};">
                     <div style="width:100%; aspect-ratio:4/4; border-radius:4px; overflow:hidden; background:#eee; box-shadow:0 1px 2px rgba(0,0,0,.12) inset;">
-                        <img src="{{ $photoUrl }}" alt="photo" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="{{ $photoUrl }}" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                 </div>
             </div>
@@ -217,12 +243,12 @@
 
             {{-- Mayor signature --}}
             <div style="text-align:right; font-size:{{ $pt(5.0) }}; margin-top:auto;">
-                @if($mayorSignature)
-                    <img src="{{ $mayorSignature }}" alt="Mayor Signature"
+                @if($mayorSignatureUrl)
+                    <img src="{{ $mayorSignatureUrl }}" alt="Mayor Signature"
                         style="width:{{ $mm(18) }}; height:auto; margin-left:auto; margin-bottom:-{{ $mm(2) }};">
                 @endif
                 <div style="text-align:center; font-weight:700;">{{ $mayorName }}</div>
-                <div style="text-align:center;">City Mayor</div>
+                <div style="text-align:center;">{{ $mayorTitle }}</div>
             </div>
         </div>
     @endif

@@ -14,12 +14,53 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Carbon\Carbon;
 
+use App\Models\StaffTabView;
+
 
 class StaffView extends Component
 {
     public string $section = 'dashboard';
     public bool $sidebarOpen = true;
-    public string $appTab = 'id'; // Default sub-tab for Applications
+    public string $appTab = 'id';
+
+    public array $tabCounts = [
+        'id'        => 0,
+        'renewal'   => 0,
+        'loss'      => 0,
+        'booklet'   => 0,
+        'device'    => 0,
+        'financial' => 0,
+    ];
+
+    // 🔴 NEW: latest record ID per tab (based on current filtered query)
+    public array $tabLatestIds = [
+        'id'        => 0,
+        'renewal'   => 0,
+        'loss'      => 0,
+        'booklet'   => 0,
+        'device'    => 0,
+        'financial' => 0,
+    ];
+
+    // 🔴 NEW: last “latest ID” that this staff has already seen per tab
+    public array $tabSeenLatestIds = [
+        'id'        => 0,
+        'renewal'   => 0,
+        'loss'      => 0,
+        'booklet'   => 0,
+        'device'    => 0,
+        'financial' => 0,
+    ];
+
+
+    public array $tabSeenCounts = [
+        'id'        => 0,
+        'renewal'   => 0,
+        'loss'      => 0,
+        'booklet'   => 0,
+        'device'    => 0,
+        'financial' => 0,
+    ];
 
     // CONFIRM MODAL FOR PERSONAL APPLICATION ACCEPT
     public bool $showConfirmAcceptPersonal = false;
@@ -32,6 +73,16 @@ class StaffView extends Component
     // CONFIRM MODAL FOR REQUEST FINALIZE
     public bool $showConfirmFinalizeRequest = false;
     public ?int $confirmRequestFinalizeId = null;
+
+    public function mount(): void
+    {
+        // 1) Always compute current counts from DB
+        $this->updateTabCounts();
+
+        // 2) Load "seen" counts for this staff from DB
+        $this->loadTabSeenCounts();
+    }
+
 
 
     // ---- PERSONAL APPLICATION CONFIRM HANDLERS ----
@@ -325,7 +376,8 @@ class StaffView extends Component
     #[On('application-updated')]
     public function refreshApplications()
     {
-        // Simply re-render by doing nothing, this just autoloads the page.
+        // When something changes, refresh counts (red dots) too
+        $this->updateTabCounts();
     }
 
     #[On('open-id-preview')]
@@ -333,6 +385,123 @@ class StaffView extends Component
     {
         $this->dispatch('show-id-preview', id: $applicantId);
     }
+
+    public function updateTabCounts(): void
+    {
+        $user = Auth::user();
+        if (! $user) {
+            return;
+        }
+
+        $userRole = $user->identifier;
+
+        $personalPk = (new FormPersonal)->getKeyName();
+        $requestPk  = (new FormRequest)->getKeyName();
+
+        $basePersonal = FormPersonal::query()
+            ->whereIn('applicant_type', ['ID Application', 'Encoded Application']);
+
+        if ($userRole == 1) { // ADMIN
+            $basePersonal->where('status', 'Under Final Review');
+        } elseif ($userRole == 2) { // STAFF
+            $basePersonal->where('status', 'Pending');
+        }
+
+        // Use cloned queries so count() and max() don't fight each other
+        $this->tabCounts['id']    = (clone $basePersonal)->count();
+        $this->tabLatestIds['id'] = (int) ((clone $basePersonal)->max($personalPk) ?? 0);
+
+        $requestTypes = [
+            'renewal'   => 'renewal',
+            'loss'      => 'loss',
+            'device'    => 'device',
+            'financial' => 'financial',
+            'booklet'   => 'booklet',
+        ];
+
+        foreach ($requestTypes as $key => $requestType) {
+            $baseRequest = FormRequest::query()
+                ->where('request_type', $requestType);
+
+            if ($userRole == 1) { // ADMIN
+                $baseRequest->where('status', 'Under Final Review');
+            } elseif ($userRole == 2) { // STAFF
+                $baseRequest->where('status', 'Pending');
+            }
+
+            $this->tabCounts[$key]    = (clone $baseRequest)->count();
+            $this->tabLatestIds[$key] = (int) ((clone $baseRequest)->max($requestPk) ?? 0);
+        }
+    }
+
+
+
+    protected function loadTabSeenCounts(): void
+    {
+        $staffId = Auth::id();
+        if (! $staffId) {
+            return;
+        }
+
+        // Start from defaults (all 0)
+        $seenLatest = $this->tabSeenLatestIds;
+
+        $rows = StaffTabView::where('staff_id', $staffId)->get();
+
+        foreach ($rows as $row) {
+            if (array_key_exists($row->tab_key, $seenLatest)) {
+                $seenLatest[$row->tab_key] = (int) $row->seen_count; // treat as last seen ID
+            }
+        }
+
+        $this->tabSeenLatestIds = $seenLatest;
+
+        // Ensure current default tab is considered "seen" on first ever visit
+        $currentTab = $this->appTab;
+
+        if (($this->tabSeenLatestIds[$currentTab] ?? 0) === 0) {
+            $this->tabSeenLatestIds[$currentTab] = $this->tabLatestIds[$currentTab] ?? 0;
+            $this->saveTabSeenCountFor($currentTab);
+        }
+    }
+
+
+    protected function saveTabSeenCountFor(string $tab): void
+    {
+        $staffId = Auth::id();
+        if (! $staffId) {
+            return;
+        }
+
+        $seenLatestId = $this->tabSeenLatestIds[$tab] ?? 0;
+
+        StaffTabView::updateOrCreate(
+            [
+                'staff_id' => $staffId,
+                'tab_key'  => $tab,
+            ],
+            [
+                'seen_count' => $seenLatestId,
+            ]
+        );
+    }
+
+    public function selectAppTab(string $tab): void
+    {
+        // Change active tab
+        $this->appTab = $tab;
+
+        // Refresh stats before marking as seen
+        $this->updateTabCounts();
+
+        if (isset($this->tabLatestIds[$tab])) {
+            // Staff has now seen up to this latest ID
+            $this->tabSeenLatestIds[$tab] = $this->tabLatestIds[$tab];
+            $this->saveTabSeenCountFor($tab);
+        }
+    }
+
+
 
     public function render(): View
     {
