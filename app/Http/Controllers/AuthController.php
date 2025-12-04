@@ -217,13 +217,48 @@ class AuthController extends Controller
         if (auth()->attempt($credentials)) {
             $user = auth()->user();
 
-            // Block if email not verified
             if (is_null($user->email_verified_at)) {
                 auth()->logout();
 
-                return back()->withErrors([
-                    'username' => 'Please verify your account using the code sent to your email.',
-                ]);
+                // Check if there is a still-valid OTP
+                $otp = DB::table('email_otps')
+                    ->where('email', $user->email)
+                    ->orderByDesc('id')
+                    ->first();
+
+                $needsNewOtp = true;
+
+                if ($otp) {
+                    $expired = Carbon::parse($otp->expires_at)->isPast();
+                    $tooManyAttempts = $otp->attempts >= 5;
+
+                    if (! $expired && ! $tooManyAttempts) {
+                        $needsNewOtp = false;
+                    }
+                }
+
+                if ($needsNewOtp) {
+                    $code = (string) random_int(100000, 999999);
+
+                    DB::table('email_otps')->insert([
+                        'email'      => $user->email,
+                        'code'       => $code,
+                        'expires_at' => now()->addMinutes(10),
+                        'attempts'   => 0,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    Mail::to($user->email)->send(new RegistrationOtpMail($code));
+
+                    $status = 'Your email is not yet verified. We sent you a new 6-digit code.';
+                } else {
+                    $status = 'Your email is not yet verified. Please enter the 6-digit code we sent you.';
+                }
+
+                return redirect()
+                    ->route('otp.show', ['email' => $user->email])
+                    ->with('status', $status);
             }
 
             // Block if account is deactivated
@@ -240,7 +275,7 @@ class AuthController extends Controller
                 return redirect()->route('home');
             }
 
-            // Not authorized (only staff/admin allowed here)
+            // Not authorized (only users allowed here)
             auth()->logout();
             return back()->withErrors([
                 'username' => 'You are not authorized to access this system.',
@@ -251,6 +286,7 @@ class AuthController extends Controller
             'username' => 'The provided credentials do not match our records.',
         ]);
     }
+
 
     public function showForgotPasswordForm()
     {
