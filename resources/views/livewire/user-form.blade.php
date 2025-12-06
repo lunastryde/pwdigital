@@ -78,14 +78,15 @@
                                 <label class="block text-sm font-medium text-gray-700">Type of Blood<span class="text-red-500"> *</span></label>
                                 <select wire:model.defer="blood_type" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value="">Select</option>
-                                    <option>O+</option>
-                                    <option>O-</option>
+                                    <option value="UNKNOWN">NOT YET TESTED</option>
                                     <option>A+</option>
                                     <option>A-</option>
                                     <option>B+</option>
                                     <option>B-</option>
                                     <option>AB+</option>
                                     <option>AB-</option>
+                                    <option>O+</option>
+                                    <option>O-</option>
                                 </select>
                             </div>
                             <div>
@@ -118,7 +119,7 @@
                                     <input type="radio" name="civil_status" class="accent-blue-600" value="Married" wire:model.defer="civil_status"> Married
                                 </label>
                                 <label class="inline-flex items-center gap-2">
-                                    <input type="radio" name="civil_status" class="accent-blue-600" value="Widowed" wire:model.defer="civil_status"> Widow/er
+                                    <input type="radio" name="civil_status" class="accent-blue-600" value="Widowed" wire:model.defer="civil_status"> Widowed / Widower
                                 </label>
                             </div>
                         </div>
@@ -128,7 +129,7 @@
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">House No.<span class="text-red-500"> *</span></label>
+                                    <label class="block text-sm font-medium text-gray-700">House No.</label>
                                     <input type="text" wire:model.defer="house_no" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
                                 </div>
                                 <div>
@@ -144,7 +145,6 @@
                                         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
                                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value="">Select Barangay</option>
-                                    <option value="ADRIALUNA">Adrialuna</option>
                                     <option value="BALITE">Balite</option>
                                     <option value="BARUYAN">Baruyan</option>
                                     <option value="BATINO">Batino</option>
@@ -382,12 +382,12 @@
                         <h3 class="text-sm font-medium text-gray-900 mb-3">Type of Employment <span class="text-red-500"> *</span></h3>
                         <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                             @foreach (['Permanent / Regular','Seasonal','Casual','Emergency'] as $opt)
-                                <label class="flex items-center gap-2 {{ $employment_status === 'Unemployed' ? 'opacity-60 cursor-not-allowed' : '' }}">
+                                <label class="flex items-center gap-2 {{ in_array($employment_status, ['Unemployed','Self-employed']) ? 'opacity-60 cursor-not-allowed' : '' }}">
                                     <input type="radio"
                                         class="accent-blue-600"
                                         value="{{ $opt }}"
                                         wire:model.defer="employment_type"
-                                        @if($employment_status === 'Unemployed') disabled @endif>
+                                        @if(in_array($employment_status, ['Unemployed','Self-employed'])) disabled @endif>
                                     {{ $opt }}
                                 </label>
                             @endforeach
@@ -398,26 +398,37 @@
                         <h3 class="text-sm font-medium text-gray-900 mb-3">Category of Employment <span class="text-red-500"> *</span></h3>
                         <div class="rounded-md border border-gray-200 p-4 space-y-3 text-sm text-gray-800">
                             @foreach (['Government','Private'] as $opt)
-                                <label class="flex items-center gap-2 {{ $employment_status === 'Unemployed' ? 'opacity-60 cursor-not-allowed' : '' }}">
+                                <label class="flex items-center gap-2 {{ in_array($employment_status, ['Unemployed','Self-employed']) ? 'opacity-60 cursor-not-allowed' : '' }}">
                                     <input type="radio"
                                         class="accent-blue-600"
                                         value="{{ $opt }}"
                                         wire:model.defer="employment_category"
-                                        @if($employment_status === 'Unemployed') disabled @endif>
+                                        @if(in_array($employment_status, ['Unemployed','Self-employed'])) disabled @endif>
                                     {{ $opt }}
                                 </label>
                             @endforeach
                         </div>
                     </div>
 
-
                     <div class="md:col-span-2">
-                        <h3 class="text-sm font-medium text-gray-900 mb-3">Occupation <span class="text-red-500"> *</span></h3>
+                        <h3 class="text-sm font-medium text-gray-900 mb-3">
+                            Occupation <span class="text-red-500"> *</span>
+                        </h3>
+
+                        {{-- Radio list --}}
                         <div class="rounded-md border border-gray-200 p-4 grid grid-cols-1 md:grid-cols-2 gap-y-3 text-sm text-gray-800">
                             @php
                                 $occups = [
-                                    'Manager','Professionals','Technician & Associate Professionals','Clerical Support','Service & Sales Workers',
-                                    'Skilled Agricultural, Forestry and Fishery Workers','Armed Forces Occupation','Elementary Occupation','Crafts & Related Trade Workers','Others, Specify'
+                                    'Manager',
+                                    'Professionals',
+                                    'Technician & Associate Professionals',
+                                    'Clerical Support',
+                                    'Service & Sales Workers',
+                                    'Skilled Agricultural, Forestry and Fishery Workers',
+                                    'Armed Forces Occupation',
+                                    'Elementary Occupation',
+                                    'Crafts & Related Trade Workers',
+                                    'Others, Specify',
                                 ];
                             @endphp
 
@@ -428,20 +439,25 @@
                                         value="{{ $opt }}"
                                         wire:model.live="occupation"
                                         @if($employment_status === 'Unemployed') disabled @endif>
-                                    {{ $opt }}
+                                    <span>{{ $opt }}</span>
                                 </label>
                             @endforeach
-
-                            <input type="text"
-                                placeholder="If Others, specify"
-                                wire:model.defer="occupation_other"
-                                @if($occupation !== 'Others, Specify') disabled @endif
-                                class="block w-full rounded-md border border-gray-300 px-3 py-2
-                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase
-                                    @if($occupation !== 'Others, Specify') bg-gray-100 cursor-not-allowed @endif"
-                            />
                         </div>
+
+                        {{-- Textbox appears ONLY when "Others, Specify" is selected --}}
+                        @if ($employment_status !== 'Unemployed' && $occupation === 'Others, Specify')
+                            <div class="mt-3">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Please specify occupation <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                    wire:model.defer="occupation_other"
+                                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
+                            </div>
+                        @endif
                     </div>
+
 
                     <div>
                         <h3 class="text-sm font-medium text-gray-900 mb-3">4P's Member <span class="text-red-500"> *</span></h3>

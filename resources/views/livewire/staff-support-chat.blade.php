@@ -53,13 +53,21 @@
                     >
                         <div class="flex justify-between items-start mb-1">
                             <span class="font-semibold text-gray-900 truncate pr-2">
-                                {{ $thread->user?->username ?? 'User #'.$thread->user_id }}
+                                @php
+                                    $fullName = $thread->user?->profile
+                                        ? trim(($thread->user->profile->fname ?? '') . ' ' . ($thread->user->profile->lname ?? ''))
+                                        : '';
+                                @endphp
+
+                                {{ $fullName !== '' 
+                                    ? $fullName 
+                                    : ($thread->user?->username ?? 'User #'.$thread->user_id) }}
                             </span>
                             <span class="text-[10px] font-medium px-2 py-0.5 rounded-full border {{ $statusColor }}">
                                 {{ ucfirst($thread->status) }}
                             </span>
                         </div>
-                        
+
                         <div class="flex justify-between items-end">
                             <span class="text-xs text-gray-500 truncate max-w-[120px]">
                                 {{ $thread->user?->email ?? 'No Email' }}

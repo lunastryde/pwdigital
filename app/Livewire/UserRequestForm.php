@@ -25,7 +25,7 @@ class UserRequestForm extends Component
     public $address;
 
     // Keep applicant_id so we can re-check locks anytime
-    public ?int $applicantId = null; // 🔹 NEW
+    public ?int $applicantId = null;
     
     // Booklet Request Fields
     public $booklet_type = null;
@@ -51,7 +51,6 @@ class UserRequestForm extends Component
 
     public function mount()
     {
-        // Only allow users with a FINALIZED (released) PWD ID
         $personal = FormPersonal::where('account_id', Auth::id())
             ->where('status', 'Finalized')
             ->whereNotNull('date_issued')
@@ -78,7 +77,6 @@ class UserRequestForm extends Component
             ($personal->province ? ', ' . $personal->province : '')
         );
 
-        // 🔹 compute the initial per-type locks
         $this->updateLockStates();
     }
 
@@ -159,7 +157,6 @@ class UserRequestForm extends Component
             return [false, null];
         }
 
-        // Any other unknown status → be safe and treat as locked
         return [
             true,
             "You already have an active {$label}. Please wait for it to be processed before submitting another."

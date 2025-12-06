@@ -26,6 +26,15 @@ class UserNotifications extends Component
 
     public function loadNotifications()
     {
+        Notification::whereNotNull('expires_at')
+            ->where('expires_at', '<', now())
+            ->delete();
+
+        Notification::where('is_read', 1)
+            ->whereNull('expires_at')
+            ->where('created_at', '<', now()->subMonths(3))
+            ->delete();
+
         $this->notifications = Notification::where('account_id', auth()->id())
             ->orderBy('created_at', 'DESC')
             ->get();

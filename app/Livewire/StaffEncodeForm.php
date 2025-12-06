@@ -180,10 +180,6 @@ class StaffEncodeForm extends Component
         }
     }
 
-    /**
-     * Generate a unique PWD number in the format 00-0000-000-0000000
-     * (same generator as UserForm, but used here for encoded applications).
-     */
     private function generateUniquePwdNumber(): string
     {
         do {
@@ -256,7 +252,6 @@ class StaffEncodeForm extends Component
             $this->summary_address = null;
         }
 
-        // 🔒 Check latest ID application for this account
         $latestApp = FormPersonal::where('account_id', $account->id)
             ->orderByDesc('submitted_at')
             ->orderByDesc('submitted_at')
@@ -358,7 +353,7 @@ class StaffEncodeForm extends Component
                 'gender'           => 'required|string',
                 'civil_status'     => 'required|string',
                 'blood_type'       => 'required|string',
-                'house_no'         => 'required|string|max:100',
+                'house_no'         => 'nullable|string|max:100',
                 'street'           => 'required|string|max:100',
                 'barangay'         => 'required|string|max:100',
                 'municipality'     => 'required|string|max:100',
@@ -380,10 +375,15 @@ class StaffEncodeForm extends Component
                 'four_ps_member'         => 'required|string|max:5',
             ];
 
-            if ($this->employment_status !== 'Unemployed') {
+            if ($this->employment_status === 'Employed') {
+                // Employed: require type + category + occupation
                 $rules['employment_type']     = 'required|string|max:100';
                 $rules['employment_category'] = 'required|string|max:100';
                 $rules['occupation']          = 'required|string|max:150';
+            } elseif ($this->employment_status === 'Self-employed') {
+                // Self-employed: occupation only
+                $rules['occupation'] = 'required|string|max:150';
+                // type + category stay optional (and are cleared/disabled anyway)
             }
 
             $this->validate($rules);
@@ -399,6 +399,7 @@ class StaffEncodeForm extends Component
                 return;
             }
         }
+
 
         if ($this->step < 3) {
             $this->step++;
@@ -433,10 +434,16 @@ class StaffEncodeForm extends Component
     public function updatedEmploymentStatus($value): void
     {
         if ($value === 'Unemployed') {
-            $this->employment_type    = '';
+            // Nothing should be filled for unemployed
+            $this->employment_type     = '';
             $this->employment_category = '';
             $this->occupation          = '';
             $this->occupation_other    = '';
+        } elseif ($value === 'Self-employed') {
+            // Self-employed: no type + no category
+            $this->employment_type     = '';
+            $this->employment_category = '';
+            // Keep occupation + occupation_other as is
         }
     }
 
@@ -461,13 +468,12 @@ class StaffEncodeForm extends Component
             'civil_status'     => 'required|string',
             'blood_type'       => 'required|string',
 
-            'house_no'         => 'required|string|max:100',
+            'house_no'         => 'nullable|string|max:100',
             'street'           => 'required|string|max:100',
             'barangay'         => 'required|string|max:100',
             'municipality'     => 'required|string|max:100',
             'province'         => 'required|string|max:100',
 
-            // 🔹 disability (to mirror UserForm)
             'disability_type'  => 'required|string',
             'disability_cause' => 'required|string',
 
@@ -484,10 +490,10 @@ class StaffEncodeForm extends Component
             'id_gsis'           => 'nullable|numeric|digits_between:10,12',
             'id_others_number'  => 'nullable|string|max:20',
 
-            // 🔹 Step 3 required (to mirror UserForm)
             'spouse_last'       => 'required|string|max:100',
             'spouse_first'      => 'required|string|max:100',
             'spouse_contact'    => 'required|string|max:50',
+
             'physician_last'     => 'required|string|max:100',
             'physician_first'    => 'required|string|max:100',
             'physician_middle'   => 'nullable|string|max:40',
@@ -503,6 +509,14 @@ class StaffEncodeForm extends Component
             (empty($this->id_others_type) || empty($this->id_others_number))
         ) {
             $this->addError('id_reference', 'Please provide at least one valid ID number.');
+            $this->step = 2;
+            return;
+        }
+
+        if ($this->occupation === 'Others, Specify'
+            && trim((string) $this->occupation_other) === ''
+        ) {
+            $this->addError('occupation_other', 'Please specify occupation.');
             $this->step = 2;
             return;
         }

@@ -167,13 +167,40 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Device Requested <span class="text-red-500"> *</span>
                             </label>
-                            <input type="text"
+
+                            @php
+                                $devices = [
+                                    'Wheelchair',
+                                    'Crutches',
+                                    'Cane',
+                                    'Walker',
+                                    'Hearing Aid',
+                                    'Braille Device',
+                                    'Communication Board',
+                                    'Visual Magnifier',
+                                ];
+                            @endphp
+
+                            <select
                                 wire:model.defer="device_requested"
-                                placeholder="e.g., Wheelchair, Hearing Aid, Crutches"
                                 @if($currentLocked) disabled @endif
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                        {{ $currentLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}">
-                            @error('device_requested') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md
+                                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                    {{ $currentLocked ? 'bg-gray-100 cursor-not-allowed' : '' }}"
+                            >
+                                <option value="">Select device</option>
+
+                                @foreach($devices as $dev)
+                                    {{-- show pretty label, save UPPERCASE value --}}
+                                    <option value="{{ strtoupper($dev) }}">
+                                        {{ $dev }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('device_requested')
+                                <span class="text-red-600 text-sm mt-1">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <div>

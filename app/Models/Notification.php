@@ -20,16 +20,18 @@ class Notification extends Model
         'is_read' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 
     protected $fillable = [
-        'account_id',     // FK to accounts_master (you named it account_id)
+        'account_id',
         'title',
         'message',
-        'type',           // e.g. id_finalized, request_finalized, id_expiring, etc.
-        'reference_id',     // polymorphic reference id (applicant_id or request_id)
-        'reference_type',  // table name: 'form_personal' or 'form_requests'
-        'is_read',        // tinyint/boolean
+        'type',
+        'reference_id',
+        'reference_type',
+        'is_read',
+        'expires_at',
     ];
 
     // fetch related model dynamically (helper)

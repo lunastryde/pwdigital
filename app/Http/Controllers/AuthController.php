@@ -24,16 +24,37 @@ class AuthController extends Controller
         $incomingData = $request->validate([
             'email'       => ['required', 'email', Rule::unique('accounts_master', 'email')],
             'username'    => ['required', Rule::unique('accounts_master', 'username')],
-            'password'    => ['required', 'min:6', 'max:20'],
+            'password'    => [
+                'required',
+                'string',
+                'min:8',
+                'max:64',
+                // at least 1 lowercase, 1 uppercase, 1 digit
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
+            ],
 
             'first_name'  => ['required', 'string', 'max:100'],
             'middle_name' => ['nullable', 'string', 'max:100'],
             'last_name'   => ['required', 'string', 'max:100'],
             'contact_no'  => ['required', 'string', 'max:50'],
+
+            // keep as string, we’ll uppercase before save
             'sex'         => ['required', 'string', 'max:10'],
 
             'date_of_birth' => ['required', 'date', 'before:today'],
+        ], [
+            'password.regex' => 'Password must have at least 8 characters, including 1 uppercase letter, 1 lowercase letter, and 1 number.',
         ]);
+
+        $incomingData['first_name'] = mb_strtoupper($incomingData['first_name'], 'UTF-8');
+        $incomingData['last_name']  = mb_strtoupper($incomingData['last_name'], 'UTF-8');
+
+        $incomingData['middle_name'] = !empty($incomingData['middle_name'])
+            ? mb_strtoupper($incomingData['middle_name'], 'UTF-8')
+            : null;
+
+        $incomingData['sex'] = mb_strtoupper($incomingData['sex'], 'UTF-8');
+
 
         // Compute age from DOB
         $dob = Carbon::parse($incomingData['date_of_birth']);
@@ -348,7 +369,16 @@ class AuthController extends Controller
         $data = $request->validate([
             'email'                 => ['required', 'email'],
             'token'                 => ['required', 'string'],
-            'password'              => ['required', 'min:6', 'max:20', 'confirmed'],
+            'password'              => [
+                'required',
+                'string',
+                'min:8',
+                'max:64',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
+            ],
+        ], [
+            'password.regex' => 'Password must have at least 8 characters, including 1 uppercase letter, 1 lowercase letter, and 1 number.',
         ]);
 
         // Find token record

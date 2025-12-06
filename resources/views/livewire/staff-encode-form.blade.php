@@ -204,7 +204,7 @@
                                 <option value="Separated">Separated</option>
                                 <option value="Cohabitation">Cohabitation (Live-in)</option>
                                 <option value="Married">Married</option>
-                                <option value="Widowed">Widow/er</option>
+                                <option value="Widowed">Widowed / Widower</option>
                             </select>
                             @error('civil_status') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                         </div>
@@ -232,7 +232,7 @@
                         <h4 class="text-sm font-semibold text-gray-800 mb-3">Address</h4>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">House No. <span class="text-red-500">*</span></label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">House No.</label>
                                 <input type="text" wire:model.defer="house_no"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md uppercase">
                                 @error('house_no') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
@@ -248,7 +248,6 @@
                                 <select wire:model.defer="barangay"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                     <option value="">Select Barangay</option>
-                                    <option value="ADRIALUNA">Adrialuna</option>
                                     <option value="BALITE">Balite</option>
                                     <option value="BARUYAN">Baruyan</option>
                                     <option value="BATINO">Batino</option>
@@ -424,7 +423,9 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Employment Status <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Employment Status <span class="text-red-500">*</span>
+                            </label>
                             <select wire:model.live="employment_status"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                 <option value="">Select</option>
@@ -432,66 +433,94 @@
                                 <option value="Unemployed">Unemployed</option>
                                 <option value="Self-employed">Self-employed</option>
                             </select>
-                            @error('employment_status') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                            @error('employment_status') 
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                            @enderror
                         </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Employment Type</label>
                             <select wire:model.defer="employment_type"
-                                    @if($employment_status === 'Unemployed') disabled @endif
+                                    @if(in_array($employment_status, ['Unemployed','Self-employed'])) disabled @endif
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md
-                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif">
+                                        @if(in_array($employment_status, ['Unemployed','Self-employed'])) bg-gray-100 cursor-not-allowed @endif">
                                 <option value="">Select</option>
                                 <option value="Permanent / Regular">Permanent / Regular</option>
                                 <option value="Seasonal">Seasonal</option>
                                 <option value="Casual">Casual</option>
                                 <option value="Emergency">Emergency</option>
                             </select>
-                            @error('employment_type') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                            @error('employment_type') 
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                            @enderror
                         </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Employment Category</label>
                             <select wire:model.defer="employment_category"
-                                    @if($employment_status === 'Unemployed') disabled @endif
+                                    @if(in_array($employment_status, ['Unemployed','Self-employed'])) disabled @endif
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md
-                                        @if($employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif">
+                                        @if(in_array($employment_status, ['Unemployed','Self-employed'])) bg-gray-100 cursor-not-allowed @endif">
                                 <option value="">Select</option>
                                 <option value="Government">Government</option>
                                 <option value="Private">Private</option>
                             </select>
-                            @error('employment_category') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                            @error('employment_category') 
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                            @enderror
                         </div>
                     </div>
 
+
                     {{-- Occupation --}}
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Occupation <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Occupation <span class="text-red-500">*</span>
+                        </label>
+
+                        {{-- Radio list --}}
                         <div class="rounded-md border border-gray-200 p-4 grid grid-cols-1 md:grid-cols-2 gap-y-3 text-sm text-gray-800">
                             @php
                                 $occups = [
-                                    'Manager','Professionals','Technician & Associate Professionals','Clerical Support','Service & Sales Workers',
-                                    'Skilled Agricultural, Forestry and Fishery Workers','Armed Forces Occupation','Elementary Occupation','Crafts & Related Trade Workers','Others, Specify'
+                                    'Manager',
+                                    'Professionals',
+                                    'Technician & Associate Professionals',
+                                    'Clerical Support',
+                                    'Service & Sales Workers',
+                                    'Skilled Agricultural, Forestry and Fishery Workers',
+                                    'Armed Forces Occupation',
+                                    'Elementary Occupation',
+                                    'Crafts & Related Trade Workers',
+                                    'Others, Specify',
                                 ];
                             @endphp
 
                             @foreach ($occups as $opt)
                                 <label class="flex items-center gap-2 {{ $employment_status === 'Unemployed' ? 'opacity-60 cursor-not-allowed' : '' }}">
                                     <input type="radio"
-                                           class="accent-blue-600"
-                                           value="{{ $opt }}"
-                                           wire:model.live="occupation"
-                                           @if($employment_status === 'Unemployed') disabled @endif>
-                                    {{ $opt }}
+                                        class="accent-blue-600"
+                                        value="{{ $opt }}"
+                                        wire:model.live="occupation"
+                                        @if($employment_status === 'Unemployed') disabled @endif>
+                                    <span>{{ $opt }}</span>
                                 </label>
                             @endforeach
-
-                            <input type="text"
-                                   placeholder="If Others, specify"
-                                   wire:model.defer="occupation_other"
-                                   @if($occupation !== 'Others, Specify' || $employment_status === 'Unemployed') disabled @endif
-                                   class="block w-full rounded-md border border-gray-300 px-3 py-2 uppercase
-                                        @if($occupation !== 'Others, Specify' || $employment_status === 'Unemployed') bg-gray-100 cursor-not-allowed @endif">
                         </div>
+
+                        {{-- Textbox appears ONLY when "Others, Specify" is selected and not Unemployed --}}
+                        @if ($employment_status !== 'Unemployed' && $occupation === 'Others, Specify')
+                            <div class="mt-3">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Please specify occupation <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                    wire:model.defer="occupation_other"
+                                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase" />
+                            </div>
+                        @endif
                     </div>
+
 
                     <div class="border-t pt-4 mt-2">
                         <h4 class="text-sm font-semibold text-gray-800 mb-3">Organization Information</h4>
@@ -671,7 +700,7 @@
                             class="px-3 py-2 border border-gray-300 rounded-md">
                     </div>
 
-                    {{-- Spouse / Guardian (required) --}}
+                    {{-- Spouse / Guardian --}}
                     <div class="grid grid-cols-5 gap-3 items-center">
                         <div class="text-sm font-medium text-gray-800">
                             Spouse / Guardian <span class="text-red-500">*</span>
@@ -686,7 +715,7 @@
                             class="px-3 py-2 border border-gray-300 rounded-md">
                     </div>
 
-                    {{-- Physician (required) --}}
+                    {{-- Physician --}}
                     <div class="grid grid-cols-5 gap-3 items-center">
                         <div class="text-sm font-medium text-gray-800">
                             Physician <span class="text-red-500">*</span>

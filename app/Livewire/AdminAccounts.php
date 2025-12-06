@@ -26,7 +26,6 @@ class AdminAccounts extends Component
 
     public $search = '';
 
-
     // UI state
     public $showCreateForm = false;
 
@@ -35,19 +34,44 @@ class AdminAccounts extends Component
     public bool $showDeactivateConfirm = false;
     public bool $showReactivateConfirm = false;
 
+    /**
+     * Custom messages (for password regex)
+     */
+    protected $messages = [
+        'password.regex' => 'Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, and one number.',
+    ];
+
     protected function rules()
     {
         return [
-            'email' => ['required', 'email', Rule::unique('accounts_master', 'email')],
-            'username' => ['required', 'min:3', Rule::unique('accounts_master', 'username')],
-            'password' => ['required', 'min:6', 'max:20'],
-            'password_confirmation' => ['required', 'same:password'],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('accounts_master', 'email'),
+            ],
+            'username' => [
+                'required',
+                'min:3',
+                Rule::unique('accounts_master', 'username'),
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'max:64',
+                // at least one lowercase, one uppercase, one digit
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
+            ],
+            'password_confirmation' => [
+                'required',
+                'same:password',
+            ],
             'first_name' => ['required', 'string', 'max:50'],
             'middle_name' => ['nullable', 'string', 'max:50'],
             'last_name' => ['required', 'string', 'max:50'],
             'contact_no' => ['required', 'string', 'max:15'],
             'sex' => ['required', 'in:Male,Female'],
-            'birthdate' => ['required', 'date', 'before:today']
+            'birthdate' => ['required', 'date', 'before:today'],
         ];
     }
 
@@ -62,36 +86,56 @@ class AdminAccounts extends Component
     {
         $incomingData = $this->validate();
 
+        // ---- UPPERCASE NORMALIZATION (names + sex) ----
+        $firstName  = mb_strtoupper($incomingData['first_name'], 'UTF-8');
+        $middleName = isset($incomingData['middle_name']) && $incomingData['middle_name'] !== ''
+            ? mb_strtoupper($incomingData['middle_name'], 'UTF-8')
+            : null;
+        $lastName   = mb_strtoupper($incomingData['last_name'], 'UTF-8');
+        $sexUpper   = mb_strtoupper($incomingData['sex'], 'UTF-8'); // MALE / FEMALE
+
         try {
             $user = User::create([
-                'email' => $incomingData['email'],
-                'username' => $incomingData['username'],
-                'password' => Hash::make($incomingData['password']),
+                'email'      => $incomingData['email'],
+                'username'   => $incomingData['username'],
+                'password'   => Hash::make($incomingData['password']),
                 'identifier' => 3,
-                'role' => 'user',
+                'role'       => 'user',
             ]);
 
             // AUTO-CALCULATE AGE
             $dob = Carbon::parse($incomingData['birthdate']);
             $age = $dob->age;
 
-            // Create profile
+            // Create profile (stored as UPPERCASE)
             $user->profile()->create([
-                'fname' => $incomingData['first_name'],
-                'mname' => $incomingData['middle_name'] ?? null,
-                'lname' => $incomingData['last_name'],
+                'fname'      => $firstName,
+                'mname'      => $middleName,
+                'lname'      => $lastName,
                 'contact_no' => $incomingData['contact_no'],
-                'sex' => $incomingData['sex'],
-
-                'birthdate'     => $incomingData['birthdate'],   // NEW
-                'age'           => $age,
+                'sex'        => $sexUpper,           // MALE / FEMALE
+                'birthdate'  => $incomingData['birthdate'],
+                'age'        => $age,
             ]);
 
             session()->flash('success', 'User account created successfully!');
 
-            $this->reset(['email','username','password','password_confirmation','first_name','middle_name','last_name','contact_no','sex']);
-            $this->showCreateForm = false;
+            // reset form fields including birthdate + age
+            $this->reset([
+                'email',
+                'username',
+                'password',
+                'password_confirmation',
+                'first_name',
+                'middle_name',
+                'last_name',
+                'contact_no',
+                'sex',
+                'birthdate',
+                'age',
+            ]);
 
+            $this->showCreateForm = false;
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to create account. Please try again.');
             \Log::error('Account creation error: ' . $e->getMessage());
@@ -169,7 +213,7 @@ class AdminAccounts extends Component
 
                 $query->where(function ($q) use ($term) {
                     $q->where('email', 'like', $term)
-                    ->orWhere('username', 'like', $term);
+                      ->orWhere('username', 'like', $term);
                 });
             })
             ->orderByDesc('created_at')
@@ -179,5 +223,4 @@ class AdminAccounts extends Component
             'accounts' => $accounts
         ]);
     }
-
 }

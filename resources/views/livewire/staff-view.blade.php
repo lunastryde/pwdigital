@@ -11,7 +11,6 @@
                 'encode' => 'Encode Form',
                 'admin' => 'Admin Panel',
                 'released' => 'Released ID',
-                'survey' => 'Survey',
                 'reports' => 'Report & Analytics',
             ];
         @endphp
@@ -112,9 +111,6 @@
 
                 <a wire:click="$set('section','released')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='released' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Released ID</span>
-                </a>
-                <a wire:click="$set('section','survey')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='survey' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
-                    <span>Survey</span>
                 </a>
                 <a wire:click="$set('section','reports')" class="flex items-center gap-3 px-3 py-2 rounded-md transition {{ $section==='reports' ? 'bg-white/10' : 'hover:bg-white/10' }}" href="#" onclick="return false;">
                     <span>Report & Analytics</span>
@@ -378,13 +374,6 @@
                     {{-- Released Tab --}}
                     <div class="bg-white rounded-2xl shadow p-6">
                         <livewire:id-released />
-                    </div>
-
-                @elseif ($section === 'survey')
-                    {{-- Survey Tab --}}
-                    <div class="bg-white rounded-2xl shadow p-6">
-                        <h3 class="text-xl font-semibold text-gray-800">Survey</h3>
-                        <p class="mt-2 text-gray-700">Survey placeholder.</p>
                     </div>
 
                 @elseif ($section === 'reports')

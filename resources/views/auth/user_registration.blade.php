@@ -82,7 +82,7 @@
                             type="text"
                             name="first_name"
                             value="{{ old('first_name') }}"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                             required
                             autocomplete="given-name"
                         />
@@ -100,7 +100,7 @@
                             name="middle_name"
                             value="{{ old('middle_name') }}"
                             placeholder="Optional"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                             autocomplete="additional-name"
                         />
                         @error('middle_name')
@@ -116,7 +116,7 @@
                             type="text"
                             name="last_name"
                             value="{{ old('last_name') }}"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                             required
                             autocomplete="family-name"
                         />
@@ -166,17 +166,17 @@
                     </div>
                     <div>
                         <label for="sex" class="block text-sm font-medium text-gray-700">
-                            Gender <span class="text-red-500">*</span>
+                            Sex <span class="text-red-500">*</span>
                         </label>
                         <select
                             id="sex"
                             name="sex"
-                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                             required
                         >
                             <option value="" disabled {{ old('sex') ? '' : 'selected' }}>Select gender</option>
-                            <option value="Male"   {{ old('sex') === 'Male' ? 'selected' : '' }}>Male</option>
-                            <option value="Female" {{ old('sex') === 'Female' ? 'selected' : '' }}>Female</option>
+                            <option value="MALE"   {{ old('sex') === 'MALE' ? 'selected' : '' }}>Male</option>
+                            <option value="FEMALE" {{ old('sex') === 'FEMALE' ? 'selected' : '' }}>Female</option>
                         </select>
                         @error('sex')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
@@ -197,13 +197,17 @@
                         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         required
                         autocomplete="new-password"
+                        minlength="8"
+                        pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}"
+                        title="At least 8 characters with 1 uppercase letter, 1 lowercase letter, and 1 number."
                     />
+                    <p class="mt-1 text-xs text-gray-500">
+                        Must be at least 8 characters with 1 uppercase letter, 1 lowercase letter, and 1 number.
+                    </p>
                     @error('password')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-
-                
 
                 <button
                     type="submit"

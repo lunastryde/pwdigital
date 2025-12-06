@@ -1,8 +1,8 @@
 <div>
     @if($showModal && $form)
-        <div class="fixed inset-0 bg-black/50 z-40"></div>
+        <div class="fixed inset-0 bg-black/50 z-30"></div>
 
-        <div class="fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div class="fixed inset-0 flex items-center justify-center z-40 p-4">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl overflow-auto">
                 <div class="flex items-center justify-between p-4 border-b">
                     <h3 class="text-lg font-semibold">
@@ -64,7 +64,7 @@
 
         {{-- Mayor editor modal --}}
         @if($showMayorEditor)
-            <div class="fixed inset-0 z-60 flex items-center justify-center bg-black/40">
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
                 <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">
                         Edit Mayor Details

@@ -459,7 +459,7 @@ class UserForm extends Component
                 'gender'           => 'required|string',
                 'civil_status'     => 'required|string',
                 'blood_type'       => 'required|string',
-                'house_no'         => 'required|string|max:100',
+                'house_no'         => 'nullable|string|max:100',
                 'street'           => 'required|string|max:100',
                 'barangay'         => 'required|string|max:100',
                 'municipality'     => 'required|string|max:100',
@@ -483,11 +483,15 @@ class UserForm extends Component
                 'four_ps_member'         => 'required|string|max:5',
             ];
 
-            // Only require these if not Unemployed
-            if ($this->employment_status !== 'Unemployed') {
-                $rules['employment_type']    = 'required|string|max:100';
+            if ($this->employment_status === 'Employed') {
+                // Employed: all 3 required
+                $rules['employment_type']     = 'required|string|max:100';
                 $rules['employment_category'] = 'required|string|max:100';
                 $rules['occupation']          = 'required|string|max:150';
+            } elseif ($this->employment_status === 'Self-employed') {
+                // Self-employed: only occupation required
+                $rules['occupation'] = 'required|string|max:150';
+                // type + category stay optional (and are cleared/disabled anyway)
             }
 
             $this->validate($rules);
@@ -591,7 +595,6 @@ class UserForm extends Component
             $this->gender,
             $this->civil_status,
             $this->blood_type,
-            $this->house_no,
             $this->street,
             $this->barangay,
             $this->municipality,
@@ -619,7 +622,8 @@ class UserForm extends Component
             return false;
         }
 
-        if ($this->employment_status !== 'Unemployed') {
+        if ($this->employment_status === 'Employed') {
+            // Employed: need type + category + occupation
             if (
                 trim($this->employment_type) === '' ||
                 trim($this->employment_category) === '' ||
@@ -627,12 +631,18 @@ class UserForm extends Component
             ) {
                 return false;
             }
-
-            if ($this->occupation === 'Others, Specify' &&
-                trim((string) $this->occupation_other) === ''
-            ) {
+        } elseif ($this->employment_status === 'Self-employed') {
+            // Self-employed: need occupation only
+            if (trim($this->occupation) === '') {
                 return false;
             }
+        }
+
+        // Extra rule for occupation "Others, Specify"
+        if ($this->occupation === 'Others, Specify' &&
+            trim((string) $this->occupation_other) === ''
+        ) {
+            return false;
         }
 
         $hasAnyId =
@@ -694,6 +704,22 @@ class UserForm extends Component
         return $pwdNumber;
     }
 
+    public function updatedEmploymentStatus($value): void
+    {
+        if ($value === 'Unemployed') {
+            // Nothing should be filled for unemployed
+            $this->employment_type     = '';
+            $this->employment_category = '';
+            $this->occupation          = '';
+            $this->occupation_other    = '';
+        } elseif ($value === 'Self-employed') {
+            // Self-employed: no type + no category
+            $this->employment_type     = '';
+            $this->employment_category = '';
+            // Keep occupation + occupation_other as is
+        }
+    }
+
     public function submit(): void
     {
 
@@ -733,7 +759,7 @@ class UserForm extends Component
             'civil_status'     => 'required|string',
             'blood_type'       => 'required|string',
 
-            'house_no'         => 'required|string|max:100',
+            'house_no'         => 'nullable|string|max:100',
             'street'           => 'required|string|max:100',
             'barangay'         => 'required|string|max:100',
             'municipality'     => 'required|string|max:100',
@@ -742,7 +768,6 @@ class UserForm extends Component
             'disability_type'  => 'required|string',
             'disability_cause' => 'required|string',
 
-            // Step 2 (some conditionally required, DB still accepts null)
             'educational_attainment' => 'required|string|max:100',
             'employment_status'      => 'required|string|max:100',
             'employment_type'        => 'nullable|string|max:100',
@@ -756,14 +781,13 @@ class UserForm extends Component
             'id_gsis'           => 'nullable|numeric|digits_between:10,12',
             'id_others_number'  => 'nullable|string|max:20',
 
-            // ✅ Step 3 required (father/mother still optional)
             'spouse_last'       => 'required|string|max:100',
             'spouse_first'      => 'required|string|max:100',
             'spouse_contact'    => 'required|string|max:50',
 
             'physician_last'       => 'required|string|max:100',
             'physician_first'      => 'required|string|max:100',
-            'physician_middle'     => 'nullable|string|max:100',
+            'physician_middle'     => 'nullable|string|max:40',
             'physician_contact'    => 'required|string|max:50',
         ]);
 
