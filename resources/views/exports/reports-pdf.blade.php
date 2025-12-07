@@ -19,7 +19,7 @@
             font-size: 11px;
             color: #374151; /* Gray-700 */
             line-height: 1.5;
-            padding-top: 10px; 
+            padding-top: 10px;
         }
 
         /* FIXED HEADER */
@@ -180,6 +180,23 @@
             '30to59'  => '30–59',
             '60plus'  => '60 and above',
         ];
+
+        $summary = $report['summary'] ?? [];
+        $age     = $report['age_distribution']   ?? ['labels' => [], 'values' => []];
+        $dev     = $report['device_requests']    ?? ['labels' => [], 'values' => []];
+        $cause   = $report['disability_cause']   ?? ['labels' => [], 'values' => []];
+        $loc     = $report['location_counts']    ?? ['labels' => [], 'values' => []];
+        $mt      = $report['monthly_trend']      ?? ['labels' => [], 'values' => [], 'periodLabel' => $periodLabel ?? ''];
+
+        // Default: if sections not passed for some reason, include everything
+        $sections = $sections ?? [
+            'summary'  => true,
+            'age'      => true,
+            'device'   => true,
+            'cause'    => true,
+            'location' => true,
+            'trend'    => true,
+        ];
     @endphp
 
     {{-- FIXED HEADER --}}
@@ -218,193 +235,186 @@
         System Generated Report | PDAO Information System | <span class="page-number"></span>
     </div>
 
-    {{-- CONTENT --}}
-    @php $summary = $report['summary'] ?? []; @endphp
+    {{-- 1. EXECUTIVE SUMMARY --}}
+    @if($sections['summary'] ?? false)
+        <div class="section">
+            <div class="section-title">Executive Summary</div>
 
-    {{-- 1. EXECUTIVE SUMMARY (TEXT LIST) --}}
-    <div class="section">
-        <div class="section-title">Executive Summary</div>
-        
-        {{-- Two-column layout for summary text --}}
-        <table style="width: 100%; border-spacing: 0;">
-            <tr>
-                <td style="width: 50%; vertical-align: top; padding-right: 20px;">
-                    <table class="summary-table">
-                        <tr>
-                            <td class="summary-label">Total Registered PWDs:</td>
-                            <td class="summary-value text-right">{{ number_format($summary['totalPwds'] ?? 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="summary-label">Total Finalized IDs:</td>
-                            <td class="summary-value text-right">{{ number_format($summary['totalFinalizedPwds'] ?? 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="summary-label">New Registrations:</td>
-                            <td class="summary-value text-right">{{ number_format($summary['newRegistrations'] ?? 0) }}</td>
-                        </tr>
-                    </table>
-                </td>
-                <td style="width: 50%; vertical-align: top; padding-left: 20px; border-left: 1px solid #e5e7eb;">
-                    <table class="summary-table">
-                        <tr>
-                            <td class="summary-label">Encoded Applications:</td>
-                            <td class="summary-value text-right">{{ number_format($summary['encodedApplications'] ?? 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="summary-label">Finalized ID Applications:</td>
-                            <td class="summary-value text-right">{{ number_format($summary['finalizedIdApplications'] ?? 0) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="summary-label">Finalized Financial Requests:</td>
-                            <td class="summary-value text-right">{{ number_format($summary['finalizedFinancialRequests'] ?? 0) }}</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    {{-- 2. APPLICATIONS BY CATEGORY --}}
-    <div class="section">
-        <div class="section-title">Applications by Category</div>
-        @php $cat = $report['applications_by_category'] ?? ['labels' => [], 'values' => []]; @endphp
-        <table class="styled-table">
-            <thead>
+            <table style="width: 100%; border-spacing: 0;">
                 <tr>
-                    <th style="width: 80%;">Category</th>
-                    <th style="width: 20%; text-align: right;">Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($cat['labels'] as $i => $label)
-                    <tr>
-                        <td>{{ $label }}</td>
-                        <td class="text-right">{{ number_format($cat['values'][$i] ?? 0) }}</td>
-                    </tr>
-                @empty
-                    <tr><td colspan="2" class="text-center">No data available</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    {{-- 3. DEMOGRAPHICS GRID (Side by Side Tables) --}}
-    <div class="section">
-        <table style="width: 100%; border-spacing: 0; border-collapse: collapse;">
-            <tr>
-                {{-- Gender Table --}}
-                <td style="width: 48%; vertical-align: top; padding-right: 10px;">
-                    <div class="section-title">Gender Distribution</div>
-                    @php $gd = $report['gender_distribution'] ?? ['labels' => [], 'values' => []]; @endphp
-                    <table class="styled-table">
-                        <thead>
+                    <td style="width: 50%; vertical-align: top; padding-right: 20px;">
+                        <table class="summary-table">
                             <tr>
-                                <th>Sex</th>
-                                <th class="text-right">Count</th>
+                                <td class="summary-label">Total Registered PWDs:</td>
+                                <td class="summary-value text-right">{{ number_format($summary['totalPwds'] ?? 0) }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($gd['labels'] as $i => $label)
-                                <tr>
-                                    <td>{{ $label }}</td>
-                                    <td class="text-right">{{ $gd['values'][$i] ?? 0 }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </td>
-                {{-- Status Table --}}
-                <td style="width: 48%; vertical-align: top; padding-left: 10px;">
-                    <div class="section-title">Status Breakdown</div>
-                    @php $st = $report['status_breakdown'] ?? ['labels' => [], 'values' => []]; @endphp
-                    <table class="styled-table">
-                        <thead>
                             <tr>
-                                <th>Status</th>
-                                <th class="text-right">Count</th>
+                                <td class="summary-label">Total Finalized IDs:</td>
+                                <td class="summary-value text-right">{{ number_format($summary['totalFinalizedPwds'] ?? 0) }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($st['labels'] as $i => $label)
-                                <tr>
-                                    <td>{{ $label }}</td>
-                                    <td class="text-right">{{ $st['values'][$i] ?? 0 }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    {{-- 4. DISABILITY TYPES --}}
-    <div class="section">
-        <div class="section-title">Top 10 Disability Types</div>
-        @php $ds = $report['disability_breakdown'] ?? ['labels' => [], 'values' => []]; @endphp
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th>Disability Type</th>
-                    <th class="text-right">Total Cases</th>
+                            <tr>
+                                <td class="summary-label">New Registrations:</td>
+                                <td class="summary-value text-right">{{ number_format($summary['newRegistrations'] ?? 0) }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td style="width: 50%; vertical-align: top; padding-left: 20px; border-left: 1px solid #e5e7eb;">
+                        <table class="summary-table">
+                            <tr>
+                                <td class="summary-label">Encoded Applications:</td>
+                                <td class="summary-value text-right">{{ number_format($summary['encodedApplications'] ?? 0) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="summary-label">Finalized ID Applications:</td>
+                                <td class="summary-value text-right">{{ number_format($summary['finalizedIdApplications'] ?? 0) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="summary-label">Finalized Financial Requests:</td>
+                                <td class="summary-value text-right">{{ number_format($summary['finalizedFinancialRequests'] ?? 0) }}</td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($ds['labels'] as $i => $label)
+            </table>
+        </div>
+    @endif
+
+    {{-- 2. AGE DISTRIBUTION --}}
+    @if($sections['age'] ?? false)
+        <div class="section">
+            <div class="section-title">Age Distribution</div>
+            <table class="styled-table">
+                <thead>
                     <tr>
-                        <td>{{ $label }}</td>
-                        <td class="text-right">{{ number_format($ds['values'][$i] ?? 0) }}</td>
+                        <th>Age Range</th>
+                        <th class="text-right">Count</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @forelse($age['labels'] as $i => $label)
+                        <tr>
+                            <td>{{ $label }}</td>
+                            <td class="text-right">{{ number_format($age['values'][$i] ?? 0) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center">No data available</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    {{-- 3. DEVICE REQUESTS --}}
+    @if($sections['device'] ?? false)
+        <div class="section">
+            <div class="section-title">Device Requests</div>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Device</th>
+                        <th class="text-right">Requests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($dev['labels'] as $i => $label)
+                        <tr>
+                            <td>{{ $label }}</td>
+                            <td class="text-right">{{ number_format($dev['values'][$i] ?? 0) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center">No data available</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    {{-- 4. COMMON CAUSES OF DISABILITY --}}
+    @if($sections['cause'] ?? false)
+        <div class="section">
+            <div class="section-title">Common Causes of Disability</div>
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Cause</th>
+                        <th class="text-right">Total Cases</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($cause['labels'] as $i => $label)
+                        <tr>
+                            <td>{{ $label }}</td>
+                            <td class="text-right">{{ number_format($cause['values'][$i] ?? 0) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center">No data available</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endif
 
     {{-- 5. LOCATION DATA --}}
-    <div class="section">
-        <div class="section-title">Applications by Barangay</div>
-        @php $loc = $report['location_counts'] ?? ['labels' => [], 'values' => []]; @endphp
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th>Barangay</th>
-                    <th class="text-right">Applications</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($loc['labels'] as $i => $label)
+    @if($sections['location'] ?? false)
+        <div class="section">
+            <div class="section-title">Applications by Barangay</div>
+            <table class="styled-table">
+                <thead>
                     <tr>
-                        <td>{{ $label }}</td>
-                        <td class="text-right">{{ number_format($loc['values'][$i] ?? 0) }}</td>
+                        <th>Barangay</th>
+                        <th class="text-right">Applications</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @forelse($loc['labels'] as $i => $label)
+                        <tr>
+                            <td>{{ $label }}</td>
+                            <td class="text-right">{{ number_format($loc['values'][$i] ?? 0) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center">No data available</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endif
 
     {{-- 6. TRENDS --}}
-    <div class="section">
-        <div class="section-title">
-            Monthly Trend ({{ $report['monthly_trend']['year'] ?? '' }})
-        </div>
-        @php $mt = $report['monthly_trend'] ?? ['labels' => [], 'values' => []]; @endphp
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th>Month</th>
-                    <th class="text-right">Submissions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($mt['labels'] as $i => $label)
+    @if($sections['trend'] ?? false)
+        <div class="section">
+            <div class="section-title">
+                Monthly Trend ({{ $mt['periodLabel'] ?? $periodLabel }})
+            </div>
+            <table class="styled-table">
+                <thead>
                     <tr>
-                        <td>{{ $label }}</td>
-                        <td class="text-right">{{ number_format($mt['values'][$i] ?? 0) }}</td>
+                        <th>Month</th>
+                        <th class="text-right">Submissions</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @forelse($mt['labels'] as $i => $label)
+                        <tr>
+                            <td>{{ $label }}</td>
+                            <td class="text-right">{{ number_format($mt['values'][$i] ?? 0) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center">No data available</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endif
 
 </body>
 </html>

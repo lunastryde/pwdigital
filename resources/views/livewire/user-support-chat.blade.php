@@ -1,5 +1,45 @@
 <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative flex flex-col h-[calc(100vh-140px)] min-h-[500px]">
-    
+   
+    @if($showDisclaimer)
+        <div class="absolute inset-0 z-30 flex items-center justify-center bg-black/40">
+            <div class="bg-white rounded-xl shadow-lg w-full max-w-lg mx-4 p-6 text-sm">
+                <h2 class="text-base font-semibold text-gray-900 mb-3">
+                    Chat Data Notice
+                </h2>
+
+                <p class="text-xs text-gray-700 mb-2">
+                    By using this chat feature, you understand and agree that:
+                </p>
+
+                <p class="text-xs text-gray-600 mb-2">
+                    Your messages and other information you submit through the chat will be collected and stored in this system’s database for system operation, improvement, and academic research purposes related to this thesis.
+                </p>
+
+                <p class="text-xs text-gray-600 mb-2">
+                    Chat records may be deleted by users or system administrators, and deleted messages may no longer be visible in the user interface. However, system backups or logs may retain copies for a limited period as part of normal system maintenance, unless and until they are permanently deleted.
+                </p>
+
+                <p class="text-xs text-gray-600 mb-2">
+                    Please do not share sensitive personal information (such as government ID numbers, passwords, financial information, or highly confidential data) through this chat. Any personal information you choose to provide will be processed in accordance with applicable data protection laws, including the Philippine Data Privacy Act of 2012, and only for the purposes described above.
+                </p>
+
+                <p class="text-xs text-gray-600 mb-4">
+                    This system is for research and educational use only and is provided “as is,” without any guarantee of continuous availability, accuracy of responses, or fitness for any particular professional or commercial use.
+                </p>
+
+                <div class="flex justify-end">
+                    <button
+                        type="button"
+                        wire:click="acknowledgeDisclaimer"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                        Yes, I understand
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+  
     {{-- 1. Header Section (Fixed Height) --}}
     <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0 z-10">
         <div class="flex items-center gap-3">

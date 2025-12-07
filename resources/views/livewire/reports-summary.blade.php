@@ -18,7 +18,7 @@
                 {{ number_format($summary['totalPwds'] ?? 0) }}
             </p>
             <p class="mt-1 text-[11px] text-gray-500">
-                All time
+                All time (age filter applied)
             </p>
         </div>
 
@@ -31,7 +31,7 @@
                 {{ number_format($summary['totalFinalizedPwds'] ?? 0) }}
             </p>
             <p class="mt-1 text-[11px] text-gray-500">
-                All time
+                All time (age filter applied)
             </p>
         </div>
 
@@ -74,36 +74,10 @@
             </p>
         </div>
 
-        {{-- Finalized Booklet Request (filtered) --}}
+        {{-- Finalized Financial Requests (filtered) --}}
         <div class="rounded-xl border border-gray-100 bg-white/80 p-4 shadow-sm">
             <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                Finalized Booklet Requests
-            </p>
-            <p class="mt-2 text-2xl font-semibold text-gray-900">
-                {{ number_format($summary['finalizedBookletRequests'] ?? 0) }}
-            </p>
-            <p class="mt-1 text-[11px] text-gray-500">
-                Within selected period
-            </p>
-        </div>
-
-        {{-- Finalized Device Request (filtered) --}}
-        <div class="rounded-xl border border-gray-100 bg-white/80 p-4 shadow-sm">
-            <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                Finalized Device Requests
-            </p>
-            <p class="mt-2 text-2xl font-semibold text-gray-900">
-                {{ number_format($summary['finalizedDeviceRequests'] ?? 0) }}
-            </p>
-            <p class="mt-1 text-[11px] text-gray-500">
-                Within selected period
-            </p>
-        </div>
-
-        {{-- Finalized Financial Request (filtered) --}}
-        <div class="rounded-xl border border-gray-100 bg-white/80 p-4 shadow-sm">
-            <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                Finalized Financial Requests
+                Finalized Financial Assistance
             </p>
             <p class="mt-2 text-2xl font-semibold text-gray-900">
                 {{ number_format($summary['finalizedFinancialRequests'] ?? 0) }}
@@ -111,6 +85,36 @@
             <p class="mt-1 text-[11px] text-gray-500">
                 Within selected period
             </p>
+        </div>
+
+        {{-- Total Registered PWDs by Barangay (all time) --}}
+        <div class="rounded-xl border border-gray-100 bg-white/80 p-4 shadow-sm lg:col-span-2">
+            <div class="flex items-start justify-between gap-2">
+                <div>
+                    <p class="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+                        Total Registered PWDs (Barangay)
+                    </p>
+                    <p class="mt-2 text-2xl font-semibold text-gray-900">
+                        {{ number_format($summary['totalPwdsByBarangay'] ?? 0) }}
+                    </p>
+                    <p class="mt-1 text-[11px] text-gray-500">
+                        All time, filtered by barangay
+                    </p>
+                </div>
+
+                <div>
+                    <select
+                        wire:model="barangayFilter"
+                        wire:change="refreshAllCharts"
+                        class="text-[11px] mt-1 px-2 py-1 border border-gray-200 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                        <option value="all">All</option>
+                        @foreach(($barangayOptions ?? []) as $barangay)
+                            <option value="{{ $barangay }}">{{ $barangay }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 </div>

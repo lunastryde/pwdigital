@@ -9,18 +9,42 @@ window.drawChart = (canvasId, chartData) => {
 
     const ctx = canvas.getContext('2d');
 
-    // Only destroy if it’s an actual Chart instance
+    // Destroy previous instance if it exists
     if (window[canvasId] instanceof Chart) {
         window[canvasId].destroy();
     }
 
+    // Start from any options passed from PHP
+    const baseOptions = chartData.options || {};
+
+    // Always make charts responsive
+    const mergedOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        ...baseOptions,
+    };
+
+    // ---- FORCE INTEGER TICKS (no .5) ----
+    mergedOptions.scales = mergedOptions.scales || {};
+
+    // If chart is horizontal (indexAxis: 'y'), numeric axis is X; otherwise Y
+    const numericAxisKey =
+        mergedOptions.indexAxis === 'y' ? 'x' : 'y';
+
+    mergedOptions.scales[numericAxisKey] =
+        mergedOptions.scales[numericAxisKey] || {};
+
+    mergedOptions.scales[numericAxisKey].ticks = {
+        ...(mergedOptions.scales[numericAxisKey].ticks || {}),
+        precision: 0,   // no decimal places
+        stepSize: 1,    // 0,1,2,3,... (no .5)
+    };
+    // -------------------------------------
+
     window[canvasId] = new Chart(ctx, {
         type: chartData.type ?? 'bar',
         data: chartData.data,
-        options: chartData.options ?? {
-            responsive: true,
-            maintainAspectRatio: false
-        }
+        options: mergedOptions,
     });
 };
 
@@ -38,10 +62,9 @@ document.addEventListener('livewire:navigated', () => {
         });
     };
 
-    bindChart('render-applications-chart', 'applicationsChart');
-    bindChart('render-status-chart', 'statusChart');
-    bindChart('render-gender-chart', 'genderChart');
-    bindChart('render-disability-chart', 'disabilityChart');
+    bindChart('render-age-chart', 'ageChart');
+    bindChart('render-device-chart', 'deviceChart');
+    bindChart('render-cause-chart', 'causeChart');
     bindChart('render-location-chart', 'locationChart');
     bindChart('render-trends-chart', 'trendsChart');
 });

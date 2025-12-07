@@ -18,6 +18,8 @@ class UserSupportChat extends Component
     public string $body = '';
     public $attachment = null; // Livewire temp uploaded file
 
+    public bool $showDisclaimer = false;
+
     public ?string $errorMessage = null;
     public bool $isResolved = false;
 
@@ -43,8 +45,13 @@ class UserSupportChat extends Component
         }
 
         $this->isResolved = $this->thread->status === 'resolved';
+
+        // Load existing messages
         $this->loadMessages();
+
+        $this->showDisclaimer = count($this->chatMessages) === 0;
     }
+
 
     public function loadMessages()
     {
@@ -65,11 +72,14 @@ class UserSupportChat extends Component
         }
     }
 
-
-    // Called by wire:poll
     public function refreshMessages()
     {
         $this->loadMessages();
+    }
+
+    public function acknowledgeDisclaimer()
+    {
+        $this->showDisclaimer = false;
     }
 
     public function sendMessage()
