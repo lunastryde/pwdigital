@@ -30,7 +30,7 @@
             right: 0;
             height: 80px;
             border-bottom: 2px solid #2563eb;
-            padding-bottom: 10px;
+            padding-bottom: 25px;
             background-color: white;
         }
 
@@ -118,12 +118,13 @@
         .styled-table thead tr {
             background-color: #2563eb; /* Header Blue */
             color: #ffffff;
-            text-align: left;
         }
 
         .styled-table th,
         .styled-table td {
             padding: 8px 12px;
+            text-align: center;       /* ⬅ center horizontally */
+            vertical-align: middle;   /* ⬅ center vertically in the row */
         }
 
         .styled-table tbody tr {
@@ -211,11 +212,12 @@
                     <div class="company-name">Persons with Disability Affairs Office</div>
                     <div style="font-size: 11px; margin-top:2px;">City of Calapan, Oriental Mindoro</div>
                 </td>
-                <td class="text-right" style="vertical-align: middle;">
+                <td class="text-center" style="vertical-align: middle;">
                     <div class="report-name">ANALYTICS REPORT</div>
                     <div class="meta-info">
                         <strong>Period:</strong> {{ $periodLabel }}<br>
                         <strong>Generated:</strong> {{ now()->format('M d, Y h:i A') }}<br>
+                        <strong>Exported by:</strong> {{ $exportedBy ?? 'Unknown User' }}<br>
                         @isset($filter)
                             <span class="badge">Filter: {{ ucfirst($filter) }}</span>
                         @endisset
@@ -246,15 +248,15 @@
                         <table class="summary-table">
                             <tr>
                                 <td class="summary-label">Total Registered PWDs:</td>
-                                <td class="summary-value text-right">{{ number_format($summary['totalPwds'] ?? 0) }}</td>
+                                <td class="summary-value text-center">{{ number_format($summary['totalPwds'] ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td class="summary-label">Total Finalized IDs:</td>
-                                <td class="summary-value text-right">{{ number_format($summary['totalFinalizedPwds'] ?? 0) }}</td>
+                                <td class="summary-value text-center">{{ number_format($summary['totalFinalizedPwds'] ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td class="summary-label">New Registrations:</td>
-                                <td class="summary-value text-right">{{ number_format($summary['newRegistrations'] ?? 0) }}</td>
+                                <td class="summary-value text-center">{{ number_format($summary['newRegistrations'] ?? 0) }}</td>
                             </tr>
                         </table>
                     </td>
@@ -262,15 +264,15 @@
                         <table class="summary-table">
                             <tr>
                                 <td class="summary-label">Encoded Applications:</td>
-                                <td class="summary-value text-right">{{ number_format($summary['encodedApplications'] ?? 0) }}</td>
+                                <td class="summary-value text-center">{{ number_format($summary['encodedApplications'] ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td class="summary-label">Finalized ID Applications:</td>
-                                <td class="summary-value text-right">{{ number_format($summary['finalizedIdApplications'] ?? 0) }}</td>
+                                <td class="summary-value text-center">{{ number_format($summary['finalizedIdApplications'] ?? 0) }}</td>
                             </tr>
                             <tr>
                                 <td class="summary-label">Finalized Financial Requests:</td>
-                                <td class="summary-value text-right">{{ number_format($summary['finalizedFinancialRequests'] ?? 0) }}</td>
+                                <td class="summary-value text-center">{{ number_format($summary['finalizedFinancialRequests'] ?? 0) }}</td>
                             </tr>
                         </table>
                     </td>
@@ -287,14 +289,14 @@
                 <thead>
                     <tr>
                         <th>Age Range</th>
-                        <th class="text-right">Count</th>
+                        <th class="text-center">Count</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($age['labels'] as $i => $label)
                         <tr>
                             <td>{{ $label }}</td>
-                            <td class="text-right">{{ number_format($age['values'][$i] ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($age['values'][$i] ?? 0) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -314,14 +316,14 @@
                 <thead>
                     <tr>
                         <th>Device</th>
-                        <th class="text-right">Requests</th>
+                        <th class="text-center">Requests</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($dev['labels'] as $i => $label)
                         <tr>
                             <td>{{ $label }}</td>
-                            <td class="text-right">{{ number_format($dev['values'][$i] ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($dev['values'][$i] ?? 0) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -341,14 +343,14 @@
                 <thead>
                     <tr>
                         <th>Cause</th>
-                        <th class="text-right">Total Cases</th>
+                        <th class="text-center">Total Cases</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($cause['labels'] as $i => $label)
                         <tr>
                             <td>{{ $label }}</td>
-                            <td class="text-right">{{ number_format($cause['values'][$i] ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($cause['values'][$i] ?? 0) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -368,14 +370,14 @@
                 <thead>
                     <tr>
                         <th>Barangay</th>
-                        <th class="text-right">Applications</th>
+                        <th class="text-center">Applications</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($loc['labels'] as $i => $label)
                         <tr>
                             <td>{{ $label }}</td>
-                            <td class="text-right">{{ number_format($loc['values'][$i] ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($loc['values'][$i] ?? 0) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -397,14 +399,14 @@
                 <thead>
                     <tr>
                         <th>Month</th>
-                        <th class="text-right">Submissions</th>
+                        <th class="text-center">Submissions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($mt['labels'] as $i => $label)
                         <tr>
                             <td>{{ $label }}</td>
-                            <td class="text-right">{{ number_format($mt['values'][$i] ?? 0) }}</td>
+                            <td class="text-center">{{ number_format($mt['values'][$i] ?? 0) }}</td>
                         </tr>
                     @empty
                         <tr>

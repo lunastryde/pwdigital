@@ -15,36 +15,45 @@
             </div>
 
             {{-- Section 2: Controls Toolbar --}}
-            <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
+            <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-end gap-3">
 
                 {{-- Filter Group --}}
-                <div class="flex items-center gap-2 p-1 bg-gray-50 border border-gray-200 rounded-lg">
+                <div class="flex flex-col sm:flex-row sm:items-end gap-3">
 
-                    {{-- Date Range --}}
-                    <div class="flex items-center gap-2">
-                        <input
-                            type="date"
-                            wire:model="startDate"
-                            wire:change="refreshAllCharts"
-                            class="px-2 py-1.5 text-sm text-gray-700 bg-transparent border-none rounded-md focus:ring-0 focus:bg-white cursor-pointer"
-                        />
-                        <span class="text-xs text-gray-400">to</span>
-                        <input
-                            type="date"
-                            wire:model="endDate"
-                            wire:change="refreshAllCharts"
-                            class="px-2 py-1.5 text-sm text-gray-700 bg-transparent border-none rounded-md focus:ring-0 focus:bg-white cursor-pointer"
-                        />
+                    <div class="flex flex-col gap-1 flex-1">
+                        <div class="flex justify-between px-1">
+                            <span class="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+                                Start Date
+                            </span>
+                            <span class="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+                                End Date
+                            </span>
+                        </div>
+
+                        {{-- Date range --}}
+                        <div class="flex items-center gap-2 p-1 bg-gray-50 border border-gray-200 rounded-lg">
+                            <input
+                                type="date"
+                                wire:model="startDate"
+                                wire:change="refreshAllCharts"
+                                class="px-2 py-1.5 text-sm text-gray-700 bg-transparent border-none rounded-md focus:ring-0 focus:bg-white cursor-pointer"
+                            />
+                            <span class="text-xs text-gray-400">to</span>
+                            <input
+                                type="date"
+                                wire:model="endDate"
+                                wire:change="refreshAllCharts"
+                                class="px-2 py-1.5 text-sm text-gray-700 bg-transparent border-none rounded-md focus:ring-0 focus:bg-white cursor-pointer"
+                            />
+                        </div>
                     </div>
 
-                    <div class="w-px h-4 bg-gray-300"></div>
-
-                    {{-- Age Filter --}}
+                    {{-- Age filter --}}
                     <div class="relative">
                         <select
                             wire:model="ageFilter"
                             wire:change="refreshAllCharts"
-                            class="pl-3 pr-8 py-1.5 text-sm text-gray-600 bg-transparent border-none rounded-md focus:ring-0 focus:bg-white cursor-pointer"
+                            class="pl-3 pr-8 py-1.5 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg focus:ring-0 focus:bg-white cursor-pointer"
                         >
                             @foreach($ageOptions as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
@@ -52,6 +61,7 @@
                         </select>
                     </div>
                 </div>
+
 
                 {{-- Divider on Desktop --}}
                 <div class="hidden sm:block w-px h-8 bg-gray-200 mx-1"></div>

@@ -25,6 +25,7 @@
     ];
 
     $ageFilterLabel = $ageFilter ? ($ageLabelMap[$ageFilter] ?? $ageFilter) : 'All Ages';
+    $exporterLabel  = $exportedBy ?? 'System';
 @endphp
 
 {{-- Main Layout Table --}}
@@ -65,8 +66,8 @@
             <td>{{ now()->format('F d, Y h:i A') }}</td>
         </tr>
         <tr>
-            <td>Date Filter Mode</td>
-            <td>{{ isset($filter) ? ucfirst($filter) : 'Range' }}</td>
+            <td>Exported By</td>
+            <td>{{ $exporterLabel }}</td>
         </tr>
         <tr>
             <td>Demographic Filter</td>
@@ -108,14 +109,6 @@
             <tr>
                 <td>Finalized ID Applications</td>
                 <td>{{ $summary['finalizedIdApplications'] ?? 0 }}</td>
-            </tr>
-            <tr>
-                <td>Finalized Booklet Requests</td>
-                <td>{{ $summary['finalizedBookletRequests'] ?? 0 }}</td>
-            </tr>
-            <tr>
-                <td>Finalized Device Requests</td>
-                <td>{{ $summary['finalizedDeviceRequests'] ?? 0 }}</td>
             </tr>
             <tr>
                 <td>Finalized Financial Requests</td>

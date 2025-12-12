@@ -7,6 +7,7 @@ use App\Models\FormRequest;
 use App\Models\FormRequestDevice;
 use App\Models\FormPersonal;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -14,8 +15,6 @@ use App\Exports\ReportsExport;
 
 class ReportsCharts extends Component
 {
-    public string $timeFilter = 'range';
-
     public string $ageBarangayFilter = 'all';
     public string $deviceBarangayFilter = 'all';
     public string $causeBarangayFilter = 'all';
@@ -56,22 +55,9 @@ class ReportsCharts extends Component
 
     public function mount()
     {
-        // Determine min year from data (form_requests + form_personal) – kept for potential future use
-        $minReqYear = FormRequest::min(DB::raw('YEAR(submitted_at)')) ?? now()->year;
-        $minPerYear = FormPersonal::min(DB::raw('YEAR(submitted_at)')) ?? now()->year;
-        $minYear    = min($minReqYear, $minPerYear);
-
-        $currentYear = now()->year;
-
-        $this->years         = range($minYear, $currentYear);
-        $this->selectedYear  = $currentYear;
-        $this->selectedMonth = now()->month;
-
-        // NEW: default date range = current month
         $this->startDate = now()->copy()->startOfMonth()->toDateString(); // Y-m-d
         $this->endDate   = now()->copy()->endOfMonth()->toDateString();   // Y-m-d
 
-        // NEW: barangay options for the summary card dropdown
         $this->barangayOptions = FormPersonal::select('barangay')
             ->whereNotNull('barangay')
             ->distinct()
@@ -116,7 +102,7 @@ class ReportsCharts extends Component
             ->whereIn('status', $openStatuses)
             ->count();
 
-        // Requests (no age column, so age filter does NOT apply here)
+        // Requests
         $requestsInRange = FormRequest::whereBetween('submitted_at', [$start, $end]);
 
         $openRequests = (clone $requestsInRange)
@@ -135,16 +121,6 @@ class ReportsCharts extends Component
             ->whereIn('applicant_type', ['ID Application', 'Encoded Application'])
             ->count();
 
-        $finalizedBookletRequests = (clone $requestsInRange)
-            ->where('status', 'Finalized')
-            ->where('request_type', 'booklet')
-            ->count();
-
-        $finalizedDeviceRequests = (clone $requestsInRange)
-            ->where('status', 'Finalized')
-            ->where('request_type', 'device')
-            ->count();
-
         $finalizedFinancialRequests = (clone $requestsInRange)
             ->where('status', 'Finalized')
             ->where('request_type', 'financial')
@@ -161,8 +137,6 @@ class ReportsCharts extends Component
             'openApplications'           => $openApplications,
             'encodedApplications'        => $encodedApplications,
             'finalizedIdApplications'    => $finalizedIdApplications,
-            'finalizedBookletRequests'   => $finalizedBookletRequests, // kept for exports / future use
-            'finalizedDeviceRequests'    => $finalizedDeviceRequests,  // kept for exports / future use
             'finalizedFinancialRequests' => $finalizedFinancialRequests,
         ];
     }
@@ -221,9 +195,6 @@ class ReportsCharts extends Component
         return [$start, $end];
     }
 
-    /**
-     * Human-readable label for the current period (used in views & exports).
-     */
     protected function periodLabel(): string
     {
         [$start, $end] = $this->getDateRange();
@@ -231,9 +202,6 @@ class ReportsCharts extends Component
         return $start->format('M d, Y') . ' – ' . $end->format('M d, Y');
     }
 
-    /**
-     * Main entry: compute everything + dispatch chart events.
-     */
     public function refreshAllCharts(): void
     {
         [$start, $end] = $this->getDateRange();
@@ -243,9 +211,6 @@ class ReportsCharts extends Component
         // Summary cards data
         $this->reportData['summary'] = $this->buildSummaryData($start, $end);
 
-        $this->applicationsByCategory($start, $end);
-        $this->statusBreakdown($start, $end);
-
         $this->ageDistribution($start, $end);
         $this->deviceRequestsChart($start, $end);
         $this->disabilityCauseChart($start, $end);
@@ -254,87 +219,11 @@ class ReportsCharts extends Component
     }
 
     /* 1. */
-    protected function applicationsByCategory(Carbon $start, Carbon $end): void
-    {
-        // PWD ID applications
-        $personalBase = $this->applyAgeFilterToPersonal(
-            FormPersonal::whereBetween('submitted_at', [$start, $end])
-        );
-
-        $pwdIdCount = (clone $personalBase)
-            ->whereIn('applicant_type', ['ID Application', 'Encoded Application'])
-            ->count();
-
-        // Other categories (Booklets, Devices, Financial) come from form_requests
-        $reqBase = FormRequest::whereBetween('submitted_at', [$start, $end]);
-
-        $bookletCount   = (clone $reqBase)->where('request_type', 'booklet')->count();
-        $deviceCount    = (clone $reqBase)->where('request_type', 'device')->count();
-        $financialCount = (clone $reqBase)->where('request_type', 'financial')->count();
-
-        $labels = ['PWD ID', 'Booklets', 'Devices', 'Financial'];
-        $values = [
-            $pwdIdCount,
-            $bookletCount,
-            $deviceCount,
-            $financialCount,
-        ];
-
-        $this->reportData['applications_by_category'] = [
-            'labels' => $labels,
-            'values' => $values,
-        ];
-
-        // No dispatch here anymore (chart removed from UI)
-    }
-
-    /* 2. */
-    protected function statusBreakdown(Carbon $start, Carbon $end): void
-    {
-        $pendingStatuses  = ['Pending', 'Under Final Review'];
-        $approvedStatuses = ['Finalized'];
-        $rejectedStatuses = ['Rejected', 'Needs Revision'];
-
-        $personalBase = $this->applyAgeFilterToPersonal(
-            FormPersonal::query()
-        )->whereBetween('submitted_at', [$start, $end]);
-
-        $personalRows = (clone $personalBase)
-            ->select('status', DB::raw('COUNT(*) as total'))
-            ->groupBy('status')
-            ->get();
-
-        $requestRows = FormRequest::select('status', DB::raw('COUNT(*) as total'))
-            ->whereBetween('submitted_at', [$start, $end])
-            ->groupBy('status')
-            ->get();
-
-        $pending = $personalRows->whereIn('status', $pendingStatuses)->sum('total')
-            + $requestRows->whereIn('status', $pendingStatuses)->sum('total');
-
-        $approved = $personalRows->whereIn('status', $approvedStatuses)->sum('total')
-            + $requestRows->whereIn('status', $approvedStatuses)->sum('total');
-
-        $rejected = $personalRows->whereIn('status', $rejectedStatuses)->sum('total')
-            + $requestRows->whereIn('status', $rejectedStatuses)->sum('total');
-
-        $labels = ['Pending', 'Approved', 'Rejected'];
-        $values = [$pending, $approved, $rejected];
-
-        $this->reportData['status_breakdown'] = [
-            'labels' => $labels,
-            'values' => $values,
-        ];
-
-        // No dispatch here anymore (chart removed from UI)
-    }
-
-    /* 3. */
     protected function ageDistribution(Carbon $start, Carbon $end): void
     {
         $query = $this->applyAgeFilterToPersonal(
             FormPersonal::whereBetween('submitted_at', [$start, $end])
-        );
+        )->where('status', 'Finalized');
 
         // Optional barangay filter for this chart only
         if ($this->ageBarangayFilter !== 'all') {
@@ -406,7 +295,7 @@ class ReportsCharts extends Component
     }
 
 
-    /* 4. */
+    /* 2. */
     protected function deviceRequestsChart(Carbon $start, Carbon $end): void
     {
         $deviceTable   = (new FormRequestDevice())->getTable();
@@ -417,6 +306,7 @@ class ReportsCharts extends Component
             ->join($requestTable, $requestTable . '.request_id', '=', $deviceTable . '.request_id')
             ->join($personalTable, $personalTable . '.applicant_id', '=', $requestTable . '.applicant_id')
             ->where($requestTable . '.request_type', 'device')
+            ->where($requestTable . '.status', 'Finalized')
             ->whereBetween($requestTable . '.submitted_at', [$start, $end])
             ->whereNotNull($deviceTable . '.device_requested');
 
@@ -461,13 +351,14 @@ class ReportsCharts extends Component
         $this->dispatch('render-device-chart', $chartData);
     }
 
-    /* 5. */
+    /* 3. */
     protected function disabilityCauseChart(Carbon $start, Carbon $end): void
     {
         $query = $this->applyAgeFilterToPersonal(
             FormPersonal::select('disability_cause', DB::raw('COUNT(*) as total'))
         )
-        ->whereBetween('submitted_at', [$start, $end]);
+        ->whereBetween('submitted_at', [$start, $end])
+        ->where('status', 'Finalized');
 
         // Optional barangay filter for this chart only
         if ($this->causeBarangayFilter !== 'all') {
@@ -508,13 +399,14 @@ class ReportsCharts extends Component
         $this->dispatch('render-cause-chart', $chartData);
     }
 
-    /* 6. Application counts by location (barangay) – kept */
+    /* 4. */
     protected function locationCounts(Carbon $start, Carbon $end): void
     {
         $rows = $this->applyAgeFilterToPersonal(
             FormPersonal::select('barangay', DB::raw('COUNT(*) as total'))
         )
         ->whereBetween('submitted_at', [$start, $end])
+        ->where('status', 'Finalized')
         ->groupBy('barangay')
         ->orderByDesc('total')
         ->limit(10)
@@ -547,7 +439,7 @@ class ReportsCharts extends Component
         $this->dispatch('render-location-chart', $chartData);
     }
 
-    /* 7. Monthly submission trends (Line, ALL application types for chosen date range) */
+    /* 5. */
     protected function monthlyTrend(Carbon $start, Carbon $end): void
     {
         // Aggregate personal applications by year-month within the date range
@@ -558,6 +450,7 @@ class ReportsCharts extends Component
             )
         )
         ->whereBetween('submitted_at', [$start, $end])
+        ->where('status', 'Finalized')
         ->groupBy(DB::raw('DATE_FORMAT(submitted_at, "%Y-%m")'))
         ->get();
 
@@ -567,6 +460,7 @@ class ReportsCharts extends Component
                 DB::raw('COUNT(*) as total')
             )
             ->whereBetween('submitted_at', [$start, $end])
+            ->where('status', 'Finalized')
             ->groupBy(DB::raw('DATE_FORMAT(submitted_at, "%Y-%m")'))
             ->get();
 
@@ -623,7 +517,7 @@ class ReportsCharts extends Component
         $this->dispatch('render-trends-chart', $chartData);
     }
 
-    /* ---------- EXPORTS AREA ---------- */
+    /* ------------------------------ EXPORTS AREA ------------------------------ */
 
     public function startExport(string $format = 'pdf'): void
     {
@@ -650,18 +544,47 @@ class ReportsCharts extends Component
         return $this->exportPdf();
     }
 
+    protected function getExporterName(): string
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return 'System';
+        }
+
+        $profile = $user->profile;
+
+        $parts = array_filter([
+            $profile->fname ?? null,
+            $profile->mname ?? null,
+            $profile->lname ?? null,
+        ]);
+
+        if (!empty($parts)) {
+            return implode(' ', $parts);
+        }
+
+        if (!empty($user->name)) {
+            return $user->name;
+        }
+
+        if (!empty($user->username)) {
+            return $user->username;
+        }
+
+        return 'Unknown User';
+    }
 
     public function exportPdf()
     {
-        // Always recalc based on current filters
         $this->refreshAllCharts();
 
         $data = [
             'periodLabel' => $this->periodLabel(),
-            'filter'      => $this->timeFilter, // now always "range" unless changed manually
             'ageFilter'   => $this->ageFilter,
             'report'      => $this->reportData,
-            'sections'    => $this->exportSections, // 👈 NEW
+            'sections'    => $this->exportSections,
+            'exportedBy'  => $this->getExporterName(),
         ];
 
         $pdf = Pdf::loadView('exports.reports-pdf', $data)
@@ -669,26 +592,25 @@ class ReportsCharts extends Component
 
         return response()->streamDownload(
             fn () => print($pdf->output()),
-            'pdao-reports-' . $this->timeFilter . '-' . $this->periodLabel() . '.pdf'
+            'pdao-reports-' . $this->periodLabel() . '.pdf'
         );
     }
 
     public function exportExcel()
     {
-        // Always recalc based on current filters
         $this->refreshAllCharts();
 
         $data = [
             'periodLabel' => $this->periodLabel(),
-            'filter'      => $this->timeFilter,
             'ageFilter'   => $this->ageFilter,
             'report'      => $this->reportData,
-            'sections'    => $this->exportSections, // 👈 NEW
+            'sections'    => $this->exportSections,
+            'exportedBy'  => $this->getExporterName(),
         ];
 
         return Excel::download(
             new ReportsExport($data),
-            'pdao-reports-' . $this->timeFilter . '-' . $this->periodLabel() . '.xlsx'
+            'pdao-reports-' . $this->periodLabel() . '.xlsx'
         );
     }
 
